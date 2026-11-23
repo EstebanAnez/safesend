@@ -15,12 +15,12 @@
 
 ### Holdout v1 freeze
 
-| Item          | Value                                                              |
-| ------------- | ------------------------------------------------------------------ |
-| Freeze commit | `5d2547ba8a8f3bc2f1abec689239b1ed864b46cf`                         |
-| File          | `eval/holdout/cases.json`                                          |
-| sha256        | `f8714c1802da0024e8f2b1d2241e379713dba5ce09e963396f9b4a92ad5d980e` |
-| Written       | 2026-11-23, before any evaluation code existed                     |
+| Item          | Value                                                                |
+| ------------- | -------------------------------------------------------------------- |
+| Freeze commit | `5d2547ba8a8f3bc2f1abec689239b1ed864b46cf` (tag `holdout-v1-frozen`) |
+| File          | `eval/holdout/cases.json`                                            |
+| sha256        | `f8714c1802da0024e8f2b1d2241e379713dba5ce09e963396f9b4a92ad5d980e`   |
+| Written       | 2026-11-23, before any evaluation code existed                       |
 
 The cases were written from threat descriptions:
 
