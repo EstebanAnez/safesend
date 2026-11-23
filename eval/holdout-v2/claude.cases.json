@@ -1,0 +1,331 @@
+{
+  "cases": [
+    {
+      "id": "V2-C01",
+      "label": "attack",
+      "title": "Three lookalike variants of Lucía planted at once; she picks the middle one",
+      "rationale": "Attackers spray several variants so at least one sits near the top of history whatever the wallet sorts by.",
+      "sources": ["CMU arXiv 2501.16681"],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        {
+          "block": 3101,
+          "from": "lookalike:lucia:4:4:c01a",
+          "to": "me",
+          "amount": "0.001",
+          "signer": "lookalike:lucia:4:4:c01a"
+        },
+        {
+          "block": 3102,
+          "from": "lookalike:lucia:3:5:c01b",
+          "to": "me",
+          "amount": "0.001",
+          "signer": "lookalike:lucia:3:5:c01b"
+        },
+        {
+          "block": 3103,
+          "from": "lookalike:lucia:5:3:c01c",
+          "to": "me",
+          "amount": "0.001",
+          "signer": "lookalike:lucia:5:3:c01c"
+        }
+      ],
+      "send": { "to": "lookalike:lucia:3:5:c01b", "amount": "45", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-C02",
+      "label": "attack",
+      "title": "Lookalike planted months before it is used",
+      "rationale": "Poisoned entries persist; the victim may copy it long after the planting, when it no longer looks recent.",
+      "sources": ["CMU arXiv 2501.16681"],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        {
+          "block": 1101,
+          "from": "me",
+          "to": "lookalike:lucia:4:5:c02",
+          "amount": "0",
+          "signer": "attacker"
+        }
+      ],
+      "send": { "to": "lookalike:lucia:4:5:c02", "amount": "40", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-C03",
+      "label": "attack",
+      "title": "Zero-value lookalike of her exchange deposit address",
+      "rationale": "People move funds to their own exchange account regularly; attackers poison that destination.",
+      "sources": ["Scam Sniffer via Cointelegraph, Feb 2026"],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        { "block": 3300, "from": "me", "to": "exchange", "amount": "200", "signer": "me" },
+        { "block": 3400, "from": "me", "to": "exchange", "amount": "150", "signer": "me" },
+        {
+          "block": 3401,
+          "from": "me",
+          "to": "lookalike:exchange:4:4:c03",
+          "amount": "0",
+          "signer": "attacker"
+        }
+      ],
+      "send": { "to": "lookalike:exchange:4:4:c03", "amount": "300", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-C04",
+      "label": "attack",
+      "title": "Counterfeit token named \"USD Coin\" from a landlord lookalike",
+      "rationale": "Counterfeits may use the full token name rather than the ticker.",
+      "sources": ["CMU arXiv 2501.16681"],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        {
+          "block": 3201,
+          "from": "lookalike:landlord:4:4:c04",
+          "to": "me",
+          "amount": "250",
+          "signer": "attacker",
+          "token": { "fake": "USD Coin" }
+        }
+      ],
+      "send": { "to": "lookalike:landlord:4:4:c04", "amount": "250", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-C05",
+      "label": "attack",
+      "title": "\"My address changed\" message with a 5/5 lookalike of Lucía, large amount",
+      "rationale": "Impersonation off-chain: a hacked or spoofed chat account sends a new address that looks like the old one.",
+      "sources": ["Scam Sniffer via Cointelegraph, Feb 2026"],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "send": { "to": "lookalike:lucia:5:5:c05", "amount": "500", "pickedFrom": "pasted" }
+    },
+    {
+      "id": "V2-C06",
+      "label": "attack",
+      "title": "Dust lookalike of a cousin who paid her twice; she returns the money",
+      "rationale": "People who send you money are people you will pay back, so attackers imitate them too.",
+      "sources": ["CMU arXiv 2501.16681"],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        { "block": 3300, "from": "cousin", "to": "me", "amount": "80", "signer": "cousin" },
+        { "block": 3500, "from": "cousin", "to": "me", "amount": "60", "signer": "cousin" },
+        {
+          "block": 3501,
+          "from": "lookalike:cousin:4:4:c06",
+          "to": "me",
+          "amount": "0.002",
+          "signer": "lookalike:cousin:4:4:c06"
+        }
+      ],
+      "send": { "to": "lookalike:cousin:4:4:c06", "amount": "140", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-C07",
+      "label": "attack",
+      "title": "Small send to a dust lookalike that matches only the last 5 characters and the first 2",
+      "rationale": "Many users only check the end of an address.",
+      "sources": ["CMU arXiv 2501.16681"],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        {
+          "block": 3101,
+          "from": "lookalike:lucia:2:5:c07",
+          "to": "me",
+          "amount": "0.001",
+          "signer": "lookalike:lucia:2:5:c07"
+        }
+      ],
+      "send": { "to": "lookalike:lucia:2:5:c07", "amount": "15", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-C08",
+      "label": "attack",
+      "title": "Lookalike of a new friend appears right after her 2 USDC test send",
+      "rationale": "Attackers watch for small first transfers to new addresses.",
+      "sources": ["CMU arXiv 2501.16681"],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        { "block": 4000, "from": "me", "to": "friend", "amount": "2", "signer": "me" },
+        {
+          "block": 4001,
+          "from": "me",
+          "to": "lookalike:friend:3:4:c08",
+          "amount": "0",
+          "signer": "attacker"
+        }
+      ],
+      "testSends": [{ "to": "friend", "block": 4000, "amount": "2" }],
+      "send": { "to": "lookalike:friend:3:4:c08", "amount": "150", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-C09",
+      "label": "attack",
+      "title": "Lookalike of the employer who pays her monthly, in a reimbursement",
+      "rationale": "Repeated inbound payers are high-value imitation targets.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        { "block": 1050, "from": "employer", "to": "me", "amount": "600", "signer": "employer" },
+        { "block": 2050, "from": "employer", "to": "me", "amount": "600", "signer": "employer" },
+        { "block": 3050, "from": "employer", "to": "me", "amount": "600", "signer": "employer" },
+        {
+          "block": 3051,
+          "from": "lookalike:employer:3:4:c09",
+          "to": "me",
+          "amount": "0.001",
+          "signer": "lookalike:employer:3:4:c09"
+        }
+      ],
+      "send": { "to": "lookalike:employer:3:4:c09", "amount": "20", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-C10",
+      "label": "attack",
+      "title": "History unavailable; she pastes a 3/4 lookalike of the landlord",
+      "rationale": "Outages should not disable lookalike protection for past recipients... but past recipients come from history, so this probes a dependency.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": false,
+      "historyAvailable": false,
+      "send": { "to": "lookalike:landlord:3:4:c10", "amount": "250", "pickedFrom": "pasted" }
+    },
+    {
+      "id": "V2-C11",
+      "label": "legit",
+      "title": "Usual payment to Lucía while a lookalike of the landlord sits in history",
+      "rationale": "An attack on one person must not add friction to paying another trusted contact.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        {
+          "block": 3201,
+          "from": "lookalike:landlord:4:4:c11",
+          "to": "me",
+          "amount": "0.001",
+          "signer": "lookalike:landlord:4:4:c11"
+        }
+      ],
+      "send": { "to": "lucia", "amount": "45", "pickedFrom": "contacts" }
+    },
+    {
+      "id": "V2-C12",
+      "label": "legit",
+      "title": "Two saved contacts whose addresses happen to share 3/4 characters; she pays one",
+      "rationale": "Deliberately saved contacts are trusted even if they resemble each other.",
+      "sources": [],
+      "contacts": ["lucia", "lookalike:lucia:3:4:c12"],
+      "baseHistory": true,
+      "send": { "to": "lookalike:lucia:3:4:c12", "amount": "30", "pickedFrom": "contacts" }
+    },
+    {
+      "id": "V2-C13",
+      "label": "legit",
+      "title": "New merchant whose address shares 2 leading / 4 trailing characters with Lucía",
+      "rationale": "Benign coincidence that a looser lookalike rule would flag.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "send": { "to": "lookalike:lucia:2:4:c13", "amount": "18", "pickedFrom": "pasted" }
+    },
+    {
+      "id": "V2-C14",
+      "label": "legit",
+      "title": "Rent that went up: 300 instead of the usual 250",
+      "rationale": "Ordinary drift in a recurring payment.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "send": { "to": "landlord", "amount": "300", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-C15",
+      "label": "legit",
+      "title": "Paying back the cousin who sent her money twice",
+      "rationale": "The real counterpart of V2-C06.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        { "block": 3300, "from": "cousin", "to": "me", "amount": "80", "signer": "cousin" },
+        { "block": 3500, "from": "cousin", "to": "me", "amount": "60", "signer": "cousin" }
+      ],
+      "send": { "to": "cousin", "amount": "140", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-C16",
+      "label": "legit",
+      "title": "Paying Lucía while unrelated entries with unknown provenance exist",
+      "rationale": "Uncertainty about other addresses must not touch a trusted contact.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        {
+          "block": 3300,
+          "from": "random:c16",
+          "to": "me",
+          "amount": "5",
+          "signer": null,
+          "provenance": "unknown"
+        }
+      ],
+      "send": { "to": "lucia", "amount": "40", "pickedFrom": "contacts" }
+    },
+    {
+      "id": "V2-C17",
+      "label": "legit",
+      "title": "Rest of a payment after a test send, sent to the tested address",
+      "rationale": "The behavior the nudge asks for, with a different test amount.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [{ "block": 4000, "from": "me", "to": "friend", "amount": "2", "signer": "me" }],
+      "testSends": [{ "to": "friend", "block": 4000, "amount": "2" }],
+      "send": { "to": "friend", "amount": "150", "pickedFrom": "pasted" }
+    },
+    {
+      "id": "V2-C18",
+      "label": "legit",
+      "title": "Small first payment to a merchant from a printed QR code",
+      "rationale": "Normal first-time purchase.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "send": { "to": "merchant", "amount": "8", "pickedFrom": "pasted" }
+    },
+    {
+      "id": "V2-C19",
+      "label": "legit",
+      "title": "Deposit to her own exchange account, usual amount",
+      "rationale": "Recurring self-transfer to a past recipient.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        { "block": 3300, "from": "me", "to": "exchange", "amount": "200", "signer": "me" },
+        { "block": 3400, "from": "me", "to": "exchange", "amount": "150", "signer": "me" }
+      ],
+      "send": { "to": "exchange", "amount": "180", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-C20",
+      "label": "legit",
+      "title": "Paying Lucía while history is unavailable",
+      "rationale": "Outage must not block trusted contacts.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": false,
+      "historyAvailable": false,
+      "send": { "to": "lucia", "amount": "40", "pickedFrom": "contacts" }
+    }
+  ]
+}
