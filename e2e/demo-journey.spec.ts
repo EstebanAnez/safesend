@@ -6,7 +6,7 @@ const LOOKALIKE = '0x7a3f04b1d9E27c8A53F6b0e19d2C4a7f83b5E4d2';
 test('demo: planted lookalike is blocked, recovery sends to the contact (simulated)', async ({
   page,
 }) => {
-  await page.goto('/demo');
+  await page.goto('/demo/dust-poisoning');
 
   // History shows the planted entry collapsed, with an explanation.
   await expect(page.getByText('Suspected lookalike')).toBeVisible();
@@ -31,7 +31,7 @@ test('demo: planted lookalike is blocked, recovery sends to the contact (simulat
   await expect(
     page.getByText(/not from someone you know. This is how address poisoning scams work./),
   ).toBeVisible();
-  await expect(page.getByText(/First 4 and last 4 characters match/)).toBeVisible();
+  await expect(page.getByText(/first 4 and last 4 characters match Lucía/i)).toBeVisible();
   await expect(page.getByText(/cannot be overridden/)).toBeVisible();
   // No path forward to the blocked address.
   await expect(page.getByRole('button', { name: /^Send 50 USDC/ })).toHaveCount(0);

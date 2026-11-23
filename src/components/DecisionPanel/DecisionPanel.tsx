@@ -28,6 +28,8 @@ interface Props {
   onCancel: () => void;
   /** Switch to a small test amount (shown when the engine suggests a test send). */
   onUseTestAmount?: () => void;
+  /** BLOCK only: start the deliberate "add a different person" flow. Never resumes this send. */
+  onAddDifferentPerson?: () => void;
   /** Injectable for tests; defaults to the platform CSPRNG. */
   random?: () => number;
 }
@@ -42,6 +44,7 @@ export function DecisionPanel({
   onRecover,
   onCancel,
   onUseTestAmount,
+  onAddDifferentPerson,
   random,
 }: Props) {
   const headingId = useId();
@@ -59,6 +62,16 @@ export function DecisionPanel({
             ? 'Check before you send'
             : 'Ready to send'}
       </Text>
+
+      {/* The hero: shown first so the "why" is obvious within two seconds. */}
+      {lookalike && (
+        <AddressComparison
+          comparison={lookalike.evidence.comparison}
+          candidateLabel="You entered"
+          anchorLabel={anchorLabel(lookalike.evidence.anchor)}
+          highlight={positions}
+        />
+      )}
 
       <VStack as="ul" gap={1.5} aria-label="Reasons for this decision">
         {result.reasons.map((reason) => (
@@ -101,15 +114,6 @@ export function DecisionPanel({
         ))}
       </VStack>
 
-      {lookalike && (
-        <AddressComparison
-          comparison={lookalike.evidence.comparison}
-          candidateLabel="You entered"
-          anchorLabel={anchorLabel(lookalike.evidence.anchor)}
-          highlight={positions}
-        />
-      )}
-
       {result.testSendSuggested && (
         <Banner
           variant="informational"
@@ -149,8 +153,14 @@ export function DecisionPanel({
           <Button block variant="secondary" onClick={onCancel}>
             Go back
           </Button>
+          {lookalike && onAddDifferentPerson && (
+            <Button block variant="tertiary" onClick={onAddDifferentPerson}>
+              This is a different person
+            </Button>
+          )}
           <Text as="p" font="label2" color="fgMuted">
-            Blocked sends cannot be overridden in SafeSend.
+            Blocked sends cannot be overridden in SafeSend. If this really is someone else, add them
+            as a contact after checking their address by phone, then start a new send.
           </Text>
         </VStack>
       )}
