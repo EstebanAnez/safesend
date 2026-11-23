@@ -1,13 +1,13 @@
 {
-  "setting": "3/4",
+  "setting": "total>=6 (>=2 each end)",
   "tp": {
-    "blocked": 15,
-    "strong": 18,
+    "blocked": 17,
+    "strong": 20,
     "flagged": 20
   },
   "fp": {
     "blocked": 1,
-    "strong": 8,
+    "strong": 9,
     "flagged": 12
   }
 }

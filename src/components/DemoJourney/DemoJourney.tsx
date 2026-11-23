@@ -21,6 +21,7 @@ import { anchorLabel } from '@/risk/anchors';
 import { reverifySend } from '@/risk/reverify';
 import type { RiskInput, SendIntent } from '@/risk/types';
 import { AddContactForm } from '@/components/Contacts/AddContactForm';
+import { AddGroupForm } from '@/components/Contacts/AddGroupForm';
 import { ContactsPanel } from '@/components/Contacts/ContactsPanel';
 import { DecisionPanel } from '@/components/DecisionPanel/DecisionPanel';
 import { HistoryList } from '@/components/HistoryList/HistoryList';
@@ -31,6 +32,7 @@ type Step =
   | { kind: 'compose' }
   | { kind: 'review'; intent: SendIntent }
   | { kind: 'add-contact'; mode: 'normal' | 'after-block' }
+  | { kind: 'add-group' }
   | { kind: 'notice'; tone: 'warning' | 'informational'; title: string; message: string };
 
 export function DemoJourney({ scenarioId }: { scenarioId: string }) {
@@ -43,6 +45,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     classifications,
     contacts,
     addContact,
+    addContacts,
     testSends,
     recordTestSend,
   } = useDemoScenario(scenarioId);
@@ -213,6 +216,26 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
   }
 
   const sendPanel = (() => {
+    if (step.kind === 'add-group') {
+      return (
+        <AddGroupForm
+          user={scenario.user.address}
+          contacts={contacts}
+          protectedSet={protectedSet}
+          config={config}
+          onCancel={() => setStep({ kind: 'compose' })}
+          onSave={(drafts) => {
+            const saved = addContacts(drafts);
+            setStep({
+              kind: 'notice',
+              tone: 'informational',
+              title: `${drafts[0]?.group ?? 'Group'} saved: ${saved.length} contacts`,
+              message: 'Pay any member from your contacts. Each one is now a trusted contact.',
+            });
+          }}
+        />
+      );
+    }
     if (step.kind === 'add-contact') {
       return (
         <AddContactForm
@@ -353,6 +376,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
               contacts={contacts}
               onSendTo={handleSendToContact}
               onAdd={() => setStep({ kind: 'add-contact', mode: 'normal' })}
+              onAddGroup={() => setStep({ kind: 'add-group' })}
             />
           </VStack>
         </VStack>

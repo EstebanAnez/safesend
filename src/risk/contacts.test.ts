@@ -4,7 +4,7 @@ import { CANONICAL_USDC } from '@/config/chain';
 import type { ProtectedAddress } from '@/domain/types';
 import { a, contact, lookalikeOf, SISTER, USER } from '@/test/builders';
 import { DEFAULT_RISK_CONFIG } from './config';
-import { checkNewContact } from './contacts';
+import { checkNewContact, checkNewGroup } from './contacts';
 import type { NewContactDraft } from './contacts';
 
 const sister = contact('Lucía', SISTER);
@@ -71,5 +71,96 @@ describe('checkNewContact', () => {
       expect(r.errors).toEqual([]);
       expect(r.contact?.verifiedOutOfBand).toBe(true);
     });
+  });
+});
+
+describe('checkNewGroup (D18)', () => {
+  const CARMEN = a('3f1c8e5a07b9d24e6c1a8f3b5d7e9c0a2b4d6f81');
+  const member = (name: string, addressInput: string, over: Partial<NewContactDraft> = {}) =>
+    draft({ name, addressInput, ...over });
+
+  it('accepts a group of confirmed members and tags each with the group name', () => {
+    const r = checkNewGroup('Pasanaku Mayo', [member('Rosa', ROSA), member('Carmen', CARMEN)], ctx);
+    expect(r.groupErrors).toEqual([]);
+    expect(r.contacts?.map((c) => [c.name, c.group])).toEqual([
+      ['Rosa', 'Pasanaku Mayo'],
+      ['Carmen', 'Pasanaku Mayo'],
+    ]);
+  });
+
+  it('applies the single-contact rules to every member (confirmation required)', () => {
+    const r = checkNewGroup(
+      'Pasanaku',
+      [member('Rosa', ROSA), member('Carmen', CARMEN, { confirmed: false })],
+      ctx,
+    );
+    expect(r.contacts).toBeNull();
+    expect(r.members[1]?.errors.map((e) => e.code)).toEqual(['not-confirmed']);
+  });
+
+  it('requires re-entry for a member who looks like an existing protected address', () => {
+    const r = checkNewGroup('Pasanaku', [member('X', lookalikeOf(SISTER, 4, 4))], ctx);
+    expect(r.members[0]?.errors.map((e) => e.code)).toEqual(['reentry-required']);
+  });
+
+  it('checks members against each other: a lookalike of an earlier member needs re-entry', () => {
+    const fake = lookalikeOf(ROSA, 4, 4);
+    const r = checkNewGroup('Pasanaku', [member('Rosa', ROSA), member('Rosa 2', fake)], ctx);
+    expect(r.members[1]?.lookalikeOf?.anchor.address).toBe(ROSA);
+    expect(r.members[1]?.errors.map((e) => e.code)).toEqual(['reentry-required']);
+    expect(r.contacts).toBeNull();
+  });
+
+  it('rejects the same address twice in one group', () => {
+    const r = checkNewGroup(
+      'Pasanaku',
+      [member('Rosa', ROSA), member('Also Rosa', ROSA.toLowerCase())],
+      ctx,
+    );
+    expect(r.groupErrors).toContainEqual({
+      code: 'duplicate-in-group',
+      memberIndex: 1,
+      otherIndex: 0,
+    });
+  });
+
+  it.each([
+    ['', 'group-name-required'],
+    ['x'.repeat(41), 'group-name-too-long'],
+  ] as const)('rejects group name %j', (groupName, code) => {
+    expect(
+      checkNewGroup(groupName, [member('Rosa', ROSA)], ctx).groupErrors.map((e) => e.code),
+    ).toContain(code);
+  });
+
+  it('rejects an empty group', () => {
+    expect(checkNewGroup('Pasanaku', [], ctx).groupErrors.map((e) => e.code)).toContain(
+      'no-members',
+    );
+  });
+});
+
+describe('checkNewGroup: members protect each other even before confirmation', () => {
+  it('flags a lookalike of an earlier member that is not confirmed yet', () => {
+    const fake = lookalikeOf(ROSA, 4, 4);
+    const r = checkNewGroup(
+      'Pasanaku',
+      [
+        draft({ name: 'Rosa', addressInput: ROSA, confirmed: false }),
+        draft({ name: 'Rosa 2', addressInput: fake }),
+      ],
+      ctx,
+    );
+    expect(r.members[1]?.lookalikeOf?.anchor.address).toBe(ROSA);
+  });
+
+  it('reports an exact duplicate once, as a group error', () => {
+    const r = checkNewGroup(
+      'Pasanaku',
+      [draft({ name: 'Rosa', addressInput: ROSA }), draft({ name: 'Rosa', addressInput: ROSA })],
+      ctx,
+    );
+    expect(r.members[1]?.errors).toEqual([]);
+    expect(r.groupErrors.map((e) => e.code)).toEqual(['duplicate-in-group']);
   });
 });

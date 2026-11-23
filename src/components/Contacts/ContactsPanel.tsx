@@ -13,10 +13,16 @@ interface Props {
   contacts: readonly Contact[];
   onSendTo: (address: Address) => void;
   onAdd: () => void;
+  onAddGroup: () => void;
 }
 
 /** Trusted contacts: the safest place to pick a recipient from. */
-export const ContactsPanel = memo(function ContactsPanel({ contacts, onSendTo, onAdd }: Props) {
+export const ContactsPanel = memo(function ContactsPanel({
+  contacts,
+  onSendTo,
+  onAdd,
+  onAddGroup,
+}: Props) {
   return (
     <VStack gap={1.5}>
       {contacts.length === 0 ? (
@@ -34,6 +40,7 @@ export const ContactsPanel = memo(function ContactsPanel({ contacts, onSendTo, o
                       {c.name}
                     </Text>
                     {c.verifiedOutOfBand && <Tag colorScheme="green">Verified by phone</Tag>}
+                    {c.group && <Tag colorScheme="blue">{c.group}</Tag>}
                   </HStack>
                   <Text as="p" mono font="label2" color="fgMuted">
                     {shortAddress(c.address)}
@@ -52,11 +59,14 @@ export const ContactsPanel = memo(function ContactsPanel({ contacts, onSendTo, o
           ))}
         </VStack>
       )}
-      <Box>
+      <HStack gap={1} flexWrap="wrap">
         <Button compact variant="secondary" startIcon="add" onClick={onAdd}>
           Add contact
         </Button>
-      </Box>
+        <Button compact variant="secondary" startIcon="add" onClick={onAddGroup}>
+          Add group
+        </Button>
+      </HStack>
     </VStack>
   );
 });
