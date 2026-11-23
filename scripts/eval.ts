@@ -163,6 +163,13 @@ if (holdoutV2) {
     'Holdout v2',
     RULE_SETTINGS.map((s) => evaluateCases(holdoutV2.cases, DEFAULT_RISK_CONFIG, s)),
   );
+  for (const author of [...new Set(holdoutV2.cases.map((c) => c.author ?? 'unknown'))]) {
+    const subset = holdoutV2.cases.filter((c) => (c.author ?? 'unknown') === author);
+    report(
+      `Holdout v2, cases by ${author}`,
+      RULE_SETTINGS.map((s) => evaluateCases(subset, DEFAULT_RISK_CONFIG, s)),
+    );
+  }
 }
 
 const dev = loadDev();

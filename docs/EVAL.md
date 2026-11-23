@@ -5,11 +5,11 @@
 
 ## Datasets
 
-| Set            | Size                           | Status                                                                        | Used for tuning?                             |
-| -------------- | ------------------------------ | ----------------------------------------------------------------------------- | -------------------------------------------- |
-| **Holdout v1** | 40 (20 attack, 20 legit)       | Frozen at `5d2547ba8a8f3bc2f1abec689239b1ed864b46cf`, sha256 `f8714c18…d980e` | **No**, but it has now been seen (see below) |
-| **Holdout v2** | 20 by Claude + 5–10 by Esteban | **Not frozen yet.** Nothing has run on it (`eval/holdout-v2/README.md`)       | No                                           |
-| Dev            | 80 generated                   | Mutable (`eval/dev/build-dev.ts`)                                             | Yes                                          |
+| Set            | Size                                                  | Status                                                                                   | Used for tuning?                             |
+| -------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------- |
+| **Holdout v1** | 40 (20 attack, 20 legit)                              | Frozen at `5d2547ba8a8f3bc2f1abec689239b1ed864b46cf`, sha256 `f8714c18…d980e`            | **No**, but it has now been seen (see below) |
+| **Holdout v2** | 30 (15 attack, 15 legit): 10 by Esteban, 20 by Claude | Frozen at `f21ff97` (tag `holdout-v2-frozen`), sha256 `6ed9db56…7016433`, before any run | No                                           |
+| Dev            | 80 generated                                          | Mutable (`eval/dev/build-dev.ts`)                                                        | Yes                                          |
 
 `npm run eval` refuses to run a holdout whose sha256 no longer matches its frozen hash.
 
@@ -145,8 +145,51 @@ levels, fewer attacks are caught or more legitimate sends are flagged than in
 target. Changing the shipped rule requires re-recording the baseline deliberately in a reviewed
 commit.
 
-## Next: holdout v2
+## Results on holdout v2 (first and only clean run)
 
-1. Esteban writes 5–10 cases (`eval/holdout-v2/README.md`).
-2. Freeze with `npx tsx eval/holdout-v2/build.ts --freeze` and commit the hash before any run.
-3. Report 3/4 vs. the total rule on v2 with intervals, and decide the shipped rule from v2.
+Frozen at `f21ff9717fde16f4e574f75553d41720d092bf16` (tag `holdout-v2-frozen`), sha256
+`6ed9db565b8e84aeaf526f446cb12b2f66f28d2433b6f08d19475c7547016433`, before anything ran on it.
+Esteban's 10 cases are a literal translation of his plain-language descriptions. They are the
+independent part, because Claude had not seen them and they weren't shaped by the engine.
+Claude's 20 were written after seeing v1 and the rules, so treat them as coverage, not as a blind
+test. Full report, per case and per author:
+[holdout-v2-first-run.md](../eval/reports/holdout-v2-first-run.md).
+
+| Subset          | Rule                    | Attacks blocked      | Strong friction       | Signal-attributed    | Legit: checkbox / middle-char / BLOCK | Misses |
+| --------------- | ----------------------- | -------------------- | --------------------- | -------------------- | ------------------------------------- | ------ |
+| All (15 + 15)   | 3/4                     | 11 (73%, CI 48–89%)  | 14 (93%, CI 70–99%)   | 12 (80%, CI 55–93%)  | 3 / 3 / 0                             | V2-C07 |
+| All (15 + 15)   | total ≥ 6, ≥ 2 each end | 13 (87%, CI 62–96%)  | 15 (100%, CI 80–100%) | 14 (93%, CI 70–99%)  | 2 / 4 / 0                             | none   |
+| Esteban (5 + 5) | 3/4                     | 4 (80%, CI 38–96%)   | 5 (100%, CI 57–100%)  | 4 (80%, CI 38–96%)   | 1 / 2 / 0                             | none   |
+| Esteban (5 + 5) | total ≥ 6, ≥ 2 each end | 5 (100%, CI 57–100%) | 5 (100%, CI 57–100%)  | 5 (100%, CI 57–100%) | 1 / 2 / 0                             | none   |
+
+**Reading it honestly:**
+
+- **The two rules differ by two attack cases and one legitimate case.** At this sample size that
+  is **not statistically meaningful**; the intervals overlap almost entirely. What is consistent
+  across v1 (post-hoc) and v2 (clean) is _where_ they differ:
+  - **Uneven matches.** V2-C07 (2/5) and V2-E05 (2/5, Esteban's) are caught by the total rule's
+    lookalike signal. Under 3/4, V2-C07 gets only a checkbox, and V2-E05 gets strong friction only
+    because of the amount rule.
+  - **Cost.** One benign 2/4 overlap (V2-C13) moves from checkbox to middle-character WARN. Neither
+    rule falsely BLOCKs any legitimate v2 send.
+- **Warning fatigue (Esteban's L1, V2-E06).** A pasanaku payment of 50 USDC to a new group member
+  gets the **middle-character** WARN under every rule, because 50 is above the 25 USDC first-send
+  threshold. In a monthly rotating group, that is the strongest friction every single month. This
+  is a product problem, not a lookalike-rule problem. See "Open questions".
+- **Remaining gaps, under both rules:**
+  - V2-C05: a pasted "my address changed" 5/5 lookalike gets a WARN, not a BLOCK, because there is
+    no on-chain planting.
+  - V2-C10: with history unavailable, past recipients (which come from history) can't be compared
+    against, so a pasted landlord lookalike gets friction only from the amount rule.
+- **Correct non-alarms:** V2-E10 (500 USDC to her own exchange, usually 100–150) is ALLOWed, since
+  it is below 5× her per-recipient median of 125. V2-E09 (Mateo's new wallet added as a contact
+  first) is ALLOWed.
+
+## Open questions
+
+- **Shipped rule.** The v2 evidence points the same way as v1, but weakly (n = 15 per side). The
+  decision belongs to the product owner. The trade-off is in RISK_MODEL.md: a benign collision
+  rate of 1 in 5.8M per protected address for the total rule, vs. 1 in 268M for 3/4.
+- **Warning fatigue for recurring new-recipient patterns** (pasanaku). Options include a
+  higher first-send threshold, group-shared contact lists, or a lighter confirmation when the
+  address was added as a contact from a trusted channel. To be addressed in the PRD.
