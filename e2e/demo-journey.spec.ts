@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 const LOOKALIKE = '0x7a3f04b1d9E27c8A53F6b0e19d2C4a7f83b5E4d2';
 

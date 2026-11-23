@@ -113,21 +113,25 @@ describe('lookalikes', () => {
     expect(ev.comparison.suffixMatchLength).toBe(5);
   });
 
-  it('WARNs (middle-character confirmation) when the lookalike was never planted', () => {
+  it('BLOCKs a lookalike that was never planted (pasted from a message), D23', () => {
     const r = evaluateRisk(riskInput(LOOK, { anchors: [sisterAnchor], history: [] }));
-    expect(r.decision).toBe('WARN');
+    expect(r.decision).toBe('BLOCK');
     expect(codes(r)).toContain('LOOKALIKE');
-    expect(r.confirmation.level).toBe('middle-characters');
-    expect(r.testSendSuggested).toBe(true);
+    expect(codes(r)).not.toContain('LOOKALIKE_HIGH_CONFIDENCE');
+    // The explanation does not claim planting it has no evidence for.
+    const reason = r.reasons.find((x) => x.code === 'LOOKALIKE');
+    expect(reason?.title).toBe('This address looks like Lucía, but it is not theirs');
+    expect(reason?.explanation).not.toMatch(/suspicious transfer/);
+    expect(r.testSendSuggested).toBe(false);
   });
 
-  it('WARNs when the lookalike first appeared through ordinary activity, even if dusted later', () => {
+  it('BLOCKs when the lookalike first appeared through ordinary activity, even if dusted later', () => {
     const history = [
       entry({ counterparty: LOOK, direction: 'in', blockNumber: 10n }),
       dustFrom(LOOK, 20n),
     ];
     const r = evaluateRisk(riskInput(LOOK, { anchors: [sisterAnchor], history }));
-    expect(r.decision).toBe('WARN');
+    expect(r.decision).toBe('BLOCK');
     expect(codes(r)).toContain('LOOKALIKE');
   });
 
@@ -212,11 +216,12 @@ describe('new recipients and confirmation levels (D8)', () => {
     expect(r.testSendSuggested).toBe(true);
   });
 
-  it('the middle range never includes the outer characters, and widens past long matches', () => {
-    const r = evaluateRisk(riskInput(lookalikeOf(SISTER, 8, 7), { anchors: [sisterAnchor] }));
-    if (r.confirmation.level !== 'middle-characters') throw new Error('expected challenge');
-    expect(r.confirmation.middleStart).toBe(8);
-    expect(r.confirmation.middleEnd).toBe(40 - 7);
+  it('the middle range never includes the outer characters', () => {
+    // A long lookalike is a BLOCK (D23), so it never reaches a challenge. Widening the range past
+    // long matches is still covered directly in confirmation.test.ts (middleRange).
+    const look = evaluateRisk(riskInput(lookalikeOf(SISTER, 8, 7), { anchors: [sisterAnchor] }));
+    expect(look.decision).toBe('BLOCK');
+    expect(look.confirmation.level).toBe('none');
 
     const plain = evaluateRisk(riskInput(NEWCOMER, { amount: 10n ** 12n }));
     if (plain.confirmation.level !== 'middle-characters') throw new Error('expected challenge');

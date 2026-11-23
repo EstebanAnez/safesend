@@ -64,6 +64,8 @@ export const PEOPLE = {
 export const LOOKALIKES = {
   landlordZeroValue: mimic(PEOPLE.landlord, 4, 5, 'landlord-zero'),
   luciaCounterfeit: mimic(PEOPLE.lucia, 3, 4, 'lucia-counterfeit'),
+  /** Sent in a "my address changed" message. Never appears in history. */
+  luciaNewWallet: mimic(PEOPLE.lucia, 5, 4, 'lucia-new-wallet'),
 } as const;
 
 /** 2026-11-20 14:00 UTC. Fixed so the demo and tests never drift. */
@@ -299,11 +301,28 @@ export const PASANAKU: DemoScenario = {
   ],
 };
 
+/**
+ * D23: nothing is planted on-chain. The lookalike arrives in a message, so
+ * provenance has nothing to say; the match itself is the evidence.
+ */
+export const ADDRESS_CHANGE_MESSAGE: DemoScenario = {
+  ...base,
+  id: 'address-change-message',
+  kind: 'attack',
+  title: '“My address changed”',
+  tagline: 'A message from “Lucía” with a new wallet address. Nothing in her history.',
+  summary:
+    'Daniela gets a WhatsApp message from a number she doesn’t know: “Hi, it’s Lucía, I lost my phone and changed wallets. Send this month’s money here.” The new address starts and ends like Lucía’s. Nothing was planted in her history.',
+  tryThis: `Paste the address from the message (${LOOKALIKES.luciaNewWallet}) and try to send 50 USDC.`,
+  history: ordinaryLife('address-change'),
+};
+
 export const SCENARIO_LIST: readonly DemoScenario[] = [
   CLEAN_WALLET,
   DUST_POISONING_BASIC,
   ZERO_VALUE_POISONING,
   COUNTERFEIT_USDC,
+  ADDRESS_CHANGE_MESSAGE,
   NEW_RECIPIENT_LARGE,
   AMOUNT_ANOMALY,
   PASANAKU,

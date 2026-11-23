@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import { expect, test } from './fixtures';
+import type { Page } from './fixtures';
 
 // Mateo only ever SENT to Daniela: inbound history never makes an address trusted.
 const MATEO = '0x5b0e2a9d7c4f61e83b2a0d9c5e7f14a36b8c2d07';

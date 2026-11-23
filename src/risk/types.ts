@@ -22,10 +22,11 @@ export type ReasonCode =
   | 'SELF_SEND'
   | 'WRONG_NETWORK'
   | 'WRONG_TOKEN'
-  // BLOCK: high-confidence lookalike
+  // BLOCK: lookalike of a protected address (D23), with planting/timing evidence or history unavailable
   | 'LOOKALIKE_HIGH_CONFIDENCE'
-  // WARN
+  // BLOCK: lookalike of a protected address with no planting evidence (e.g. pasted from a message)
   | 'LOOKALIKE'
+  // WARN
   | 'NEW_RECIPIENT'
   | 'NEW_RECIPIENT_LARGE_AMOUNT'
   | 'AMOUNT_ANOMALY'

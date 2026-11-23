@@ -31,6 +31,14 @@ mitigation and makes no claim about reducing real-world losses.
 - **"Is this address new?"** checks pass, because the lookalike is in history.
 - **Generic warnings** on every new recipient train people to click through.
 
+## Why now
+
+- **Bolivia is shifting to dollar stablecoins.** During the dollar shortage, people are moving
+  savings into USDC and similar tokens and sending them to family. Many of them are first-time
+  users, the people address poisoning works best on.
+- **Stablecoins and payments are a 2026 priority for Coinbase.** As more everyday payments move
+  onto stablecoins, the send screen is where a payment product earns or loses trust.
+
 ## Persona
 
 **Daniela, 52, Santa Cruz, Bolivia.** During the dollar shortage she started holding USDC. Her son
@@ -57,7 +65,8 @@ something is stopped; and to not be nagged when she pays people she always pays.
 **Non-goals**
 
 - **Preventing all address poisoning.** SafeSend reduces one path to loss (copying from history).
-  It cannot stop a user who receives a lookalike from a compromised chat.
+  It blocks lookalikes of people the user knows (D23), but it cannot catch an attacker's address
+  that resembles no one, sent from a compromised chat.
 - **Overrides.** There is no "send anyway" on a BLOCK, anywhere (D16).
 - **Hiding history.** Planted entries are collapsed and explained, not deleted. The user can still
   see everything.
@@ -87,17 +96,25 @@ something is stopped; and to not be nagged when she pays people she always pays.
 
 ### Functional
 
-| ID  | Requirement                                                                                                                                                                 | Where                              |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| F1  | Classify every history entry by provenance and signer (including ERC-4337 bundles via the canonical EntryPoints)                                                            | `src/risk/signer.ts`, `history.ts` |
-| F2  | Maintain a trust set (the only path to ALLOW) and a wider protected set (what lookalikes are compared against)                                                              | `src/risk/anchors.ts` (D14)        |
-| F3  | BLOCK structural errors and high-confidence lookalikes, with no override                                                                                                    | `src/risk/evaluate.ts`             |
-| F4  | WARN with a proportional confirmation; never ask for the first or last characters                                                                                           | `src/risk/confirmation.ts` (D8)    |
-| F5  | Flag unusual amounts against a per-recipient baseline, with a global fallback                                                                                               | D11                                |
-| F6  | Re-verify on the final values immediately before any signature                                                                                                              | `src/risk/reverify.ts`             |
-| F7  | Collapse and explain planted history entries                                                                                                                                | `HistoryList`                      |
-| F8  | Add contacts and groups deliberately: full address entered, never prefilled; re-entry and out-of-band confirmation for lookalikes; group members checked against each other | `src/risk/contacts.ts` (D16, D18)  |
-| F9  | Show history loading, empty and error states; explain what an error means for checks; offer retry                                                                           | D21                                |
+Priority: **P0** shipped in the demo; **P1** live mode and persistence (S6); **P2** later.
+
+| ID  | Priority | Requirement                                                                                                                                                                 | Where                              |
+| --- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| F1  | P0       | Classify every history entry by provenance and signer (including ERC-4337 bundles via the canonical EntryPoints)                                                            | `src/risk/signer.ts`, `history.ts` |
+| F2  | P0       | Maintain a trust set (the only path to ALLOW) and a wider protected set (what lookalikes are compared against)                                                              | `src/risk/anchors.ts` (D14)        |
+| F3  | P0       | BLOCK structural errors and every lookalike of a protected address, with no override                                                                                        | `src/risk/evaluate.ts` (D23)       |
+| F4  | P0       | WARN with a proportional confirmation; never ask for the first or last characters                                                                                           | `src/risk/confirmation.ts` (D8)    |
+| F5  | P0       | Flag unusual amounts against a per-recipient baseline, with a global fallback                                                                                               | D11                                |
+| F6  | P0       | Re-verify on the final values immediately before any signature                                                                                                              | `src/risk/reverify.ts`             |
+| F7  | P0       | Collapse and explain planted history entries                                                                                                                                | `HistoryList`                      |
+| F8  | P0       | Add contacts and groups deliberately: full address entered, never prefilled; re-entry and out-of-band confirmation for lookalikes; group members checked against each other | `src/risk/contacts.ts` (D16, D18)  |
+| F9  | P0       | Show history loading, empty and error states; explain what an error means for checks; offer retry                                                                           | D21                                |
+| F10 | P1       | Connect a Coinbase Smart Wallet and send real testnet USDC, re-verified before the signature                                                                                | S6                                 |
+| F11 | P1       | Read real history (Blockscout, RPC fallback) and label its coverage honestly (complete, partial, which tokens)                                                              | S6, `src/providers/history`        |
+| F12 | P1       | Persist contacts and groups across sessions                                                                                                                                 | S6 (open question below)           |
+| F13 | P1       | A Content-Security-Policy before real wallet connections                                                                                                                    | D22                                |
+| F14 | P2       | Keep the protected set available when history is down (closes V2-C10)                                                                                                       | Open question below                |
+| F15 | P2       | Group lifecycle: remove rotated members; shareable groups with their own threat model                                                                                       | Pasanaku section                   |
 
 ### Non-functional
 
@@ -138,14 +155,14 @@ something is stopped; and to not be nagged when she pays people she always pays.
 ## Experiment design (for a real launch)
 
 - **Unit:** user, not send, because the treatment changes habits.
-- **Arms:** every arm applies high-confidence BLOCKs with recovery (see Ethics).
+- **Arms:** every arm applies every BLOCK (lookalikes and structural errors) with recovery (see Ethics).
   - (A) control: every other decision runs in shadow mode.
   - (B) WARNs shown, all as a checkbox.
   - (C) full SafeSend: middle-character confirmations where the policy asks for them.
 - **Why three arms:** B against A measures whether showing lower-confidence signals changes what
   people send, at little cost. C against B isolates the cost and benefit of the strong
   confirmation, which is where warning fatigue lives.
-- **Ethics:** no arm withholds a BLOCK from a user who is being attacked. High-confidence BLOCKs
+- **Ethics:** no arm withholds a BLOCK from a user who is being attacked. BLOCKs
   apply in every arm. In arm A, every other decision runs in **shadow mode**: SafeSend decides and
   logs, but does not intervene. The experiment measures everything below BLOCK.
 - **Duration and power:** poisoning sends are rare events, so interception is estimated from
@@ -154,14 +171,14 @@ something is stopped; and to not be nagged when she pays people she always pays.
 
 ## Risks
 
-| Risk                                                               | Mitigation                                                                                   |
-| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| Attackers adapt: match fewer end characters, or more in the middle | The shipped rule requires only 6 matched characters in total, at least 2 on each end (D15)   |
-| Lookalike delivered outside history (a chat), with no planting     | Known gap (V2-C05): WARN, not BLOCK. Contacts added deliberately remain the strong defense   |
-| History provider incomplete or down                                | Coverage labels (S6); any lookalike is BLOCKed while history can't be read; known gap V2-C10 |
-| Warning fatigue erodes the WARN                                    | Proportional confirmations (D8), group contacts (D18), friction counter-metrics              |
-| Users treat "This is a different person" as an override            | It never resumes the send, requires re-entry, and stricter confirmation for lookalikes (D16) |
-| The evaluation overfits the builder's own cases                    | Frozen holdouts with hashes; independent cases; holdout v3 required for new claims (EVAL.md) |
+| Risk                                                               | Mitigation                                                                                        |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Attackers adapt: match fewer end characters, or more in the middle | The shipped rule requires only 6 matched characters in total, at least 2 on each end (D15)        |
+| Lookalike delivered outside history (a chat), with no planting     | BLOCK, like any lookalike of a protected address (D23). The genuine case goes through add-contact |
+| History provider incomplete or down                                | Coverage labels (S6); any lookalike is BLOCKed while history can't be read; known gap V2-C10      |
+| Warning fatigue erodes the WARN                                    | Proportional confirmations (D8), group contacts (D18), friction counter-metrics                   |
+| Users treat "This is a different person" as an override            | It never resumes the send, requires re-entry, and stricter confirmation for lookalikes (D16)      |
+| The evaluation overfits the builder's own cases                    | Frozen holdouts with hashes; independent cases; holdout v3 required for new claims (EVAL.md)      |
 
 ## Pasanaku: recurring payments to new people
 
@@ -218,9 +235,11 @@ organizer? Sharing it would add a new trust channel, which needs its own threat 
   needs a decision (local storage on the device, or something that syncs), with its own threat
   model. To decide in S6.
 - **Group lifecycle.** See the pasanaku section: removing rotated members, shareable groups.
-- **Pasted lookalikes with no planting (V2-C05).** Should a 5/5 lookalike of a contact BLOCK even
-  without on-chain evidence? It would catch "my address changed" messages, at the cost of blocking
-  some genuine changes. Needs holdout v3 data.
+- **Pasted lookalikes with no planting (V2-C05). Decided: BLOCK (D23).** Any lookalike of a
+  protected address is blocked, which catches "my address changed" messages. The cost is that a
+  genuine coincidence (about 1 in 290,000 first sends at 20 protected addresses) must be added as a
+  contact first. Open: measure that cost, and whether users complete the add-contact path, on
+  holdout v3 and, in a real launch, with the "This is a different person" counter-metric.
 - **History unavailable (V2-C10).** Past recipients come from history, so they can't be protected
   during an outage. Caching the protected set on the device would close this, at the cost of
   storing it.

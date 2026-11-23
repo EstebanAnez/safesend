@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import { expect, test } from './fixtures';
+import type { Page } from './fixtures';
 
 const ROSA = '0x9e4b27c1d5a83f60b2e7c94d1a58f3e06b7d2c45';
 
@@ -16,10 +16,10 @@ async function review(page: Page, amount: string) {
   await page.getByRole('button', { name: 'Review send' }).click();
 }
 
-test('scenario picker lists all seven scenarios and passes axe', async ({ page }) => {
+test('scenario picker lists all eight scenarios and passes axe', async ({ page }) => {
   await page.goto('/demo');
   const list = page.getByRole('list', { name: 'Demo scenarios' });
-  await expect(list.getByRole('listitem')).toHaveCount(7);
+  await expect(list.getByRole('listitem')).toHaveCount(8);
   await axe(page);
 });
 
@@ -62,6 +62,34 @@ for (const { id, name, amount, imitates } of [
     await expect(page.getByRole('heading', { name: 'Ready to send' })).toBeVisible();
   });
 }
+
+test('"my address changed": a pasted lookalike with nothing planted is still a BLOCK (D23)', async ({
+  page,
+}) => {
+  await page.goto('/demo/address-change-message');
+  const tryThis = await page.getByText(/^Paste the address from the message/).innerText();
+  const pasted = tryThis.match(/0x[0-9a-fA-F]{40}/)?.[0];
+  expect(pasted).toBeDefined();
+  await page.getByLabel('Recipient address').fill(pasted ?? '');
+  await review(page, '50');
+
+  await expect(page.getByRole('heading', { name: 'SafeSend stopped this send' })).toBeVisible();
+  const reasons = page.getByRole('list', { name: 'Reasons for this decision' });
+  await expect(
+    reasons.getByText('This address looks like Lucía (sister), but it is not theirs', {
+      exact: true,
+    }),
+  ).toBeVisible();
+  // Honest copy: nothing was planted, so it must not say so.
+  await expect(reasons.getByText(/suspicious transfer/)).toHaveCount(0);
+  await expect(page.getByText('Same start and end. Different middle.')).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Send 50 USDC/ })).toHaveCount(0);
+  await expect(page.getByRole('textbox', { name: /Type characters/ })).toHaveCount(0);
+  await axe(page);
+
+  await page.getByRole('button', { name: 'Send to Lucía (sister) instead' }).click();
+  await expect(page.getByRole('heading', { name: 'Ready to send' })).toBeVisible();
+});
 
 test('new recipient, large amount: middle-character WARN and test-send nudge', async ({ page }) => {
   await page.goto('/demo/new-recipient-large');

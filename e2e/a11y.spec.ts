@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import { expect, test } from './fixtures';
+import type { Page } from './fixtures';
 
 const ROSA = '0x9e4b27c1d5a83f60b2e7c94d1a58f3e06b7d2c45';
 
