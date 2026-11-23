@@ -199,8 +199,14 @@ export function evaluateCases(
     let tn = 0;
     for (const c of cases) {
       const caught = caughtAt(outcomes[c.id] ?? 'ALLOW', level);
-      if (c.label === 'attack') caught ? (tp += 1) : (fn += 1);
-      else caught ? (fp += 1) : (tn += 1);
+      if (c.label === 'attack') {
+        if (caught) tp += 1;
+        else fn += 1;
+      } else if (caught) {
+        fp += 1;
+      } else {
+        tn += 1;
+      }
     }
     confusion[level] = {
       tp,
