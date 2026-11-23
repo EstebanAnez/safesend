@@ -1,15 +1,17 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { Address } from 'viem';
 import type { AsyncState, HistoryPage, TrustAnchor } from '@/domain/types';
 import { SCENARIOS } from '@/fixtures/scenarios';
 import type { DemoScenario } from '@/fixtures/scenarios';
 import { FixtureHistoryProvider } from '@/providers/history/fixture';
-import { buildTrustAnchors } from '@/risk/anchors';
+import { buildProtectedSet, buildTrustAnchors } from '@/risk/anchors';
 import { DEFAULT_RISK_CONFIG } from '@/risk/config';
 import { classifyHistoryEntry } from '@/risk/history';
 import type { HistoryClassification } from '@/risk/history';
-import type { RiskConfig } from '@/risk/types';
+import { testSendAnchors } from '@/risk/testSend';
+import type { RiskConfig, TestSend } from '@/risk/types';
 
 export interface DemoScenarioState {
   scenario: DemoScenario;
@@ -18,6 +20,9 @@ export interface DemoScenarioState {
   anchors: readonly TrustAnchor[];
   /** Keyed by HistoryEntry.id. */
   classifications: ReadonlyMap<string, HistoryClassification>;
+  /** Test sends made in this session (demo: simulated). */
+  testSends: readonly TestSend[];
+  recordTestSend: (recipient: Address, amount: bigint) => void;
 }
 
 export function useDemoScenario(scenarioId: string): DemoScenarioState {
@@ -49,18 +54,35 @@ export function useDemoScenario(scenarioId: string): DemoScenarioState {
 
   const entries = history.status === 'success' ? history.data.entries : null;
 
-  const anchors = useMemo(
-    () => buildTrustAnchors(scenario.contacts, entries ?? [], scenario.user.address, config),
-    [scenario, entries, config],
+  const [testSends, setTestSends] = useState<readonly TestSend[]>([]);
+  const recordTestSend = useCallback(
+    (recipient: Address, amount: bigint) => {
+      // Demo: the simulated test lands one block after the newest fixture entry.
+      const latest = (entries ?? []).reduce((m, e) => (e.blockNumber > m ? e.blockNumber : m), 0n);
+      setTestSends((prev) => [...prev, { recipient, amount, blockNumber: latest + 1n }]);
+    },
+    [entries],
   );
+
+  const anchors = useMemo(() => {
+    const base = buildTrustAnchors(scenario.contacts, entries ?? [], scenario.user.address, config);
+    return [
+      ...base,
+      ...testSendAnchors(testSends, base, entries ?? [], scenario.user.address, config),
+    ];
+  }, [scenario, entries, config, testSends]);
 
   const classifications = useMemo(() => {
     const map = new Map<string, HistoryClassification>();
+    const protectedSet = buildProtectedSet(anchors, entries ?? [], config);
     for (const entry of entries ?? []) {
-      map.set(entry.id, classifyHistoryEntry(entry, anchors, scenario.user.address, config));
+      map.set(
+        entry.id,
+        classifyHistoryEntry(entry, protectedSet, scenario.user.address, config, testSends),
+      );
     }
     return map;
-  }, [entries, anchors, scenario.user.address, config]);
+  }, [entries, anchors, scenario.user.address, config, testSends]);
 
-  return { scenario, config, history, anchors, classifications };
+  return { scenario, config, history, anchors, classifications, testSends, recordTestSend };
 }

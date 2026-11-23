@@ -37,7 +37,12 @@ export type TxSigner =
   { status: 'unknown' } | { status: 'known'; address: Address; via: 'tx-from' | 'user-operation' };
 
 /** Planting technique, when an entry looks like a poisoning attempt. */
-export type PoisoningTechnique = 'zero-value' | 'dust' | 'counterfeit-token';
+/**
+ * How a lookalike got into history. 'after-test-send' is timing, not a token
+ * technique: any lookalike of a test-send recipient that shows up after the
+ * test send, whatever the amount (attackers strike right after test sends).
+ */
+export type PoisoningTechnique = 'zero-value' | 'dust' | 'counterfeit-token' | 'after-test-send';
 
 export interface HistoryEntry {
   /** Stable id: `${txHash}:${logIndex}`. */
@@ -115,6 +120,20 @@ export type TrustAnchor =
       evidenceTxHashes: readonly Hash[];
       /** Unix seconds of the most recent confirmed send, if known. */
       lastSentAt: number | null;
+    };
+
+/**
+ * Addresses lookalikes are compared against: every trust anchor, plus people
+ * who have verifiably sent the user USDC. PROTECTION IS NOT TRUST: an
+ * inbound sender is never an ALLOW target (docs/DECISIONS.md D14).
+ */
+export type ProtectedAddress =
+  | TrustAnchor
+  | {
+      kind: 'inbound-sender';
+      address: Address;
+      /** Verified, above-dust, canonical-USDC transfers from this address to the user. */
+      evidenceTxHashes: readonly Hash[];
     };
 
 // ---------------------------------------------------------------------------

@@ -62,3 +62,28 @@ test('test-send nudge switches the amount to 1 USDC', async ({ page }) => {
   await page.getByRole('button', { name: 'Send 1 USDC as a test' }).click();
   await expect(page.getByRole('button', { name: 'Send 1 USDC (simulated)' })).toBeVisible();
 });
+
+test('after a test send, the real send is steered away from history and goes through', async ({
+  page,
+}) => {
+  await reviewMateo(page, '50');
+  await page.getByRole('button', { name: 'Send 1 USDC as a test' }).click();
+  // A 1 USDC first send gets the light confirmation.
+  await page.getByRole('checkbox', { name: /through another channel/ }).check();
+  await page.getByRole('button', { name: 'Send 1 USDC (simulated)' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Test send complete (simulated)' })).toBeVisible();
+  await expect(page.getByText(/Do not copy the address from your activity/)).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Send to Lucía (sister) (contact)' }),
+  ).toBeVisible();
+
+  await page.getByRole('button', { name: 'Send the rest to the same address' }).click();
+  await expect(page.getByLabel('Recipient address')).toHaveValue(new RegExp(MATEO, 'i'));
+  await expect(page.getByText('You just made a test send')).toBeVisible();
+  await page.getByLabel('Amount').fill('49');
+  await page.getByRole('button', { name: 'Review send' }).click();
+
+  // The tested address is now a confirmed recipient: no friction for the rest.
+  await expect(page.getByRole('heading', { name: 'Ready to send' })).toBeVisible();
+});

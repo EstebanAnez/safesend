@@ -179,6 +179,8 @@ function techniqueExplanation(technique: PoisoningTechnique): string {
       return 'Someone sent you a tiny amount from an address made to look like someone you pay. They hope you copy it from your history next time.';
     case 'zero-value':
       return 'A 0 USDC transfer you did not sign was recorded with your address as the sender, so a fake address shows up as if you had paid it.';
+    case 'after-test-send':
+      return 'This address looks like the person you just sent a test to, and it showed up right after your test send. Scammers watch for test sends. Send the rest from your contacts, not from here.';
     case 'counterfeit-token':
       return 'This transfer used a fake token that only claims to be USDC, sent from an address made to look like someone you pay.';
   }

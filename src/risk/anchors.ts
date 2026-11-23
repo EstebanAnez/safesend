@@ -1,5 +1,5 @@
 import type { Address, Hash } from 'viem';
-import type { Contact, HistoryEntry, TrustAnchor } from '@/domain/types';
+import type { Contact, HistoryEntry, ProtectedAddress, TrustAnchor } from '@/domain/types';
 import { sameAddress } from './address';
 import { firstAppearedViaPlanting } from './planting';
 import type { RiskConfig } from './types';
@@ -80,6 +80,60 @@ export function buildTrustAnchors(
   return anchors;
 }
 
-export function anchorLabel(anchor: TrustAnchor): string {
-  return anchor.kind === 'contact' ? anchor.contact.name : 'an address you sent USDC to before';
+/**
+ * A verified inbound transfer: canonical USDC, above dust, signed by the
+ * sender itself, verified provenance. Proves someone real paid the user; it
+ * says nothing about whether the user should pay them.
+ */
+export function isVerifiedInbound(
+  entry: HistoryEntry,
+  config: Pick<RiskConfig, 'dustThreshold'>,
+): boolean {
+  return (
+    entry.isCanonicalUsdc &&
+    entry.direction === 'in' &&
+    entry.amount > config.dustThreshold &&
+    entry.provenance === 'verified' &&
+    entry.txSigner.status === 'known' &&
+    sameAddress(entry.txSigner.address, entry.from)
+  );
+}
+
+/**
+ * The PROTECTED set (docs/DECISIONS.md D14): every trust anchor, plus inbound
+ * senders with at least `protectInboundMinTransfers` verified inbound
+ * transfers. Lookalikes are compared against this set. Only trust anchors can
+ * produce ALLOW; inbound senders never become trusted for sending.
+ */
+export function buildProtectedSet(
+  trust: readonly TrustAnchor[],
+  history: readonly HistoryEntry[],
+  config: Pick<RiskConfig, 'dustThreshold' | 'protectInboundMinTransfers'>,
+): ProtectedAddress[] {
+  const inbound = new Map<string, { address: Address; hashes: Hash[] }>();
+  for (const entry of history) {
+    if (!isVerifiedInbound(entry, config)) continue;
+    const key = entry.counterparty.toLowerCase();
+    const existing = inbound.get(key);
+    if (existing) existing.hashes.push(entry.txHash);
+    else inbound.set(key, { address: entry.counterparty, hashes: [entry.txHash] });
+  }
+  const result: ProtectedAddress[] = [...trust];
+  for (const { address, hashes } of inbound.values()) {
+    if (hashes.length < config.protectInboundMinTransfers) continue;
+    if (trust.some((a) => sameAddress(a.address, address))) continue;
+    result.push({ kind: 'inbound-sender', address, evidenceTxHashes: hashes });
+  }
+  return result;
+}
+
+export function anchorLabel(anchor: ProtectedAddress): string {
+  switch (anchor.kind) {
+    case 'contact':
+      return anchor.contact.name;
+    case 'confirmed-recipient':
+      return 'an address you sent USDC to before';
+    case 'inbound-sender':
+      return `someone who has sent you USDC (${anchor.address.slice(0, 6)}…${anchor.address.slice(-4)})`;
+  }
 }

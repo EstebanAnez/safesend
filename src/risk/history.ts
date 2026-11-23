@@ -1,9 +1,10 @@
 import type { Address } from 'viem';
-import type { HistoryEntry, PoisoningTechnique, TrustAnchor } from '@/domain/types';
+import type { HistoryEntry, PoisoningTechnique, ProtectedAddress } from '@/domain/types';
 import { sameAddress } from './address';
 import { compareAddresses, isLookalike } from './compare';
 import { plantingTechnique } from './planting';
-import type { CharacterComparison, RiskConfig } from './types';
+import { entriesAfterTestSend } from './testSend';
+import type { CharacterComparison, RiskConfig, TestSend } from './types';
 
 export type HistoryClassification =
   | { kind: 'normal' }
@@ -11,7 +12,7 @@ export type HistoryClassification =
   | {
       kind: 'suspected-poisoning';
       technique: PoisoningTechnique;
-      anchor: TrustAnchor;
+      anchor: ProtectedAddress;
       comparison: CharacterComparison;
     }
   /** Planted-looking entry that does not imitate any anchor we know of. */
@@ -19,17 +20,21 @@ export type HistoryClassification =
 
 export function classifyHistoryEntry(
   entry: HistoryEntry,
-  anchors: readonly TrustAnchor[],
+  /** The PROTECTED set (trust anchors + verified inbound senders). */
+  anchors: readonly ProtectedAddress[],
   user: Address,
   config: RiskConfig,
+  testSends: readonly TestSend[] = [],
 ): HistoryClassification {
-  const technique = plantingTechnique(entry, user, config);
+  const afterTest = entriesAfterTestSend(entry.counterparty, [entry], testSends, config);
+  const technique =
+    afterTest.length > 0 ? 'after-test-send' : plantingTechnique(entry, user, config);
   if (!technique) return { kind: 'normal' };
 
   for (const anchor of anchors) {
     if (sameAddress(anchor.address, entry.counterparty)) continue;
     const comparison = compareAddresses(entry.counterparty, anchor.address);
-    if (isLookalike(comparison, config.prefixMatchLength, config.suffixMatchLength)) {
+    if (isLookalike(comparison, config.lookalike)) {
       return { kind: 'suspected-poisoning', technique, anchor, comparison };
     }
   }

@@ -5,3 +5,7 @@ playwright-report
 test-results
 package-lock.json
 eval/results
+eval/holdout/cases.json
+eval/holdout/cases.sha256
+eval/holdout-v2/cases.json
+eval/holdout-v2/cases.sha256

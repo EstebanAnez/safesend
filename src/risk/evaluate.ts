@@ -1,13 +1,14 @@
 import { zeroAddress } from 'viem';
 import type { Address } from 'viem';
 import { BASE_SEPOLIA_CHAIN_ID, CANONICAL_USDC } from '@/config/chain';
-import type { HistoryEntry, TrustAnchor } from '@/domain/types';
+import type { HistoryEntry, ProtectedAddress, TrustAnchor } from '@/domain/types';
 import { parseAddress, sameAddress } from './address';
 import type { AddressParseError } from './address';
-import { anchorLabel, isConfirmedUserSend } from './anchors';
+import { anchorLabel, buildProtectedSet, isConfirmedUserSend } from './anchors';
 import { compareAddresses, isLookalike } from './compare';
 import { ACKNOWLEDGE_STATEMENT, CHALLENGE_LENGTH, middleRange } from './confirmation';
 import { firstAppearedViaPlanting, plantedVia } from './planting';
+import { entriesAfterTestSend, testSendAnchors } from './testSend';
 import type {
   CharacterComparison,
   ConfirmationRequirement,
@@ -29,7 +30,13 @@ import type {
  * ALLOW: exact trust anchor with no risk signals.
  */
 export function evaluateRisk(input: RiskInput): RiskResult {
-  const { intent, userAddress, anchors, history, historyAvailable, config } = input;
+  const { intent, userAddress, history, historyAvailable, config } = input;
+  const testSends = input.testSends ?? [];
+  // Recipients of SafeSend test sends are compared against like confirmed recipients.
+  const anchors = [
+    ...input.anchors,
+    ...testSendAnchors(testSends, input.anchors, history, userAddress, config),
+  ];
 
   // --- Structural BLOCKs ------------------------------------------------------
   const structural: Reason[] = [];
@@ -110,14 +117,32 @@ export function evaluateRisk(input: RiskInput): RiskResult {
     reasons.push(positiveReason(exact));
   } else {
     // --- Lookalikes of anchors ------------------------------------------------
-    const planted = plantedVia(recipient, history, userAddress, config);
+    const afterTest = entriesAfterTestSend(recipient, history, testSends, config);
+    const planted = [
+      ...plantedVia(recipient, history, userAddress, config),
+      ...afterTest.map((e) => ({
+        entryId: e.entryId,
+        txHash: e.txHash,
+        technique: 'after-test-send' as const,
+      })),
+    ];
     const firstPlanted = firstAppearedViaPlanting(recipient, history, userAddress, config);
-    const highConfidence = !historyAvailable || firstPlanted;
-    for (const anchor of anchors) {
+    const highConfidence = !historyAvailable || firstPlanted || afterTest.length > 0;
+    // Compare against the PROTECTED set (trust anchors + verified inbound senders).
+    for (const anchor of buildProtectedSet(anchors, history, config)) {
       const comparison = compareAddresses(recipient, anchor.address);
-      if (!isLookalike(comparison, config.prefixMatchLength, config.suffixMatchLength)) continue;
+      if (!isLookalike(comparison, config.lookalike)) continue;
       comparisons.push(comparison);
-      reasons.push(lookalikeReason(anchor, comparison, planted, highConfidence, historyAvailable));
+      reasons.push(
+        lookalikeReason(
+          anchor,
+          comparison,
+          planted,
+          highConfidence,
+          historyAvailable,
+          afterTest.length > 0,
+        ),
+      );
     }
 
     // --- New recipient --------------------------------------------------------
@@ -151,23 +176,26 @@ export function evaluateRisk(input: RiskInput): RiskResult {
   }
 
   // --- Amount anomaly (applies to anchors too) ---------------------------------
-  const anomaly = amountAnomaly(intent.amount, history, userAddress, config);
+  const anomaly = amountAnomaly(intent.amount, recipient, history, userAddress, config);
   if (anomaly) reasons.push(anomaly);
 
   return finalize(reasons, { isAnchor: Boolean(exact), comparisons });
 }
 
 function lookalikeReason(
-  anchor: TrustAnchor,
+  anchor: ProtectedAddress,
   comparison: CharacterComparison,
   planted: ReturnType<typeof plantedVia>,
   highConfidence: boolean,
   historyAvailable: boolean,
+  afterTestSend: boolean,
 ): Reason {
   const who = anchorLabel(anchor);
   const origin = !historyAvailable
     ? 'SafeSend could not check your history, so it treats this match as dangerous.'
-    : 'It first appeared in your history through a suspicious transfer, not from someone you know.';
+    : afterTestSend
+      ? 'It showed up in your history right after your test send. Scammers watch for test sends and plant a lookalike within minutes.'
+      : 'It first appeared in your history through a suspicious transfer, not from someone you know.';
   return {
     code: highConfidence ? 'LOOKALIKE_HIGH_CONFIDENCE' : 'LOOKALIKE',
     severity: highConfidence ? 'block' : 'warn',
@@ -180,31 +208,48 @@ function lookalikeReason(
 }
 
 /**
- * WARN when the amount is more than `amountAnomalyMultiplier` times the user's
- * median confirmed send. No baseline (fewer than `amountBaselineMinSends`
- * confirmed sends) means no signal: absence of data is not evidence.
+ * WARN when the amount is more than `amountAnomalyMultiplier` times the usual
+ * send (docs/DECISIONS.md D11):
+ * - per recipient: median of signer-confirmed sends TO THIS RECIPIENT, once
+ *   there are at least `amountRecipientMinSends` of them;
+ * - otherwise the global median of signer-confirmed sends, once there are at
+ *   least `amountBaselineMinSends`;
+ * - otherwise no signal: absence of data is not evidence.
  */
 function amountAnomaly(
   amount: bigint,
+  recipient: Address,
   history: readonly HistoryEntry[],
   user: Address,
   config: RiskConfig,
 ): Reason | null {
-  const sends = history
-    .filter((e) => isConfirmedUserSend(e, user))
-    .map((e) => e.amount)
-    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-  if (sends.length < config.amountBaselineMinSends) return null;
-  const median = medianOf(sends);
-  // Integer math: amount > median * multiplier, with the multiplier scaled by 100.
+  const sorted = (xs: bigint[]) => xs.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  const confirmed = history.filter((e) => isConfirmedUserSend(e, user));
+  const toRecipient = sorted(
+    confirmed.filter((e) => sameAddress(e.counterparty, recipient)).map((e) => e.amount),
+  );
+  const all = sorted(confirmed.map((e) => e.amount));
+
+  let reference: bigint;
+  let referenceLabel: string;
+  if (toRecipient.length >= config.amountRecipientMinSends) {
+    reference = medianOf(toRecipient);
+    referenceLabel = 'your usual send to this person';
+  } else if (all.length >= config.amountBaselineMinSends) {
+    reference = medianOf(all);
+    referenceLabel = 'your median send';
+  } else {
+    return null;
+  }
+  // Integer math: amount > reference * multiplier, with the multiplier scaled by 100.
   const scaled = BigInt(Math.round(config.amountAnomalyMultiplier * 100));
-  if (amount * 100n <= median * scaled) return null;
+  if (amount * 100n <= reference * scaled) return null;
   return {
     code: 'AMOUNT_ANOMALY',
     severity: 'warn',
     title: 'Much larger than your usual send',
-    explanation: `This is more than ${config.amountAnomalyMultiplier} times what you usually send. Scams often push for a large, urgent payment. Take a moment to confirm.`,
-    evidence: { kind: 'amount', amount, reference: median, referenceLabel: 'your median send' },
+    explanation: `This is more than ${config.amountAnomalyMultiplier} times ${referenceLabel}. Scams often push for a large, urgent payment. Take a moment to confirm.`,
+    evidence: { kind: 'amount', amount, reference, referenceLabel },
   };
 }
 

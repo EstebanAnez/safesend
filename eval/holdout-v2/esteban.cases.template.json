@@ -1,0 +1,38 @@
+{
+  "cases": [
+    {
+      "id": "V2-E01",
+      "label": "attack",
+      "title": "Replace with one line describing the situation",
+      "rationale": "Why this happens in real life, and why it is an attack.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [
+        {
+          "block": 3300,
+          "from": "lookalike:lucia:4:4:e01",
+          "to": "me",
+          "amount": "0.001",
+          "signer": "lookalike:lucia:4:4:e01"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": { "to": "lookalike:lucia:4:4:e01", "amount": "50", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-E02",
+      "label": "legit",
+      "title": "Replace with an ordinary payment that might look unusual",
+      "rationale": "Why this is normal and should not be blocked.",
+      "sources": [],
+      "contacts": ["lucia"],
+      "baseHistory": true,
+      "history": [],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": { "to": "lucia", "amount": "45", "pickedFrom": "contacts" }
+    }
+  ]
+}

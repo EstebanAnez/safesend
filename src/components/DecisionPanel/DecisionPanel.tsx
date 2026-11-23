@@ -7,7 +7,7 @@ import { Checkbox, TextInput } from '@coinbase/cds-web/controls';
 import { Box, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 import type { Address } from 'viem';
-import type { TrustAnchor } from '@/domain/types';
+import type { ProtectedAddress } from '@/domain/types';
 import { useChallengePositions } from '@/hooks/useChallengePositions';
 import { formatUsdc } from '@/lib/amount';
 import { anchorLabel } from '@/risk/anchors';
@@ -24,7 +24,7 @@ interface Props {
   recipient: Address | null;
   amount: bigint;
   onConfirm: () => void;
-  onRecover: (anchor: TrustAnchor) => void;
+  onRecover: (anchor: ProtectedAddress) => void;
   onCancel: () => void;
   /** Switch to a small test amount (shown when the engine suggests a test send). */
   onUseTestAmount?: () => void;
@@ -141,7 +141,9 @@ export function DecisionPanel({
         <VStack gap={1}>
           {lookalike && (
             <Button block onClick={() => onRecover(lookalike.evidence.anchor)}>
-              Send to {anchorLabel(lookalike.evidence.anchor)} instead
+              {lookalike.evidence.anchor.kind === 'inbound-sender'
+                ? 'Use the address that sent you USDC instead'
+                : `Send to ${anchorLabel(lookalike.evidence.anchor)} instead`}
             </Button>
           )}
           <Button block variant="secondary" onClick={onCancel}>
