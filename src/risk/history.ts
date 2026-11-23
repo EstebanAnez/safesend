@@ -3,7 +3,8 @@ import type { HistoryEntry, PoisoningTechnique, TrustAnchor } from '@/domain/typ
 import { sameAddress } from './address';
 import { compareAddresses, isLookalike } from './compare';
 import { plantingTechnique } from './planting';
-import type { CharacterComparison, RiskConfig } from './types';
+import { entriesAfterTestSend } from './testSend';
+import type { CharacterComparison, RiskConfig, TestSend } from './types';
 
 export type HistoryClassification =
   | { kind: 'normal' }
@@ -22,8 +23,11 @@ export function classifyHistoryEntry(
   anchors: readonly TrustAnchor[],
   user: Address,
   config: RiskConfig,
+  testSends: readonly TestSend[] = [],
 ): HistoryClassification {
-  const technique = plantingTechnique(entry, user, config);
+  const afterTest = entriesAfterTestSend(entry.counterparty, [entry], testSends, config);
+  const technique =
+    afterTest.length > 0 ? 'after-test-send' : plantingTechnique(entry, user, config);
   if (!technique) return { kind: 'normal' };
 
   for (const anchor of anchors) {

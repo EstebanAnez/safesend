@@ -1,0 +1,3724 @@
+{
+  "schemaVersion": 1,
+  "description": "SafeSend DEV set (generated, synthetic). Used while building; may be used for tuning.",
+  "cases": [
+    {
+      "id": "D-A01",
+      "label": "attack",
+      "category": "zero-value",
+      "title": "zero-value lookalike 6/4 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b41c3f4ea72b683b3505615bc0a3a282b457b",
+          "amount": "0",
+          "signer": "0x5a78e2a6cda2dac81ce2c9202b3b7328121f16bd"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b41c3f4ea72b683b3505615bc0a3a282b457b",
+        "amount": "50",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A02",
+      "label": "attack",
+      "category": "counterfeit",
+      "title": "counterfeit lookalike 3/2 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "token": {
+            "contract": "0xd49912c0d73a9201c335aa55efaea7cb943bf4a2",
+            "symbol": "USDC"
+          },
+          "from": "0x8dc095ebf7e83f098cb56be766d46a1de0b7989c",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "50",
+          "signer": "0x5a78e2a6cda2dac81ce2c9202b3b7328121f16bd"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dc095ebf7e83f098cb56be766d46a1de0b7989c",
+        "amount": "10",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A03",
+      "label": "attack",
+      "category": "zero-value",
+      "title": "zero-value lookalike 3/4 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dc7cd8c98cacb0a8245fa5c6300e35513aaf69c",
+          "amount": "0",
+          "signer": "0x5a78e2a6cda2dac81ce2c9202b3b7328121f16bd"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dc7cd8c98cacb0a8245fa5c6300e35513aaf69c",
+        "amount": "50",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A04",
+      "label": "attack",
+      "category": "dust",
+      "title": "dust lookalike 4/2 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x245b1661d7157aa293d9797aab44aa93975fd37b",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "0.001",
+          "signer": "0x245b1661d7157aa293d9797aab44aa93975fd37b"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b1661d7157aa293d9797aab44aa93975fd37b",
+        "amount": "300",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A05",
+      "label": "attack",
+      "category": "zero-value",
+      "title": "zero-value lookalike 2/3 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8d2323f47644a999e230e0fb076150412417769c",
+          "amount": "0",
+          "signer": "0x5a78e2a6cda2dac81ce2c9202b3b7328121f16bd"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8d2323f47644a999e230e0fb076150412417769c",
+        "amount": "10",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A06",
+      "label": "attack",
+      "category": "dust",
+      "title": "dust lookalike 3/2 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x8dc241897ca47c5fd4b3f6edac41e0d07a47729c",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "0.001",
+          "signer": "0x8dc241897ca47c5fd4b3f6edac41e0d07a47729c"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dc241897ca47c5fd4b3f6edac41e0d07a47729c",
+        "amount": "300",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A07",
+      "label": "attack",
+      "category": "dust",
+      "title": "dust lookalike 2/2 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x8de603f0b35a1e06a3be97e8a5cbbc9d2b9d1c9c",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "0.001",
+          "signer": "0x8de603f0b35a1e06a3be97e8a5cbbc9d2b9d1c9c"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8de603f0b35a1e06a3be97e8a5cbbc9d2b9d1c9c",
+        "amount": "50",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A08",
+      "label": "attack",
+      "category": "pasted",
+      "title": "pasted lookalike 4/4 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca36cf3fe8e6a717600ce638d64dc24341f69c",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-A09",
+      "label": "attack",
+      "category": "counterfeit",
+      "title": "counterfeit lookalike 4/3 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "token": {
+            "contract": "0xd49912c0d73a9201c335aa55efaea7cb943bf4a2",
+            "symbol": "USDC"
+          },
+          "from": "0x245b7acfc45d2ba1a12adcf071afb97b719dc57b",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "50",
+          "signer": "0x5a78e2a6cda2dac81ce2c9202b3b7328121f16bd"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b7acfc45d2ba1a12adcf071afb97b719dc57b",
+        "amount": "50",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A10",
+      "label": "attack",
+      "category": "dust",
+      "title": "dust lookalike 5/6 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x8dca8636fec56fe9a5625cc2cda9fba3b67ff69c",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "0.001",
+          "signer": "0x8dca8636fec56fe9a5625cc2cda9fba3b67ff69c"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca8636fec56fe9a5625cc2cda9fba3b67ff69c",
+        "amount": "10",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A11",
+      "label": "attack",
+      "category": "counterfeit",
+      "title": "counterfeit lookalike 3/3 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "token": {
+            "contract": "0xd49912c0d73a9201c335aa55efaea7cb943bf4a2",
+            "symbol": "USDC"
+          },
+          "from": "0x245e22a1d011f99c2fc9f0a86d052cb1b621f57b",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "50",
+          "signer": "0x5a78e2a6cda2dac81ce2c9202b3b7328121f16bd"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245e22a1d011f99c2fc9f0a86d052cb1b621f57b",
+        "amount": "50",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A12",
+      "label": "attack",
+      "category": "pasted",
+      "title": "pasted lookalike 2/6 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x240a882fbaca055119afa2d465fa2f37f6e6457b",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-A13",
+      "label": "attack",
+      "category": "pasted",
+      "title": "pasted lookalike 3/3 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245815289c4918e982d4bc0cd0e78f59c16cb57b",
+        "amount": "300",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-A14",
+      "label": "attack",
+      "category": "dust",
+      "title": "dust lookalike 5/6 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x245b429ea5f22f35ba93439b0695dff686e6457b",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "0.001",
+          "signer": "0x245b429ea5f22f35ba93439b0695dff686e6457b"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b429ea5f22f35ba93439b0695dff686e6457b",
+        "amount": "300",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A15",
+      "label": "attack",
+      "category": "dust",
+      "title": "dust lookalike 3/2 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x245867055d68b1b25a17d451019eda6389c0067b",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "0.001",
+          "signer": "0x245867055d68b1b25a17d451019eda6389c0067b"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245867055d68b1b25a17d451019eda6389c0067b",
+        "amount": "300",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A16",
+      "label": "attack",
+      "category": "pasted",
+      "title": "pasted lookalike 6/4 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b4136df60f94a58e6774b436eb6927ffd457b",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-A17",
+      "label": "attack",
+      "category": "counterfeit",
+      "title": "counterfeit lookalike 4/4 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "token": {
+            "contract": "0xd49912c0d73a9201c335aa55efaea7cb943bf4a2",
+            "symbol": "USDC"
+          },
+          "from": "0x245b143e60e07e4a3ce5476d7d34748504d2457b",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "50",
+          "signer": "0x5a78e2a6cda2dac81ce2c9202b3b7328121f16bd"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b143e60e07e4a3ce5476d7d34748504d2457b",
+        "amount": "10",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A18",
+      "label": "attack",
+      "category": "dust",
+      "title": "dust lookalike 6/2 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x8dca88af43f14a9ac6b72c0607ebaa9fea33c79c",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "0.001",
+          "signer": "0x8dca88af43f14a9ac6b72c0607ebaa9fea33c79c"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca88af43f14a9ac6b72c0607ebaa9fea33c79c",
+        "amount": "300",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A19",
+      "label": "attack",
+      "category": "pasted",
+      "title": "pasted lookalike 3/3 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dc7db8693f3b28e3571bdca447da31dd897a69c",
+        "amount": "300",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-A20",
+      "label": "attack",
+      "category": "pasted",
+      "title": "pasted lookalike 5/5 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca8402c5539e2a2d1de51a7adf1d4bb5bff69c",
+        "amount": "300",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-A21",
+      "label": "attack",
+      "category": "zero-value",
+      "title": "zero-value lookalike 4/3 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b0f3e0ae2cca9d696683507c9a17b16a9557b",
+          "amount": "0",
+          "signer": "0x5a78e2a6cda2dac81ce2c9202b3b7328121f16bd"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b0f3e0ae2cca9d696683507c9a17b16a9557b",
+        "amount": "300",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A22",
+      "label": "attack",
+      "category": "dust",
+      "title": "dust lookalike 6/4 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x8dca888ba31684f71ee7da2aea07ffdf1676f69c",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "0.001",
+          "signer": "0x8dca888ba31684f71ee7da2aea07ffdf1676f69c"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca888ba31684f71ee7da2aea07ffdf1676f69c",
+        "amount": "10",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A23",
+      "label": "attack",
+      "category": "dust",
+      "title": "dust lookalike 4/5 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x245b5a9e165b375b7d7a3e67d1c0bc68c0a6457b",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "0.001",
+          "signer": "0x245b5a9e165b375b7d7a3e67d1c0bc68c0a6457b"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b5a9e165b375b7d7a3e67d1c0bc68c0a6457b",
+        "amount": "10",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A24",
+      "label": "attack",
+      "category": "pasted",
+      "title": "pasted lookalike 3/4 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dcb14ff008828f239fb26fe3292cfb8206cf69c",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-A25",
+      "label": "attack",
+      "category": "pasted",
+      "title": "pasted lookalike 4/4 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca29c3770916acefcf5ae7d6dfedd42524f69c",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-A26",
+      "label": "attack",
+      "category": "dust",
+      "title": "dust lookalike 4/6 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x245b56971b731495435cdd95835f1e7d45e6457b",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "0.001",
+          "signer": "0x245b56971b731495435cdd95835f1e7d45e6457b"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b56971b731495435cdd95835f1e7d45e6457b",
+        "amount": "10",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A27",
+      "label": "attack",
+      "category": "dust",
+      "title": "dust lookalike 2/4 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x246240cdfd043c4340fd8b51c23d86fe24a7457b",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "0.001",
+          "signer": "0x246240cdfd043c4340fd8b51c23d86fe24a7457b"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x246240cdfd043c4340fd8b51c23d86fe24a7457b",
+        "amount": "300",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A28",
+      "label": "attack",
+      "category": "dust",
+      "title": "dust lookalike 2/3 of contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "from": "0x8d25cefb755eb4e9ecf58126402f805d1931369c",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "0.001",
+          "signer": "0x8d25cefb755eb4e9ecf58126402f805d1931369c"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8d25cefb755eb4e9ecf58126402f805d1931369c",
+        "amount": "300",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A29",
+      "label": "attack",
+      "category": "counterfeit",
+      "title": "counterfeit lookalike 4/6 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "token": {
+            "contract": "0xd49912c0d73a9201c335aa55efaea7cb943bf4a2",
+            "symbol": "USDC"
+          },
+          "from": "0x245b35238e4df58e09ba500cc45c3aa1bbe6457b",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "50",
+          "signer": "0x5a78e2a6cda2dac81ce2c9202b3b7328121f16bd"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b35238e4df58e09ba500cc45c3aa1bbe6457b",
+        "amount": "50",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-A30",
+      "label": "attack",
+      "category": "counterfeit",
+      "title": "counterfeit lookalike 2/4 of past recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 501,
+          "token": {
+            "contract": "0xd49912c0d73a9201c335aa55efaea7cb943bf4a2",
+            "symbol": "USDC"
+          },
+          "from": "0x24ed9befea355842cfd08b3c3b17f14b85e7457b",
+          "to": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "amount": "50",
+          "signer": "0x5a78e2a6cda2dac81ce2c9202b3b7328121f16bd"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x24ed9befea355842cfd08b3c3b17f14b85e7457b",
+        "amount": "10",
+        "pickedFrom": "history"
+      }
+    },
+    {
+      "id": "D-L01",
+      "label": "legit",
+      "category": "contact",
+      "title": "contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L02",
+      "label": "legit",
+      "category": "new",
+      "title": "new",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0xe252b54b295b06b679df42e8b8f6e0c822cb7315",
+        "amount": "250",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L03",
+      "label": "legit",
+      "category": "contact",
+      "title": "contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+        "amount": "250",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L04",
+      "label": "legit",
+      "category": "contact",
+      "title": "contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L05",
+      "label": "legit",
+      "category": "new",
+      "title": "new",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x5151c839f2556ae193d8504ef144faf4db4ea946",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L06",
+      "label": "legit",
+      "category": "past-recipient",
+      "title": "past-recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b4117bd984f49d85fab506396fc449de6457b",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L07",
+      "label": "legit",
+      "category": "new",
+      "title": "new",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x1ebd422ca93acb40fbc5a1789bb17db6ea248a50",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L08",
+      "label": "legit",
+      "category": "benign-overlap",
+      "title": "benign overlap 3/1",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x24509df634f0de37105c0c5d517d4275d11c9cfb",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L09",
+      "label": "legit",
+      "category": "benign-overlap",
+      "title": "benign overlap 4/0",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245bd3165a389db86dfb4545c89dbfbb6197e392",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L10",
+      "label": "legit",
+      "category": "new",
+      "title": "new",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0xb84b1f673a40261473eea7857f0359a69f4849b9",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L11",
+      "label": "legit",
+      "category": "past-recipient",
+      "title": "past-recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b4117bd984f49d85fab506396fc449de6457b",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L12",
+      "label": "legit",
+      "category": "benign-overlap",
+      "title": "benign overlap 2/0",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x24af4f5b8a18edf2fff10094683184938d09c955",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L13",
+      "label": "legit",
+      "category": "contact",
+      "title": "contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L14",
+      "label": "legit",
+      "category": "new",
+      "title": "new",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0xa92fb32fc293fd20e098a1f7e02f8d10619f503e",
+        "amount": "250",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L15",
+      "label": "legit",
+      "category": "benign-overlap",
+      "title": "benign overlap 1/4",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x25358e715b1ab82e537288193e7dda572ab7457b",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L16",
+      "label": "legit",
+      "category": "benign-overlap",
+      "title": "benign overlap 1/4",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8e01cea09f024ead578a0f2bce496ec1e1a6f69c",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L17",
+      "label": "legit",
+      "category": "contact",
+      "title": "contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L18",
+      "label": "legit",
+      "category": "contact",
+      "title": "contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L19",
+      "label": "legit",
+      "category": "new",
+      "title": "new",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0xa423aa48945a2a50721c406d4683624dd5350c4d",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L20",
+      "label": "legit",
+      "category": "past-recipient",
+      "title": "past-recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b4117bd984f49d85fab506396fc449de6457b",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L21",
+      "label": "legit",
+      "category": "new",
+      "title": "new",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x7639dd8029959978d690702a9b077832d7e04581",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L22",
+      "label": "legit",
+      "category": "benign-overlap",
+      "title": "benign overlap 3/0",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dc16508ba1701a8fd174b53bca946140fd08026",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L23",
+      "label": "legit",
+      "category": "new",
+      "title": "new",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x17f23c1f911e1b66af4f50e102e72e023f511218",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L24",
+      "label": "legit",
+      "category": "contact",
+      "title": "contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+        "amount": "250",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L25",
+      "label": "legit",
+      "category": "contact",
+      "title": "contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L26",
+      "label": "legit",
+      "category": "benign-overlap",
+      "title": "benign overlap 4/1",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca9153605350b553c4ab4d7e655286ca826f2c",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L27",
+      "label": "legit",
+      "category": "benign-overlap",
+      "title": "benign overlap 0/2",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x73f8d55c01dc42acbccc89f7453c6eeed0aa477b",
+        "amount": "250",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L28",
+      "label": "legit",
+      "category": "contact",
+      "title": "contact",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+        "amount": "10",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L29",
+      "label": "legit",
+      "category": "new",
+      "title": "new",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0xcbd93f8d6ee02caafcd9f5518b404ef07c9076a8",
+        "amount": "250",
+        "pickedFrom": "pasted"
+      }
+    },
+    {
+      "id": "D-L30",
+      "label": "legit",
+      "category": "past-recipient",
+      "title": "past-recipient",
+      "rationale": "Generated dev case.",
+      "sources": [],
+      "user": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+      "contacts": [
+        {
+          "name": "Sister",
+          "address": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c"
+        }
+      ],
+      "history": [
+        {
+          "block": 100,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "40",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 200,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 300,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "45",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 400,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x245b4117bd984f49d85fab506396fc449de6457b",
+          "amount": "250",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        },
+        {
+          "block": 500,
+          "from": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9",
+          "to": "0x8dca88b97f7860dd884ceabf56a3260a707ff69c",
+          "amount": "50",
+          "signer": "0x102b1a48fc9229f94281a91f8fcd009fb0cfe7e9"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": {
+        "recipient": "0x245b4117bd984f49d85fab506396fc449de6457b",
+        "amount": "50",
+        "pickedFrom": "pasted"
+      }
+    }
+  ]
+}

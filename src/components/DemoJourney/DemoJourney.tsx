@@ -30,7 +30,12 @@ type Step =
   | { kind: 'aborted'; message: string };
 
 export function DemoJourney({ scenarioId }: { scenarioId: string }) {
-  const { scenario, config, history, anchors, classifications } = useDemoScenario(scenarioId);
+  const { scenario, config, history, anchors, classifications, testSends, recordTestSend } =
+    useDemoScenario(scenarioId);
+  /** The current review was started from the test-send nudge. */
+  const [testPending, setTestPending] = useState(false);
+  const [lastSendWasTest, setLastSendWasTest] = useState(false);
+  const amountRef = useRef<HTMLInputElement>(null);
   const [recipientInput, setRecipientInput] = useState('');
   const [amountInput, setAmountInput] = useState('');
   const [amountError, setAmountError] = useState<string | null>(null);
@@ -53,10 +58,11 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
             anchors,
             history: historyEntries,
             historyAvailable,
+            testSends,
             config,
           }
         : null,
-    [step, scenario.user.address, anchors, historyEntries, historyAvailable, config],
+    [step, scenario.user.address, anchors, historyEntries, historyAvailable, testSends, config],
   );
   const result = useRiskDecision(riskInput);
   const reviewedRecipient = useMemo(() => {
@@ -84,6 +90,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
   }, []);
 
   const handleUseAddress = useCallback((address: Address) => {
+    setTestPending(false);
     setRecipientInput(address);
     setStep({ kind: 'compose' });
     recipientRef.current?.focus();
@@ -122,13 +129,86 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
       setStep({ kind: 'aborted', message: check.message });
       return;
     }
+    if (testPending) recordTestSend(reviewedRecipient, step.intent.amount);
+    setLastSendWasTest(testPending);
+    setTestPending(false);
     send(reviewedRecipient, step.intent.amount);
-  }, [step, riskInput, result, reviewedRecipient, recipientInput, amountInput, send]);
+  }, [
+    step,
+    riskInput,
+    result,
+    reviewedRecipient,
+    recipientInput,
+    amountInput,
+    send,
+    testPending,
+    recordTestSend,
+  ]);
 
   const handleUseTestAmount = useCallback(() => {
+    setTestPending(true);
     setAmountInput('1');
     review(recipientInput, '1');
   }, [recipientInput, review]);
+
+  /** After a test send: compose the real send without touching history. */
+  const startFollowUp = useCallback(
+    (address: Address) => {
+      reset();
+      setTestPending(false);
+      setLastSendWasTest(false);
+      setRecipientInput(address);
+      setAmountInput('');
+      setStep({ kind: 'compose' });
+      requestAnimationFrame(() => amountRef.current?.focus());
+    },
+    [reset],
+  );
+
+  if (sendState.status === 'sent' && lastSendWasTest) {
+    const testRecipient = sendState.recipient;
+    return (
+      <VStack gap={2} as="section" aria-labelledby="test-sent-heading">
+        <Text as="h2" font="title2" id="test-sent-heading">
+          Test send complete (simulated)
+        </Text>
+        <Text as="p" font="body">
+          {formatUsdc(sendState.amount)} USDC to{' '}
+          <Text as="span" mono font="body">
+            {testRecipient}
+          </Text>
+        </Text>
+        <Banner
+          variant="warning"
+          startIcon="warning"
+          startIconAccessibilityLabel="Warning"
+          styleVariant="contextual"
+          title={
+            <Text as="p" font="label1">
+              Do not copy the address from your activity for the rest
+            </Text>
+          }
+        >
+          <Text as="p" font="label2">
+            Scammers watch for test sends and plant a lookalike address within minutes. Ask the
+            person to confirm the test arrived, then send the rest with the button below or from
+            your contacts.
+          </Text>
+        </Banner>
+        <Button block onClick={() => startFollowUp(testRecipient)}>
+          Send the rest to the same address
+        </Button>
+        {scenario.contacts.map((c) => (
+          <Button key={c.id} block variant="secondary" onClick={() => startFollowUp(c.address)}>
+            Send to {c.name} (contact)
+          </Button>
+        ))}
+        <Text as="p" font="label2" color="fgMuted">
+          Demo mode: nothing was signed or broadcast.
+        </Text>
+      </VStack>
+    );
+  }
 
   if (sendState.status === 'sent') {
     const anchor = anchors.find((a) => sameAddress(a.address, sendState.recipient));
@@ -198,6 +278,24 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
         )}
         {history.status === 'success' && (
           <>
+            {testSends.length > 0 && (
+              <Banner
+                variant="warning"
+                startIcon="warning"
+                startIconAccessibilityLabel="Warning"
+                styleVariant="contextual"
+                title={
+                  <Text as="p" font="label1">
+                    You just made a test send
+                  </Text>
+                }
+              >
+                <Text as="p" font="label2">
+                  Do not copy an address from this list for the rest. Use your contacts or the
+                  address you tested.
+                </Text>
+              </Banner>
+            )}
             <Text as="p" font="label2" color="fgMuted">
               Demo data (fixture scenario). Every address and transaction here is synthetic.
             </Text>
@@ -257,6 +355,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
               spellCheck={false}
             />
             <TextInput
+              ref={amountRef}
               label="Amount"
               suffix="USDC"
               inputMode="decimal"

@@ -127,5 +127,18 @@ export interface RiskInput {
    * BLOCK then relies on the both-ends match alone.
    */
   historyAvailable: boolean;
+  /**
+   * Test sends SafeSend performed for this user (most recent last). Lookalikes of
+   * a test-send recipient that appear in history after the test are high risk.
+   */
+  testSends?: readonly TestSend[];
   config: RiskConfig;
+}
+
+export interface TestSend {
+  recipient: Address;
+  amount: bigint;
+  /** Block of the test send; history entries in later blocks are "after" it. */
+  blockNumber: bigint;
+  txHash?: Hash;
 }

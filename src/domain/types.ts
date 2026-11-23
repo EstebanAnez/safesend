@@ -37,7 +37,12 @@ export type TxSigner =
   { status: 'unknown' } | { status: 'known'; address: Address; via: 'tx-from' | 'user-operation' };
 
 /** Planting technique, when an entry looks like a poisoning attempt. */
-export type PoisoningTechnique = 'zero-value' | 'dust' | 'counterfeit-token';
+/**
+ * How a lookalike got into history. 'after-test-send' is timing, not a token
+ * technique: any lookalike of a test-send recipient that shows up after the
+ * test send, whatever the amount (attackers strike right after test sends).
+ */
+export type PoisoningTechnique = 'zero-value' | 'dust' | 'counterfeit-token' | 'after-test-send';
 
 export interface HistoryEntry {
   /** Stable id: `${txHash}:${logIndex}`. */

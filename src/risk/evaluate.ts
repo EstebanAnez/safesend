@@ -8,6 +8,7 @@ import { anchorLabel, isConfirmedUserSend } from './anchors';
 import { compareAddresses, isLookalike } from './compare';
 import { ACKNOWLEDGE_STATEMENT, CHALLENGE_LENGTH, middleRange } from './confirmation';
 import { firstAppearedViaPlanting, plantedVia } from './planting';
+import { entriesAfterTestSend, testSendAnchors } from './testSend';
 import type {
   CharacterComparison,
   ConfirmationRequirement,
@@ -29,7 +30,13 @@ import type {
  * ALLOW: exact trust anchor with no risk signals.
  */
 export function evaluateRisk(input: RiskInput): RiskResult {
-  const { intent, userAddress, anchors, history, historyAvailable, config } = input;
+  const { intent, userAddress, history, historyAvailable, config } = input;
+  const testSends = input.testSends ?? [];
+  // Recipients of SafeSend test sends are compared against like confirmed recipients.
+  const anchors = [
+    ...input.anchors,
+    ...testSendAnchors(testSends, input.anchors, history, userAddress, config),
+  ];
 
   // --- Structural BLOCKs ------------------------------------------------------
   const structural: Reason[] = [];
@@ -110,14 +117,31 @@ export function evaluateRisk(input: RiskInput): RiskResult {
     reasons.push(positiveReason(exact));
   } else {
     // --- Lookalikes of anchors ------------------------------------------------
-    const planted = plantedVia(recipient, history, userAddress, config);
+    const afterTest = entriesAfterTestSend(recipient, history, testSends, config);
+    const planted = [
+      ...plantedVia(recipient, history, userAddress, config),
+      ...afterTest.map((e) => ({
+        entryId: e.entryId,
+        txHash: e.txHash,
+        technique: 'after-test-send' as const,
+      })),
+    ];
     const firstPlanted = firstAppearedViaPlanting(recipient, history, userAddress, config);
-    const highConfidence = !historyAvailable || firstPlanted;
+    const highConfidence = !historyAvailable || firstPlanted || afterTest.length > 0;
     for (const anchor of anchors) {
       const comparison = compareAddresses(recipient, anchor.address);
       if (!isLookalike(comparison, config.prefixMatchLength, config.suffixMatchLength)) continue;
       comparisons.push(comparison);
-      reasons.push(lookalikeReason(anchor, comparison, planted, highConfidence, historyAvailable));
+      reasons.push(
+        lookalikeReason(
+          anchor,
+          comparison,
+          planted,
+          highConfidence,
+          historyAvailable,
+          afterTest.length > 0,
+        ),
+      );
     }
 
     // --- New recipient --------------------------------------------------------
@@ -163,11 +187,14 @@ function lookalikeReason(
   planted: ReturnType<typeof plantedVia>,
   highConfidence: boolean,
   historyAvailable: boolean,
+  afterTestSend: boolean,
 ): Reason {
   const who = anchorLabel(anchor);
   const origin = !historyAvailable
     ? 'SafeSend could not check your history, so it treats this match as dangerous.'
-    : 'It first appeared in your history through a suspicious transfer, not from someone you know.';
+    : afterTestSend
+      ? 'It showed up in your history right after your test send. Scammers watch for test sends and plant a lookalike within minutes.'
+      : 'It first appeared in your history through a suspicious transfer, not from someone you know.';
   return {
     code: highConfidence ? 'LOOKALIKE_HIGH_CONFIDENCE' : 'LOOKALIKE',
     severity: highConfidence ? 'block' : 'warn',
