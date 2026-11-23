@@ -29,14 +29,21 @@ son himself still needs a confirmation the first time she pays him.
 | `WRONG_NETWORK`               | Chain id is not 84532 (Base Sepolia)                                                                                                                                                                                                                                 |
 | `WRONG_TOKEN`                 | Token is not canonical USDC                                                                                                                                                                                                                                          |
 | `LOOKALIKE_HIGH_CONFIDENCE`   | A lookalike of a protected address (by the configured rule) whose **first appearance** in history was dust, zero-value or a counterfeit token, **or** that appeared after a test send to the address it imitates, **or** any lookalike when history couldn't be read |
+| `LOOKALIKE`                   | **Any other** lookalike of a protected address, with no planting or timing evidence (for example, pasted from a "my address changed" message). D23                                                                                                                   |
 
 The BLOCK screen explains the reason, shows the character comparison, and offers recovery.
+
+**Every lookalike of a protected address is a BLOCK (D23).** The two codes differ only in the
+evidence they report: `LOOKALIKE_HIGH_CONFIDENCE` has planting or timing evidence (or history was
+unreadable), `LOOKALIKE` has none. The base rates below are the reason: under the shipped rule, an
+innocent address matches a given protected address about 1 in 5.8 million times, so a "new
+address" that resembles a contact is almost certainly an attack. The legitimate path is to add the
+new address as a contact, with re-entry and an out-of-band confirmation (D16).
 
 ### WARN: explicit, proportional confirmation (D8)
 
 | Code                                           | When                                                                                           |
 | ---------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `LOOKALIKE`                                    | Lookalike of a protected address with no planting or timing evidence                           |
 | `NEW_RECIPIENT` / `NEW_RECIPIENT_LARGE_AMOUNT` | Not in the trust set. "Large" means above the first-send threshold (25 USDC)                   |
 | `UNKNOWN_PROVENANCE`                           | The recipient appears in history only through entries whose provenance couldn't be established |
 | `AMOUNT_ANOMALY`                               | Above 5× the usual send, with a per-recipient baseline and a global fallback (see below)       |
@@ -105,6 +112,11 @@ Values are computed exactly by summing the series. "N = …" columns are "1 in" 
   dangerous. In practice it requires both an outage and a rare coincidence: about 1 in 290,000
   per send at N = 20 under the shipped rule. Without history, "it looks like your sister but
   isn't" is far more likely to be an attack than a coincidence.
+- **Why every lookalike is a BLOCK (D23).** The same arithmetic that makes H-L16 acceptable applies
+  without an outage: at N = 20, about 1 in 290,000 first sends would coincidentally match. Those
+  people are blocked until added as a contact (re-entry plus a phone check). On the holdouts, which
+  deliberately over-sample such coincidences, this moved legitimate BLOCKs from 1 to 6 of 20 (v1)
+  and from 0 to 1 of 15 (v2), post-hoc (EVAL.md).
 - **The shipped total rule trades a looser match for coverage of "users check only one end".**
   The rule is "at least 6 matched in total, at least 2 on each end". It catches 2/4, 2/5 and 4/2
   lookalikes (H-A09, V2-C07, V2-E05) that 3/4 misses or stops only because of the amount. Its

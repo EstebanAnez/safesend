@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
-import type { Locator, Page } from '@playwright/test';
+import { expect, test } from './fixtures';
+import type { Locator, Page } from './fixtures';
 
 /**
  * The full journey with the keyboard alone: no clicks, no fills. Every control

@@ -1,12 +1,12 @@
 {
   "setting": "total>=6 (>=2 each end)",
   "tp": {
-    "blocked": 17,
+    "blocked": 20,
     "strong": 20,
     "flagged": 20
   },
   "fp": {
-    "blocked": 1,
+    "blocked": 6,
     "strong": 9,
     "flagged": 12
   }

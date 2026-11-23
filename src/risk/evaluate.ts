@@ -196,13 +196,17 @@ function lookalikeReason(
     : afterTestSend
       ? 'It showed up in your history right after your test send. Scammers watch for test sends and plant a lookalike within minutes.'
       : 'It first appeared in your history through a suspicious transfer, not from someone you know.';
+  // Every lookalike of a protected address is a BLOCK (D23). The code still records whether
+  // there was planting or timing evidence, for the explanation and for evaluation attribution.
   return {
     code: highConfidence ? 'LOOKALIKE_HIGH_CONFIDENCE' : 'LOOKALIKE',
-    severity: highConfidence ? 'block' : 'warn',
-    title: highConfidence ? `This address imitates ${who}` : `This address looks a lot like ${who}`,
+    severity: 'block',
+    title: highConfidence
+      ? `This address imitates ${who}`
+      : `This address looks like ${who}, but it is not theirs`,
     explanation: highConfidence
       ? `The start and end match ${who}, but the middle is different. ${origin} This is how address poisoning scams work.`
-      : `The start and end match ${who}, but the middle is different. Check the middle characters with the person before you send.`,
+      : `The start and end match ${who}, but the middle is different. A real address almost never matches someone you know this closely, so this is very likely a scam, for example a message saying their address changed. If ${who} really has a new address, confirm it with them by phone and add it as a contact.`,
     evidence: { kind: 'lookalike', anchor, comparison, plantedVia: planted },
   };
 }

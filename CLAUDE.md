@@ -45,10 +45,11 @@ Commands:
 
 - **BLOCK has no override anywhere in the app.** It covers: an invalid address (including a bad
   mixed-case checksum), the zero address, the token contract, the user's own address, the wrong
-  network, the wrong token, and a high-confidence lookalike.
-  - **High-confidence lookalike:** it first appeared in history via dust, zero-value or
-    counterfeit, **or** it appeared after a test send to the address it imitates, **or** history
-    couldn't be read.
+  network, the wrong token, and **any lookalike of a protected address** (D23).
+  - `LOOKALIKE_HIGH_CONFIDENCE` when there is evidence: it first appeared in history via dust,
+    zero-value or counterfeit, **or** it appeared after a test send to the address it imitates,
+    **or** history couldn't be read. `LOOKALIKE` (also a BLOCK) when there is none, e.g. pasted
+    from a "my address changed" message. The copy must not claim planting without evidence.
   - **Recovery:** "Send to X instead".
   - **"This is a different person"** opens the strict add-contact form with nothing prefilled, and
     **never resumes the blocked send** (D16).
@@ -128,8 +129,7 @@ Commands:
 
 ## Open decisions and known gaps
 
-- **Remaining known gaps:**
-  - A pasted lookalike with no on-chain planting gets WARN, not BLOCK (V2-C05).
+- **Remaining known gaps** (V2-C05 was closed by D23):
   - With history unavailable, past recipients can't be compared against (V2-C10).
 - **Group lifecycle:** removing rotated members, shareable groups. See PRD open questions.
 - **Persistence of contacts and groups** (session-only in the demo). Decide in S6.

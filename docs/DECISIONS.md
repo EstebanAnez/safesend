@@ -366,3 +366,36 @@ paymaster, uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGas
 - **Not yet:** a Content-Security-Policy. Next's inline bootstrap scripts need per-request nonces,
   which means giving up static rendering. Worth doing before live mode handles real wallet
   connections (S6), not for a static demo.
+
+## D23. Every lookalike of a protected address is a BLOCK (closes V2-C05)
+
+- **Before:** a lookalike with no planting or timing evidence (for example, pasted from a "my
+  address changed" message) got a middle-character WARN. A user who typed the 4 characters from the
+  attacker's own message could send (V2-C05).
+- **Decision (product owner):** BLOCK any lookalike of a protected address under the shipped rule,
+  with or without planting evidence. No override, as with every BLOCK.
+- **Why:** by the base-rate math (RISK_MODEL.md), an innocent address matches a given protected
+  address on ≥ 6 characters (≥ 2 each end) about 1 in 5.8 million times. A "new address" that
+  resembles a contact is almost certainly an attack, and "my address changed" messages are a common
+  delivery path. The middle-character challenge does not help there: the user checks the characters
+  against the attacker's message.
+- **The legitimate path is unchanged:** "This is a different person" opens the strict add-contact
+  form (D16): full address typed or pasted, entered twice, and confirmed through another channel.
+  The blocked send never resumes.
+- **Implementation:** `lookalikeReason` in `src/risk/evaluate.ts` always returns severity `block`.
+  The codes still differ (`LOOKALIKE_HIGH_CONFIDENCE` with evidence, `LOOKALIKE` without), so the
+  explanation never claims planting it has no evidence for, and evaluation attribution is
+  unchanged. `middleRange` still widens the challenge past long matches; it is unreachable from a
+  lookalike now, but kept and tested in case the policy is ever relaxed.
+- **Results, post-hoc** (both holdouts had been seen; report:
+  `eval/reports/policy-d23-POSTHOC.md`). Shipped rule, before → after:
+  - v1 attacks blocked 17 → 20 of 20. v1 legitimate sends blocked 1 → 6 of 20: H-L06 (a cousin
+    being paid back, 3/4 overlap), H-L07, H-L08, H-L09 (coincidental 3/3, 4/4, 4/5 overlaps), H-L19
+    (a merchant invoice, 3/4 with the landlord) and H-L16 (as before).
+  - v2 attacks blocked 13 → 14 of 15 (V2-C05 now blocked). v2 legitimate sends blocked 0 → 1 of
+    15 (V2-C13, a benign 2/4 overlap).
+  - The holdouts deliberately over-sample coincidental overlaps, so the legitimate-BLOCK rate is far
+    higher than in real use (about 1 in 290,000 first sends at 20 protected addresses).
+  - **A clean claim needs holdout v3.**
+- **Regression baseline** (`eval/baseline.json`) re-recorded deliberately in this change: v1
+  blocked attacks 17 → 20, blocked legitimate sends 1 → 6; strong and flagged unchanged.

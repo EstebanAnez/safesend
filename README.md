@@ -20,7 +20,35 @@ someone you pay, then plants it in your history:
 - a **zero-value** transfer that makes it look as if _you_ paid the lookalike,
 - or a **counterfeit token** that only claims to be USDC.
 
-Next time you copy "your sister" from history, you copy the attacker.
+Next time you copy "your sister" from history, you copy the attacker. Attackers also skip
+history entirely and send a "my address changed" message with a lookalike.
+
+**Scale:**
+
+- Researchers at Carnegie Mellon measured about **270 million** poisoning attempts targeting **17
+  million** victims, with at least **$83.8 million** lost (Tsuchiya et al., "Blockchain Address
+  Poisoning", [arXiv 2501.16681](https://arxiv.org/abs/2501.16681)).
+- Scam Sniffer reported **$50 million** lost in December 2025 and **$12.25 million** in January
+  2026 by people who copied an address from their history (via Cointelegraph, February 2026).
+
+## Why I built this
+
+I'm Esteban Anez, from Santa Cruz, Bolivia, and an MBA/MSBA student at the University of Kansas.
+During Bolivia's dollar shortage, people are moving their savings into dollar stablecoins. Many are
+new to crypto and send money to family every month, which makes them prime targets for a scam
+that exploits copying an address from history. SafeSend is my attempt at the send screen I'd want
+my own family to use. [linkedin.com/in/esteban-anez](https://www.linkedin.com/in/esteban-anez)
+
+## How it relates to what exists
+
+Coinbase already offers an address book and address allowlisting. Those help when people use
+them. SafeSend's contribution is for the moment they don't:
+
+- **Provenance for every history entry:** how each address got there (a payment you signed, a
+  verified inbound payment, or dust, zero-value and counterfeit planting).
+- **An explainable decision at send time:** ALLOW, WARN or BLOCK, with the reason and a
+  character comparison readable in two seconds.
+- **Recovery UX:** a blocked send is one click away from the real contact, with no override.
 
 ## What SafeSend does
 
@@ -32,18 +60,20 @@ Next time you copy "your sister" from history, you copy the attacker.
    have paid you) is _protected_: lookalikes of it are caught.
 3. **Decides at send time,** with one of three outcomes:
 
-| Decision  | When                                                                                                                        | What the user does                                                                      |
-| --------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| **ALLOW** | An exact trusted address, no other signal                                                                                   | Sends                                                                                   |
-| **WARN**  | A new recipient, an unusual amount, or a lookalike with no planting evidence                                                | Confirms in proportion: a checkbox for small first sends, otherwise 4 middle characters |
-| **BLOCK** | A planted lookalike, any lookalike while history can't be read, or a structural error (wrong network, token contract, self) | Can't send. One click to the real contact instead. **No override anywhere**             |
+| Decision  | When                                                                                                                                      | What the user does                                                                      |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **ALLOW** | An exact trusted address, no other signal                                                                                                 | Sends                                                                                   |
+| **WARN**  | A new recipient or an unusual amount                                                                                                      | Confirms in proportion: a checkbox for small first sends, otherwise 4 middle characters |
+| **BLOCK** | Any lookalike of someone you know or have been paid by, planted or not (D23), or a structural error (wrong network, token contract, self) | Can't send. One click to the real contact instead. **No override anywhere**             |
 
 The middle-character confirmation never uses the first or last characters, because those are
-exactly what a lookalike is built to match (D8).
+exactly what a lookalike is built to match (D8). If a lookalike really is a different person, the
+only path is to add them as a contact: the full address entered twice and confirmed by phone
+(D16). The blocked send never resumes.
 
 ## Try the scenarios
 
-`/demo` lists seven scenarios from the point of view of Daniela, who lives in Santa Cruz,
+`/demo` lists eight scenarios from the point of view of Daniela, who lives in Santa Cruz,
 Bolivia, receives USDC from her son in Kansas and sends some to her sister.
 
 | Scenario                    | What happens                                                             |
@@ -52,6 +82,7 @@ Bolivia, receives USDC from her son in Kansas and sends some to her sister.
 | Dust poisoning              | A tiny transfer plants a fake "Lucía" next to her real payment: BLOCK    |
 | Zero-value poisoning        | A fake "you sent 0 USDC to your landlord" entry appears: BLOCK           |
 | Counterfeit USDC            | A fake token called "USDC" arrives from a lookalike of Lucía: BLOCK      |
+| "My address changed"        | A message with Lucía's "new wallet", nothing planted in history: BLOCK   |
 | New recipient, large amount | A first payment of 200 USDC: middle-character WARN and a test-send nudge |
 | Unusual amount              | 400 USDC to her sister, who usually gets 40 to 50: WARN                  |
 | Pasanaku (savings group)    | A new group member every month, without warning fatigue (group contacts) |
@@ -63,14 +94,24 @@ Each scenario page also has a demo control to simulate a slow, failing or empty 
 **All numbers are synthetic.** They describe how the rules behave on hand-written cases, not fraud
 prevented or money saved. Details, every case and every caveat: [docs/EVAL.md](docs/EVAL.md).
 
-- **Holdout v2** (30 cases, frozen before it ran; 10 written independently by Esteban): under the
-  shipped rule, 13 of 15 attacks were blocked (87%, 95% CI 62–96%) and 15 of 15 got strong
-  friction. No legitimate send was blocked; 4 of 15 got a middle-character WARN.
-- **That result is no longer clean.** v2 informed the choice of the shipped lookalike rule, so any
-  future claim about it needs a new holdout (v3), written and frozen first.
+Current policy (every lookalike is a BLOCK, D23), **post-hoc** on both holdouts:
+
+| Holdout                                   | Attacks blocked             | Legitimate sends blocked | Legit middle-character WARN |
+| ----------------------------------------- | --------------------------- | ------------------------ | --------------------------- |
+| v1 (20 attacks, 20 legitimate)            | 20 of 20 (100%, CI 84–100%) | 6 of 20                  | 3 of 20                     |
+| v2 (15 + 15; 10 cases written by Esteban) | 14 of 15 (93%, CI 70–99%)   | 1 of 15                  | 3 of 15                     |
+
+- **Post-hoc means optimistic.** Both holdouts had been seen before this policy and the shipped
+  lookalike rule were chosen. **A clean claim needs a new holdout (v3)**, written and frozen
+  before it runs.
+- **The cost is visible on purpose.** The legitimate BLOCKs are deliberate coincidental overlaps
+  (for example, a cousin whose address happens to share 3 + 4 characters with Lucía's). The
+  holdouts over-sample them to probe the boundary; the base-rate math puts them at about 1 in
+  290,000 first sends for someone with 20 protected addresses
+  ([RISK_MODEL.md](docs/RISK_MODEL.md)).
 - **At this sample size, differences of one or two cases are not meaningful.**
-- **Known gaps:** a pasted lookalike with no planting in history gets a WARN, not a BLOCK
-  (V2-C05). With history unavailable, past recipients can't be compared against (V2-C10).
+- **Known gap:** with history unavailable, past recipients can't be compared against (V2-C10). The
+  "my address changed" gap (V2-C05) was closed by D23.
 
 ## Quality
 
@@ -80,7 +121,7 @@ prevented or money saved. Details, every case and every caveat: [docs/EVAL.md](d
   Color is never the only signal: the address comparison uses shape too (D17).
 - **Architecture rules are lint-enforced** (D6): the risk engine in `src/risk/` is pure (no React,
   no network), components never touch the network, and there is no `any`.
-- **Tests:** 179 unit and component tests (Vitest, rendering real CDS), 56 e2e tests (Playwright
+- **Tests:** 181 unit and component tests (Vitest, rendering real CDS), 58 e2e tests (Playwright
   with axe, desktop and Pixel 7), and an eval regression check in CI.
 - **Performance:** see D20 for Lighthouse results and what is still open (Total Blocking Time).
 
@@ -122,6 +163,13 @@ e2e/                   Playwright and axe
 docs/                  PRD, RISK_MODEL, EVAL, DECISIONS
 ```
 
+## How this was built
+
+AI coding tools wrote much of the code, under my direction. I set the product and policy
+decisions (including the BLOCK policy, group contacts and what counts as trust), wrote
+independent holdout cases for the evaluation, and reviewed every slice before it was merged. The
+reasoning behind each decision is in [docs/DECISIONS.md](docs/DECISIONS.md).
+
 ## Read more
 
 - [docs/PRD.md](docs/PRD.md): who it is for, requirements, non-goals, metrics.
@@ -132,5 +180,5 @@ docs/                  PRD, RISK_MODEL, EVAL, DECISIONS
 
 ## Status
 
-Done: the risk engine, evaluation, seven demo scenarios, accessibility and quality. Next: live
+Done: the risk engine, evaluation, eight demo scenarios, accessibility and quality. Next: live
 mode on Base Sepolia (Coinbase Smart Wallet, Blockscout history with honest coverage labels).

@@ -19,6 +19,7 @@ describe('fixture scenarios', () => {
     ['luciaLookalike', PEOPLE.luciaLookalike, PEOPLE.lucia, 4, 4],
     ['landlordZeroValue', LOOKALIKES.landlordZeroValue, PEOPLE.landlord, 4, 5],
     ['luciaCounterfeit', LOOKALIKES.luciaCounterfeit, PEOPLE.lucia, 3, 4],
+    ['luciaNewWallet', LOOKALIKES.luciaNewWallet, PEOPLE.lucia, 5, 4],
   ] as const)(
     '%s matches its target on exactly the intended characters',
     (_n, look, real, p, s) => {
@@ -40,6 +41,8 @@ describe('fixture scenarios', () => {
     ['dust-poisoning', PEOPLE.luciaLookalike, 50, 'BLOCK'],
     ['zero-value-poisoning', LOOKALIKES.landlordZeroValue, 250, 'BLOCK'],
     ['counterfeit-usdc', LOOKALIKES.luciaCounterfeit, 45, 'BLOCK'],
+    // D23: no planting anywhere, still a BLOCK.
+    ['address-change-message', LOOKALIKES.luciaNewWallet, 50, 'BLOCK'],
     ['new-recipient-large', PEOPLE.rosa, 200, 'WARN'],
     ['amount-anomaly', PEOPLE.lucia, 400, 'WARN'],
   ] as const)('%s: the suggested send gets %s', (id, recipient, amount, expected: Decision) => {

@@ -65,8 +65,8 @@ describe('test-send follow-up', () => {
       blockNumber: 4_000n,
     });
     const r = evaluateRisk(withTest(LOOK, [before, testSendEntry]));
-    // Ordinary first appearance: still a lookalike, but WARN rather than BLOCK.
-    expect(r.decision).toBe('WARN');
+    // Ordinary first appearance: no timing evidence, but every lookalike is a BLOCK (D23).
+    expect(r.decision).toBe('BLOCK');
     expect(r.reasons.map((x) => x.code)).toContain('LOOKALIKE');
   });
 
@@ -100,10 +100,10 @@ describe('test-send follow-up', () => {
     expect(r.decision).toBe('ALLOW');
   });
 
-  it('a pasted lookalike of the test recipient (nothing in history) is still a lookalike WARN', () => {
+  it('a pasted lookalike of the test recipient (nothing in history) is a BLOCK (D23)', () => {
     const r = evaluateRisk(withTest(LOOK, [testSendEntry]));
-    expect(r.decision).toBe('WARN');
-    expect(r.confirmation.level).toBe('middle-characters');
+    expect(r.decision).toBe('BLOCK');
+    expect(r.reasons.map((x) => x.code)).toContain('LOOKALIKE');
   });
 
   it('collapses the after-test entry in history as suspected poisoning', () => {

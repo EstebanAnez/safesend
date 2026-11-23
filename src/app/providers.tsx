@@ -25,6 +25,11 @@ export function useColorScheme(): ColorSchemeContextValue {
 export function AppProviders({ children }: { children: ReactNode }) {
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
 
+  // Marks the page as interactive. e2e tests wait for it instead of racing hydration.
+  useEffect(() => {
+    document.documentElement.dataset.hydrated = 'true';
+  }, []);
+
   // Follow the OS preference on first load; the user can override with the toggle.
   useEffect(() => {
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) setColorScheme('dark');

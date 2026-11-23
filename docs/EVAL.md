@@ -145,10 +145,11 @@ regression guard, not a target. Changing the shipped rule requires re-recording 
 deliberately in a reviewed commit, and the check refuses to run when the baseline was recorded for a
 different rule.
 
-- **Current baseline:** total ≥ 6, ≥ 2 each end, on holdout v1 (post-fix): 17 attacks blocked, 20
-  with strong friction, 20 flagged; legitimate sends: 1 blocked, 9 with strong friction, 12
-  flagged.
-- **Previous baseline:** 3/4, until the switch below.
+- **Current baseline:** total ≥ 6, ≥ 2 each end, with every lookalike a BLOCK (D23), on holdout
+  v1: 20 attacks blocked, 20 with strong friction, 20 flagged; legitimate sends: 6 blocked, 9 with
+  strong friction, 12 flagged.
+- **Previous baselines:** the same rule before D23 (17 attacks and 1 legitimate send blocked), and
+  before that 3/4.
 
 ## Results on holdout v2 (first and only clean run)
 
@@ -183,7 +184,7 @@ test. Full report, per case and per author:
   is a product problem, not a lookalike-rule problem. See "Open questions".
 - **Remaining gaps, under both rules:**
   - V2-C05: a pasted "my address changed" 5/5 lookalike gets a WARN, not a BLOCK, because there is
-    no on-chain planting.
+    no on-chain planting. **Closed by D23** (see "Policy change D23" below).
   - V2-C10: with history unavailable, past recipients (which come from history) can't be compared
     against, so a pasted landlord lookalike gets friction only from the amount rule.
 - **Correct non-alarms:** V2-E10 (500 USDC to her own exchange, usually 100–150) is ALLOWed, since
@@ -206,3 +207,29 @@ written and frozen before it is run, ideally with more independently written cas
   by threshold:** group contacts (D18) let the user add all members once, deliberately; monthly
   payments then go to contacts and are ALLOWed. The first-send threshold is unchanged. Not
   evaluated on a holdout yet (v3).
+
+## Policy change D23: every lookalike is a BLOCK (post-hoc)
+
+After this run, the product owner decided that every lookalike of a protected address is a BLOCK,
+with or without planting evidence (D23, closing V2-C05). **Both holdouts had been seen, so every
+number below is post-hoc. A clean claim needs holdout v3.** Full report:
+[policy-d23-POSTHOC.md](../eval/reports/policy-d23-POSTHOC.md).
+
+Shipped rule (total ≥ 6, ≥ 2 each end), before → after D23:
+
+| Holdout               | Attacks blocked                | Strong friction | Legit: checkbox / middle-char / BLOCK | Attack misses |
+| --------------------- | ------------------------------ | --------------- | ------------------------------------- | ------------- |
+| v1 (20 + 20)          | 17 → **20** (100%, CI 84–100%) | 20 → 20         | 3 / 8 / 1 → 3 / 3 / **6**             | none          |
+| v2, all (15 + 15)     | 13 → **14** (93%, CI 70–99%)   | 15 → 15         | 2 / 4 / 0 → 2 / 3 / **1**             | none          |
+| v2, Esteban's (5 + 5) | 5 → 5                          | 5 → 5           | 1 / 2 / 0 → 1 / 2 / 0                 | none          |
+
+- **The cost:** 5 more legitimate v1 sends are blocked (H-L06, H-L07, H-L08, H-L09, H-L19), and one
+  v2 send (V2-C13). All are deliberate coincidental overlaps. The holdouts over-sample them (5 of
+  20 v1 legitimate cases) to probe the boundary; in real use they occur about 1 in 290,000 first
+  sends at 20 protected addresses (RISK_MODEL.md). H-L06 shows the user impact: paying back a
+  cousin whose address happens to overlap Lucía's needs adding him as a contact first.
+- **The benefit:** V2-C05 ("my address changed") and the v1 attacks that previously got only a
+  WARN are now blocked.
+- **Still open:** V2-C10 (history unavailable, so past recipients aren't protected) gets strong
+  friction only from the amount rule.
+- At this sample size, the one-case differences on v2 are not meaningful.
