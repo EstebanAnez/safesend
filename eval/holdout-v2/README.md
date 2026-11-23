@@ -42,7 +42,8 @@ moment. You describe people by **name**, never by hex.
 ```
 
 **Names you can use:** `me` (Daniela), `lucia` (sister), `mateo` (son, sends her money),
-`landlord`, `cousin`, `friend`, `merchant`, `employer`, `exchange`, `attacker`.
+`landlord`, `cousin`, `friend`, `merchant`, `employer`, `exchange`, `attacker`, `vendor` (a feria
+vendor), `rosa` (a pasanaku member), `mateo2` (Mateo's new wallet).
 
 **Making addresses:**
 
