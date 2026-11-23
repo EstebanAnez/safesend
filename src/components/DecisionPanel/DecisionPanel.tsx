@@ -3,15 +3,21 @@
 import { useId, useState } from 'react';
 import { Banner } from '@coinbase/cds-web/banner';
 import { Button } from '@coinbase/cds-web/buttons';
-import { TextInput } from '@coinbase/cds-web/controls';
+import { Checkbox, TextInput } from '@coinbase/cds-web/controls';
 import { Box, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 import type { Address } from 'viem';
 import type { TrustAnchor } from '@/domain/types';
+import { useChallengePositions } from '@/hooks/useChallengePositions';
 import { formatUsdc } from '@/lib/amount';
 import { anchorLabel } from '@/risk/anchors';
+import { checkChallengeAnswer } from '@/risk/confirmation';
 import type { Reason, RiskResult } from '@/risk/types';
-import { AddressComparison } from '@/components/AddressComparison/AddressComparison';
+import {
+  AddressComparison,
+  AddressWithHighlights,
+  describePositions,
+} from '@/components/AddressComparison/AddressComparison';
 
 interface Props {
   result: RiskResult;
@@ -20,7 +26,13 @@ interface Props {
   onConfirm: () => void;
   onRecover: (anchor: TrustAnchor) => void;
   onCancel: () => void;
+  /** Switch to a small test amount (shown when the engine suggests a test send). */
+  onUseTestAmount?: () => void;
+  /** Injectable for tests; defaults to the platform CSPRNG. */
+  random?: () => number;
 }
+
+type LookalikeReason = Reason & { evidence: Extract<Reason['evidence'], { kind: 'lookalike' }> };
 
 export function DecisionPanel({
   result,
@@ -29,11 +41,14 @@ export function DecisionPanel({
   onConfirm,
   onRecover,
   onCancel,
+  onUseTestAmount,
+  random,
 }: Props) {
   const headingId = useId();
-  const recovery = result.reasons.find(
-    (r): r is Reason & { evidence: { kind: 'lookalike' } } => r.evidence.kind === 'lookalike',
+  const lookalike = result.reasons.find(
+    (r): r is LookalikeReason => r.evidence.kind === 'lookalike',
   );
+  const positions = useChallengePositions(result.confirmation, recipient, random);
 
   return (
     <VStack as="section" gap={2} aria-labelledby={headingId}>
@@ -86,19 +101,47 @@ export function DecisionPanel({
         ))}
       </VStack>
 
-      {recovery && (
+      {lookalike && (
         <AddressComparison
-          comparison={recovery.evidence.comparison}
+          comparison={lookalike.evidence.comparison}
           candidateLabel="You entered"
-          anchorLabel={anchorLabel(recovery.evidence.anchor)}
+          anchorLabel={anchorLabel(lookalike.evidence.anchor)}
+          highlight={positions}
         />
+      )}
+
+      {result.testSendSuggested && (
+        <Banner
+          variant="informational"
+          startIcon="info"
+          startIconAccessibilityLabel="Tip"
+          styleVariant="contextual"
+          title={
+            <Text as="p" font="label1">
+              Try a small test send first
+            </Text>
+          }
+          primaryAction={
+            onUseTestAmount ? (
+              <Button variant="secondary" compact onClick={onUseTestAmount}>
+                Send 1 USDC as a test
+              </Button>
+            ) : undefined
+          }
+        >
+          <Text as="p" font="label2">
+            Send a small amount, then confirm with the person by phone that it arrived before you
+            send the rest. Scammers watch for test sends and plant a lookalike address within
+            minutes, so check the full address again for the second send.
+          </Text>
+        </Banner>
       )}
 
       {result.decision === 'BLOCK' && (
         <VStack gap={1}>
-          {recovery && (
-            <Button block onClick={() => onRecover(recovery.evidence.anchor)}>
-              Send to {anchorLabel(recovery.evidence.anchor)} instead
+          {lookalike && (
+            <Button block onClick={() => onRecover(lookalike.evidence.anchor)}>
+              Send to {anchorLabel(lookalike.evidence.anchor)} instead
             </Button>
           )}
           <Button block variant="secondary" onClick={onCancel}>
@@ -110,9 +153,20 @@ export function DecisionPanel({
         </VStack>
       )}
 
-      {result.decision === 'WARN' && recipient && (
-        <WarnConfirmation
+      {result.decision === 'WARN' && recipient && result.confirmation.level === 'acknowledge' && (
+        <AcknowledgeConfirmation
+          statement={result.confirmation.statement}
+          amount={amount}
+          onConfirm={onConfirm}
+          onCancel={onCancel}
+        />
+      )}
+
+      {result.decision === 'WARN' && recipient && positions && (
+        <MiddleCharacterConfirmation
           recipient={recipient}
+          positions={positions}
+          showAddress={!lookalike}
           amount={amount}
           onConfirm={onConfirm}
           onCancel={onCancel}
@@ -133,31 +187,68 @@ export function DecisionPanel({
   );
 }
 
-/** WARN needs an explicit, deliberate confirmation: type the last 4 characters. */
-function WarnConfirmation({
+/** Light confirmation: a new recipient below the first-send threshold, nothing else. */
+function AcknowledgeConfirmation({
+  statement,
+  amount,
+  onConfirm,
+  onCancel,
+}: {
+  statement: string;
+  amount: bigint;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const [checked, setChecked] = useState(false);
+  return (
+    <VStack gap={1}>
+      <Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)}>
+        {statement}
+      </Checkbox>
+      <Button block disabled={!checked} onClick={onConfirm}>
+        Send {formatUsdc(amount)} USDC (simulated)
+      </Button>
+      <Button block variant="secondary" onClick={onCancel}>
+        Go back
+      </Button>
+    </VStack>
+  );
+}
+
+/**
+ * Type 4 characters from the MIDDLE of the address, at random positions.
+ * Never the first or last characters: lookalikes are built to match those.
+ */
+function MiddleCharacterConfirmation({
   recipient,
+  positions,
+  showAddress,
   amount,
   onConfirm,
   onCancel,
 }: {
   recipient: Address;
+  positions: readonly number[];
+  showAddress: boolean;
   amount: bigint;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
   const [typed, setTyped] = useState('');
-  const last4 = recipient.slice(-4).toLowerCase();
-  const matches = typed.trim().toLowerCase() === last4;
+  const matches = checkChallengeAnswer(recipient, positions, typed);
+  const where = describePositions(positions);
 
   return (
     <VStack gap={1}>
+      {showAddress && <AddressWithHighlights address={recipient} highlight={positions} />}
       <TextInput
-        label="To confirm, type the last 4 characters of the address"
-        helperText="Read them from the person, not from your history."
+        label={`Type characters ${where} of the address (outlined above)`}
+        helperText="Check them against the address the person gave you, not against your history."
         value={typed}
         onChange={(e) => setTyped(e.target.value)}
         autoComplete="off"
-        maxLength={4}
+        spellCheck={false}
+        maxLength={positions.length * 2}
       />
       <Button block disabled={!matches} onClick={onConfirm}>
         Send {formatUsdc(amount)} USDC (simulated)

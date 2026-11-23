@@ -13,5 +13,7 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts'],
     css: false,
+    // CDS ships ESM with extensionless imports; let Vite resolve them.
+    server: { deps: { inline: [/@coinbase\/cds-/] } },
   },
 });

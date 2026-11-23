@@ -67,12 +67,31 @@ export interface Reason {
   evidence: ReasonEvidence;
 }
 
+/**
+ * What the user must do before a WARN can proceed (docs/DECISIONS.md D8).
+ * Never the first or last characters: lookalikes are generated to match those.
+ * - acknowledge: a checkbox stating the address was confirmed out of band.
+ *   Only for a new recipient below the first-send threshold with no other signals.
+ * - middle-characters: type `count` characters at positions chosen at random
+ *   (by the UI, per review) from the hex index range [middleStart, middleEnd).
+ */
+export type ConfirmationRequirement =
+  | { level: 'none' }
+  | { level: 'acknowledge'; statement: string }
+  | { level: 'middle-characters'; count: number; middleStart: number; middleEnd: number };
+
+export type ConfirmationLevel = ConfirmationRequirement['level'];
+
 export interface RiskResult {
   decision: Decision;
   /** 0 to 100. Informational ordering only; the decision comes from the policy, not a cut-off. */
   score: number;
   /** Ordered: block, then warn, then info. */
   reasons: readonly Reason[];
+  /** 'none' for ALLOW and BLOCK (BLOCK cannot be confirmed past). */
+  confirmation: ConfirmationRequirement;
+  /** New recipient with a large amount or another signal: suggest a small test send first. */
+  testSendSuggested: boolean;
 }
 
 export interface RiskConfig {
@@ -84,6 +103,8 @@ export interface RiskConfig {
   firstSendThreshold: bigint;
   /** WARN when amount exceeds this multiple of the user's typical send. */
   amountAnomalyMultiplier: number;
+  /** Confirmed sends needed before a "typical send" baseline exists. */
+  amountBaselineMinSends: number;
   /** Dust upper bound in base units for planting detection. */
   dustThreshold: bigint;
 }

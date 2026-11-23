@@ -50,8 +50,8 @@ export function useDemoScenario(scenarioId: string): DemoScenarioState {
   const entries = history.status === 'success' ? history.data.entries : null;
 
   const anchors = useMemo(
-    () => buildTrustAnchors(scenario.contacts, entries ?? [], scenario.user.address),
-    [scenario, entries],
+    () => buildTrustAnchors(scenario.contacts, entries ?? [], scenario.user.address, config),
+    [scenario, entries, config],
   );
 
   const classifications = useMemo(() => {

@@ -17,7 +17,7 @@ import { useSimulatedSend } from '@/hooks/useSimulatedSend';
 import { AMOUNT_ERROR_TEXT, formatUsdc, parseUsdcAmount } from '@/lib/amount';
 import { parseAddress, sameAddress } from '@/risk/address';
 import { anchorLabel } from '@/risk/anchors';
-import { evaluateRisk } from '@/risk/evaluate';
+import { reverifySend } from '@/risk/reverify';
 import type { RiskInput, SendIntent } from '@/risk/types';
 import { DecisionPanel } from '@/components/DecisionPanel/DecisionPanel';
 import { HistoryList } from '@/components/HistoryList/HistoryList';
@@ -98,35 +98,37 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
   );
 
   /**
-   * Re-verify immediately before "signing": the form still holds the reviewed
-   * recipient and amount, chain and token are canonical, and the decision on the
-   * final values is ALLOW (or the WARN the user just confirmed).
+   * Re-verify immediately before "signing", on the final values: the current
+   * form, chain and token, and current history (src/risk/reverify.ts). Only
+   * called by the panel once any WARN confirmation has been satisfied.
    */
   const handleConfirm = useCallback(() => {
-    if (!riskInput || !result || !reviewedRecipient) return;
-    const recipientNow = parseAddress(recipientInput);
+    if (step.kind !== 'review' || !riskInput || !result || !reviewedRecipient) return;
     const amountNow = parseUsdcAmount(amountInput);
-    const { intent } = riskInput;
-    const unchanged =
-      recipientNow.ok &&
-      sameAddress(recipientNow.address, reviewedRecipient) &&
-      amountNow.ok &&
-      amountNow.value === intent.amount &&
-      intent.chainId === BASE_SEPOLIA_CHAIN_ID &&
-      sameAddress(intent.tokenContract, CANONICAL_USDC.address);
-    const again = evaluateRisk(riskInput);
-    const stillOk =
-      again.decision === 'ALLOW' || (again.decision === 'WARN' && result.decision === 'WARN');
-    if (!unchanged || !stillOk) {
-      setStep({
-        kind: 'aborted',
-        message:
-          'Something changed between review and sending, so SafeSend stopped. Review the send again.',
-      });
+    const final: RiskInput = {
+      ...riskInput,
+      intent: {
+        ...riskInput.intent,
+        recipientInput,
+        amount: amountNow.ok ? amountNow.value : -1n,
+      },
+    };
+    const check = reverifySend({
+      reviewed: { intent: step.intent, result },
+      final,
+      confirmationSatisfied: true,
+    });
+    if (!check.ok) {
+      setStep({ kind: 'aborted', message: check.message });
       return;
     }
-    send(reviewedRecipient, intent.amount);
-  }, [riskInput, result, reviewedRecipient, recipientInput, amountInput, send]);
+    send(reviewedRecipient, step.intent.amount);
+  }, [step, riskInput, result, reviewedRecipient, recipientInput, amountInput, send]);
+
+  const handleUseTestAmount = useCallback(() => {
+    setAmountInput('1');
+    review(recipientInput, '1');
+  }, [recipientInput, review]);
 
   if (sendState.status === 'sent') {
     const anchor = anchors.find((a) => sameAddress(a.address, sendState.recipient));
@@ -223,6 +225,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
               onConfirm={handleConfirm}
               onRecover={handleRecover}
               onCancel={() => setStep({ kind: 'compose' })}
+              onUseTestAmount={handleUseTestAmount}
             />
           )
         ) : (
