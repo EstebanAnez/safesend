@@ -355,3 +355,14 @@ paymaster, uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGas
 - **Demo control:** "Simulate the activity source" (normal, slow, outage where the first load
   fails, no activity), so reviewers can see each state and try a send while history is
   unavailable. It is implemented in the fixture provider, not the UI.
+
+## D22. The public demo: static, no secrets, baseline security headers
+
+- **What is deployed:** the demo routes only. Every page is static (SSG), runs on fixture data, and
+  needs no environment variables, keys or RPC. Nothing is signed or broadcast.
+- **Headers** (`next.config.ts`): `X-Content-Type-Options: nosniff`, a strict referrer policy,
+  `X-Frame-Options: DENY` (no framing, so no clickjacking of the send flow), a Permissions-Policy
+  that denies camera, microphone, geolocation and payment, and no `X-Powered-By`.
+- **Not yet:** a Content-Security-Policy. Next's inline bootstrap scripts need per-request nonces,
+  which means giving up static rendering. Worth doing before live mode handles real wallet
+  connections (S6), not for a static demo.
