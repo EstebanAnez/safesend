@@ -1,5 +1,10 @@
 import type { Address, Hash } from 'viem';
-import type { HistoryEntry, PoisoningTechnique, TrustAnchor } from '@/domain/types';
+import type {
+  HistoryEntry,
+  PoisoningTechnique,
+  ProtectedAddress,
+  TrustAnchor,
+} from '@/domain/types';
 
 /**
  * Risk engine contract. Pure data in, pure data out. No React, no network.
@@ -48,7 +53,7 @@ export type ReasonEvidence =
   | { kind: 'token'; expected: Address; actual: Address }
   | {
       kind: 'lookalike';
-      anchor: TrustAnchor;
+      anchor: ProtectedAddress;
       comparison: CharacterComparison;
       /** History entries through which the lookalike first appeared, if any. */
       plantedVia: readonly { entryId: string; txHash: Hash; technique: PoisoningTechnique }[];
@@ -94,16 +99,31 @@ export interface RiskResult {
   testSendSuggested: boolean;
 }
 
+/**
+ * When does an address count as a lookalike of a protected address?
+ * Hypotheses, not facts; see docs/RISK_MODEL.md for the base-rate math.
+ * - prefix-suffix: at least minPrefix leading AND minSuffix trailing hex chars match.
+ * - total: leading + trailing matches >= minTotal, with at least minEachEnd on each end.
+ */
+export type LookalikeRule =
+  | { kind: 'prefix-suffix'; minPrefix: number; minSuffix: number }
+  | { kind: 'total'; minTotal: number; minEachEnd: number };
+
 export interface RiskConfig {
-  /** Leading hex chars (after 0x) that must match an anchor. Hypothesis; see docs/RISK_MODEL.md. */
-  prefixMatchLength: number;
-  /** Trailing hex chars that must match an anchor. */
-  suffixMatchLength: number;
+  lookalike: LookalikeRule;
+  /**
+   * Inbound senders join the PROTECTED set (lookalikes of them are flagged)
+   * after this many verified, above-dust, canonical-USDC transfers to the user.
+   * Protection never implies trust: they cannot produce ALLOW.
+   */
+  protectInboundMinTransfers: number;
   /** New-recipient amount (base units) above which a test send is suggested. */
   firstSendThreshold: bigint;
   /** WARN when amount exceeds this multiple of the user's typical send. */
   amountAnomalyMultiplier: number;
-  /** Confirmed sends needed before a "typical send" baseline exists. */
+  /** Confirmed sends to THIS recipient needed before a per-recipient baseline exists. */
+  amountRecipientMinSends: number;
+  /** Confirmed sends overall needed before the global fallback baseline exists. */
   amountBaselineMinSends: number;
   /** Dust upper bound in base units for planting detection. */
   dustThreshold: bigint;

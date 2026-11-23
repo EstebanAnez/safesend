@@ -1,5 +1,5 @@
 import type { Address } from 'viem';
-import type { CharacterComparison } from './types';
+import type { CharacterComparison, LookalikeRule } from './types';
 
 /**
  * Character-level comparison of two normalized addresses.
@@ -41,15 +41,18 @@ export function isIdentical(comparison: CharacterComparison): boolean {
   return comparison.totalMatching === comparison.positions.length;
 }
 
-/** Matches on both ends at or past the thresholds, without being the same address. */
-export function isLookalike(
-  comparison: CharacterComparison,
-  prefixMatchLength: number,
-  suffixMatchLength: number,
-): boolean {
-  return (
-    !isIdentical(comparison) &&
-    comparison.prefixMatchLength >= prefixMatchLength &&
-    comparison.suffixMatchLength >= suffixMatchLength
-  );
+/**
+ * Lookalike under the configured rule (never the identical address).
+ * - prefix-suffix: prefix >= minPrefix AND suffix >= minSuffix.
+ * - total: prefix + suffix >= minTotal, with each end >= minEachEnd.
+ */
+export function isLookalike(comparison: CharacterComparison, rule: LookalikeRule): boolean {
+  if (isIdentical(comparison)) return false;
+  const { prefixMatchLength: p, suffixMatchLength: s } = comparison;
+  switch (rule.kind) {
+    case 'prefix-suffix':
+      return p >= rule.minPrefix && s >= rule.minSuffix;
+    case 'total':
+      return p >= rule.minEachEnd && s >= rule.minEachEnd && p + s >= rule.minTotal;
+  }
 }

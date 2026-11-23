@@ -6,7 +6,7 @@ import type { AsyncState, HistoryPage, TrustAnchor } from '@/domain/types';
 import { SCENARIOS } from '@/fixtures/scenarios';
 import type { DemoScenario } from '@/fixtures/scenarios';
 import { FixtureHistoryProvider } from '@/providers/history/fixture';
-import { buildTrustAnchors } from '@/risk/anchors';
+import { buildProtectedSet, buildTrustAnchors } from '@/risk/anchors';
 import { DEFAULT_RISK_CONFIG } from '@/risk/config';
 import { classifyHistoryEntry } from '@/risk/history';
 import type { HistoryClassification } from '@/risk/history';
@@ -74,10 +74,11 @@ export function useDemoScenario(scenarioId: string): DemoScenarioState {
 
   const classifications = useMemo(() => {
     const map = new Map<string, HistoryClassification>();
+    const protectedSet = buildProtectedSet(anchors, entries ?? [], config);
     for (const entry of entries ?? []) {
       map.set(
         entry.id,
-        classifyHistoryEntry(entry, anchors, scenario.user.address, config, testSends),
+        classifyHistoryEntry(entry, protectedSet, scenario.user.address, config, testSends),
       );
     }
     return map;

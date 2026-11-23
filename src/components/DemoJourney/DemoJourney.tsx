@@ -10,7 +10,7 @@ import { Spinner } from '@coinbase/cds-web/loaders';
 import { Text } from '@coinbase/cds-web/typography';
 import type { Address } from 'viem';
 import { BASE_SEPOLIA_CHAIN_ID, CANONICAL_USDC } from '@/config/chain';
-import type { HistoryEntry, TrustAnchor } from '@/domain/types';
+import type { HistoryEntry, ProtectedAddress } from '@/domain/types';
 import { useDemoScenario } from '@/hooks/useDemoScenario';
 import { useRiskDecision } from '@/hooks/useRiskDecision';
 import { useSimulatedSend } from '@/hooks/useSimulatedSend';
@@ -97,7 +97,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
   }, []);
 
   const handleRecover = useCallback(
-    (anchor: TrustAnchor) => {
+    (anchor: ProtectedAddress) => {
       setRecipientInput(anchor.address);
       review(anchor.address, amountInput);
     },

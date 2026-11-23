@@ -158,12 +158,18 @@ paymaster, uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGas
   first seen through ordinary activity and dusted later gets WARN, not BLOCK, because the policy
   says "first appeared through".
 
-## D11. Amount anomaly needs a baseline
+## D11. Amount anomaly: per-recipient baseline, global fallback
 
-- WARN when the amount is more than 5 times the median of the user's **signer-confirmed** sends.
-  This only fires once there are at least 3 such sends. Without a baseline there's no signal,
-  because missing data isn't evidence.
-- Sends with unknown signers are excluded, so forged history can't shift the baseline.
+- WARN when the amount is more than 5× the usual send:
+  1. **Per recipient:** the median of signer-confirmed sends to **this** recipient, once there are
+     at least **3** (`amountRecipientMinSends`).
+  2. **Otherwise global:** the median of all signer-confirmed sends, once there are at least **3**
+     (`amountBaselineMinSends`).
+  3. **Otherwise no signal.** Missing data isn't evidence.
+- **Why per recipient** (changed in S3): a global median mixes rent with family transfers. In
+  holdout v1, a 400 USDC "emergency" to the sister (usually 40–60) passed, because rent payments
+  pulled the global median up to 175.
+- Sends with unknown signers are excluded, so forged history can't shift either baseline.
 - This applies to trusted contacts too: a large, unusual payment to "your sister" is a classic
   social-engineering pattern.
 
@@ -173,3 +179,42 @@ paymaster, uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGas
   extensionless imports that Node's resolver rejects.
 - Component tests render the real CDS components inside the same providers the app uses
   (`src/test/render.tsx`), not mocks.
+
+## D13. Test-send follow-up
+
+- SafeSend records the test sends it makes (`RiskInput.testSends`). A recorded test-send recipient
+  is in the trust set, so the rest of the payment to the same address is ALLOWed. That changes if
+  the address itself first appeared through planting (D10).
+- **Any** lookalike of a test-send recipient that appears in history **after** the test send is
+  high risk (BLOCK), whatever the amount or token. Attackers mirror the test amount ("1 USDC back")
+  to look like a reply, so a dust threshold would miss them.
+- **UI:** after a test send, the screen sends the rest to the remembered address or a contact,
+  never to an address copied from history. The history list shows a caution banner, and
+  after-test lookalikes are collapsed.
+
+## D14. Trust and protection are separate sets
+
+- **Trust set** (narrow, unchanged): contacts, signer-confirmed past recipients, and recorded test
+  sends. It is the only path to ALLOW.
+- **Protected set** (broader): the trust set plus **inbound senders** with at least
+  `protectInboundMinTransfers` (default 1) canonical-USDC transfers to the user. Each transfer must
+  be above the dust threshold, signed by the sender, and have verified provenance. Lookalikes are
+  compared against this set.
+- **Why:** people who pay you are people you'll pay back, so attackers imitate them (holdout v1
+  case H-A16: a lookalike of her son). But receiving money from an address proves nothing about
+  paying it, so inbound senders never become trusted for sending.
+- An attacker can't buy protection cheaply. Dust doesn't count, and a protected attacker address
+  only adds comparisons; it never adds trust.
+
+## D15. Lookalike rule: 3/4 baseline, "total ≥ 6, ≥ 2 each end" candidate
+
+- The rule is configurable (`RiskConfig.lookalike`) as either prefix/suffix minimums or a total
+  with a per-end minimum.
+- **3/4 ships as the v1 baseline.** It matches the CMU criterion, and the regression guard records
+  it.
+- **Candidate:** total ≥ 6, ≥ 2 each end. It was derived from the threat model (users often check
+  only one end) and developed on the dev set. It catches 2/4 and 4/2 lookalikes. Its benign
+  collision rate is about 1 in 5.8 million per protected address, versus 1 in 268 million for 3/4
+  (RISK_MODEL.md).
+- **Decision process:** the switch is decided on holdout v2. Holdout v1 has been seen, so its
+  post-hoc numbers can't settle it.

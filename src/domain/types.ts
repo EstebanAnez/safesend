@@ -122,6 +122,20 @@ export type TrustAnchor =
       lastSentAt: number | null;
     };
 
+/**
+ * Addresses lookalikes are compared against: every trust anchor, plus people
+ * who have verifiably sent the user USDC. PROTECTION IS NOT TRUST: an
+ * inbound sender is never an ALLOW target (docs/DECISIONS.md D14).
+ */
+export type ProtectedAddress =
+  | TrustAnchor
+  | {
+      kind: 'inbound-sender';
+      address: Address;
+      /** Verified, above-dust, canonical-USDC transfers from this address to the user. */
+      evidenceTxHashes: readonly Hash[];
+    };
+
 // ---------------------------------------------------------------------------
 // Async state (discriminated, no booleans soup)
 // ---------------------------------------------------------------------------

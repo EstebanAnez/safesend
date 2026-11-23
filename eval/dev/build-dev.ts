@@ -42,6 +42,7 @@ const sister = addr('sister');
 const landlord = addr('landlord');
 const attacker = addr('attacker');
 const fake = addr('fake-token');
+const son = addr('son'); // only ever sends TO the user
 
 const base = [
   { block: 100, from: user, to: sister, amount: '40', signer: user },
@@ -49,13 +50,15 @@ const base = [
   { block: 300, from: user, to: sister, amount: '45', signer: user },
   { block: 400, from: user, to: landlord, amount: '250', signer: user },
   { block: 500, from: user, to: sister, amount: '50', signer: user },
+  { block: 150, from: son, to: user, amount: '300', signer: son },
+  { block: 450, from: son, to: user, amount: '300', signer: son },
 ];
 const contacts = [{ name: 'Sister', address: sister }];
 
 const cases: unknown[] = [];
 
-for (let i = 0; i < 30; i += 1) {
-  const target = pick([sister, landlord]);
+for (let i = 0; i < 40; i += 1) {
+  const target = pick([sister, landlord, son]);
   const p = 2 + Math.floor(rand() * 5);
   const s = 2 + Math.floor(rand() * 5);
   const look = withMatch(target, p, s, `atk-${i}`);
@@ -81,7 +84,7 @@ for (let i = 0; i < 30; i += 1) {
     id: `D-A${String(i + 1).padStart(2, '0')}`,
     label: 'attack',
     category: technique,
-    title: `${technique} lookalike ${p}/${s} of ${target === sister ? 'contact' : 'past recipient'}`,
+    title: `${technique} lookalike ${p}/${s} of ${target === sister ? 'contact' : target === son ? 'inbound-only sender' : 'past recipient'}`,
     rationale: 'Generated dev case.',
     sources: [],
     user,
@@ -97,8 +100,8 @@ for (let i = 0; i < 30; i += 1) {
   });
 }
 
-for (let i = 0; i < 30; i += 1) {
-  const kind = pick(['contact', 'past-recipient', 'new', 'benign-overlap'] as const);
+for (let i = 0; i < 40; i += 1) {
+  const kind = pick(['contact', 'past-recipient', 'new', 'benign-overlap', 'son'] as const);
   const p = Math.floor(rand() * 5);
   const s = Math.floor(rand() * 5);
   const recipient =
@@ -106,9 +109,11 @@ for (let i = 0; i < 30; i += 1) {
       ? sister
       : kind === 'past-recipient'
         ? landlord
-        : kind === 'new'
-          ? addr(`new-${i}`)
-          : withMatch(pick([sister, landlord]), p, s, `benign-${i}`);
+        : kind === 'son'
+          ? son
+          : kind === 'new'
+            ? addr(`new-${i}`)
+            : withMatch(pick([sister, landlord, son]), p, s, `benign-${i}`);
   cases.push({
     id: `D-L${String(i + 1).padStart(2, '0')}`,
     label: 'legit',

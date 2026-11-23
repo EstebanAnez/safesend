@@ -140,7 +140,7 @@ describe('lookalikes', () => {
   });
 
   describe('threshold edges (prefix/suffix are configurable)', () => {
-    const config = { prefixMatchLength: 3, suffixMatchLength: 4 };
+    const config = { lookalike: { kind: 'prefix-suffix' as const, minPrefix: 3, minSuffix: 4 } };
     it.each([
       [3, 4, true],
       [3, 3, false], // suffix one short
@@ -174,10 +174,12 @@ describe('lookalikes', () => {
     expect(codes(r)).toEqual(['NEW_RECIPIENT']);
   });
 
-  it('only compares against trust anchors, never arbitrary history entries', () => {
-    // NEWCOMER is only an inbound sender: not an anchor, so its lookalike is just new.
+  it('never compares against arbitrary history entries (unverified inbound does not protect)', () => {
+    // NEWCOMER's only transfer has no verified signer: not trusted, not protected (D14).
     const look = lookalikeOf(NEWCOMER, 5, 5);
-    const history = [entry({ counterparty: NEWCOMER, direction: 'in' })];
+    const history = [
+      entry({ counterparty: NEWCOMER, direction: 'in', txSigner: { status: 'unknown' } }),
+    ];
     const anchors = buildTrustAnchors([], history, USER, DEFAULT_RISK_CONFIG);
     const r = evaluateRisk(riskInput(look, { anchors, history }));
     expect(codes(r)).toEqual(['NEW_RECIPIENT']);

@@ -1,5 +1,5 @@
 import type { Address } from 'viem';
-import type { HistoryEntry, PoisoningTechnique, TrustAnchor } from '@/domain/types';
+import type { HistoryEntry, PoisoningTechnique, ProtectedAddress } from '@/domain/types';
 import { sameAddress } from './address';
 import { compareAddresses, isLookalike } from './compare';
 import { plantingTechnique } from './planting';
@@ -12,7 +12,7 @@ export type HistoryClassification =
   | {
       kind: 'suspected-poisoning';
       technique: PoisoningTechnique;
-      anchor: TrustAnchor;
+      anchor: ProtectedAddress;
       comparison: CharacterComparison;
     }
   /** Planted-looking entry that does not imitate any anchor we know of. */
@@ -20,7 +20,8 @@ export type HistoryClassification =
 
 export function classifyHistoryEntry(
   entry: HistoryEntry,
-  anchors: readonly TrustAnchor[],
+  /** The PROTECTED set (trust anchors + verified inbound senders). */
+  anchors: readonly ProtectedAddress[],
   user: Address,
   config: RiskConfig,
   testSends: readonly TestSend[] = [],
@@ -33,7 +34,7 @@ export function classifyHistoryEntry(
   for (const anchor of anchors) {
     if (sameAddress(anchor.address, entry.counterparty)) continue;
     const comparison = compareAddresses(entry.counterparty, anchor.address);
-    if (isLookalike(comparison, config.prefixMatchLength, config.suffixMatchLength)) {
+    if (isLookalike(comparison, config.lookalike)) {
       return { kind: 'suspected-poisoning', technique, anchor, comparison };
     }
   }

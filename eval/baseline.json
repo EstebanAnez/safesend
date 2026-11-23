@@ -1,0 +1,13 @@
+{
+  "setting": "3/4",
+  "tp": {
+    "blocked": 15,
+    "strong": 18,
+    "flagged": 20
+  },
+  "fp": {
+    "blocked": 1,
+    "strong": 8,
+    "flagged": 12
+  }
+}

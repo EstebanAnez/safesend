@@ -50,9 +50,14 @@ export interface RuleSetting {
   apply: (base: RiskConfig) => RiskConfig;
 }
 
-const prefixSuffix = (p: number, s: number): RuleSetting => ({
-  name: `${p}/${s}`,
-  apply: (base) => ({ ...base, prefixMatchLength: p, suffixMatchLength: s }),
+const prefixSuffix = (p: number, q: number): RuleSetting => ({
+  name: `${p}/${q}`,
+  apply: (base) => ({ ...base, lookalike: { kind: 'prefix-suffix', minPrefix: p, minSuffix: q } }),
+});
+
+const totalRule = (minTotal: number, minEachEnd: number): RuleSetting => ({
+  name: `total>=${minTotal} (>=${minEachEnd} each end)`,
+  apply: (base) => ({ ...base, lookalike: { kind: 'total', minTotal, minEachEnd } }),
 });
 
 export const RULE_SETTINGS: readonly RuleSetting[] = [
@@ -60,6 +65,7 @@ export const RULE_SETTINGS: readonly RuleSetting[] = [
   prefixSuffix(3, 4),
   prefixSuffix(4, 4),
   prefixSuffix(4, 5),
+  totalRule(6, 2),
 ];
 
 // --- Conversion ------------------------------------------------------------------
