@@ -1,6 +1,8 @@
 import type { Address, Hash } from 'viem';
 import type { Contact, HistoryEntry, TrustAnchor } from '@/domain/types';
 import { sameAddress } from './address';
+import { firstAppearedViaPlanting } from './planting';
+import type { RiskConfig } from './types';
 
 /**
  * A history entry proves the user sent USDC to its counterparty only if:
@@ -27,11 +29,17 @@ export function isConfirmedUserSend(entry: HistoryEntry, user: Address): boolean
  * The only things lookalikes are compared against: deliberately added
  * contacts and confirmed past recipients. Inbound transfers and anything
  * with unknown provenance never become anchors.
+ *
+ * A confirmed send does NOT make an address an anchor if that address first
+ * entered history through a planting technique: that is what a victim who
+ * already fell for a lookalike once looks like, and trusting it would ALLOW
+ * the next send to the attacker.
  */
 export function buildTrustAnchors(
   contacts: readonly Contact[],
   history: readonly HistoryEntry[],
   user: Address,
+  config: Pick<RiskConfig, 'dustThreshold'>,
 ): TrustAnchor[] {
   const anchors: TrustAnchor[] = contacts.map((contact) => ({
     kind: 'contact',
@@ -42,6 +50,7 @@ export function buildTrustAnchors(
   const confirmed = new Map<string, { address: Address; hashes: Hash[]; last: number | null }>();
   for (const entry of history) {
     if (!isConfirmedUserSend(entry, user)) continue;
+    if (firstAppearedViaPlanting(entry.counterparty, history, user, config)) continue;
     const key = entry.counterparty.toLowerCase();
     const existing = confirmed.get(key);
     if (existing) {

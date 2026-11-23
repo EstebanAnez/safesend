@@ -12,5 +12,6 @@ export const DEFAULT_RISK_CONFIG: RiskConfig = {
   suffixMatchLength: 4,
   firstSendThreshold: 25_000_000n, // 25 USDC
   amountAnomalyMultiplier: 5,
+  amountBaselineMinSends: 3,
   dustThreshold: 10_000n, // 0.01 USDC
 };

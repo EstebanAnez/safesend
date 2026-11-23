@@ -44,3 +44,33 @@ export function plantedVia(
   }
   return result;
 }
+
+/** The earliest history entry involving `address` (by block, then log index). */
+export function firstAppearance(
+  address: Address,
+  history: readonly HistoryEntry[],
+): HistoryEntry | null {
+  let first: HistoryEntry | null = null;
+  for (const entry of history) {
+    if (!sameAddress(entry.counterparty, address)) continue;
+    if (
+      first === null ||
+      entry.blockNumber < first.blockNumber ||
+      (entry.blockNumber === first.blockNumber && entry.logIndex < first.logIndex)
+    ) {
+      first = entry;
+    }
+  }
+  return first;
+}
+
+/** True when `address` first entered history through a planting technique. */
+export function firstAppearedViaPlanting(
+  address: Address,
+  history: readonly HistoryEntry[],
+  user: Address,
+  config: Pick<RiskConfig, 'dustThreshold'>,
+): boolean {
+  const first = firstAppearance(address, history);
+  return first !== null && plantingTechnique(first, user, config) !== null;
+}

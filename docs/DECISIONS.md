@@ -7,18 +7,23 @@ Short records of choices that a reviewer might question. Newest last.
 - **What:** Bootstrapped with `npx -y gitpick coinbase/cds/tree/master/templates/next-app .`
   (CDS web 9.30.1, Next.js 15.4.8, React 19.1.2). Removed the template's sample screens
   (asset list, staking cards, sidebar).
-- **Why:** Same component system and tokens Coinbase product teams use, instead of
-  re-creating them with custom CSS.
+- **Why:** It's the same component system and tokens Coinbase product teams use, so we don't
+  re-create them with custom CSS.
 
-## D2. npm with two scoped peer overrides
+## D2. npm with two scoped peer overrides (React 19 comes from the template)
 
-- **What:** The template assumes yarn. We use npm (`npm run eval` etc.) and add
-  `overrides` that let `framer-motion@10` and `@react-spring/web@9` (both required by
-  `@coinbase/cds-web@9`) accept React 19 as a peer.
-- **Why:** Both packages declare React ≤18 peers, which yarn only warns about but npm
-  rejects. The overrides are scoped to those two packages, so peer checks stay on for
-  everything else (no global `legacy-peer-deps`). The app builds and the e2e suite passes on
-  React 19.
+- **What:** The template assumes yarn. We use npm (`npm run eval` etc.) and add `overrides` that
+  let `framer-motion@10` and `@react-spring/web@9` (both pulled in by `@coinbase/cds-web@9`) accept
+  React 19 as a peer.
+- **The React version is the template's, not ours.** The official template's own `package.json`
+  pins `react` and `react-dom` to `19.1.2` (see the bootstrap commit `abb0ff6`). The conflict is
+  between the template and its own transitive peers, which declare React ≤18. yarn only warns
+  about that; npm rejects it. We don't pin React 18, because that would diverge from the template
+  CDS ships and tests.
+- **Scope:** the overrides cover those two packages only, so peer checks stay on for everything
+  else (no global `legacy-peer-deps`).
+- **Risk accepted:** those two packages aren't officially tested on React 19. Mitigation: every
+  CDS component we use is exercised by unit or e2e tests (including axe), and both run in CI.
 - **Revisit when:** CDS publishes a release with a React 19 peer range.
 
 ## D3. Canonical USDC on Base Sepolia
@@ -32,56 +37,139 @@ Short records of choices that a reviewer might question. Newest last.
 ## D4. Blockscout as the explorer provider
 
 - **What:** `https://base-sepolia.blockscout.com/api/v2` (address token transfers, tokens,
-  transactions).
+  transactions, verified contract ABIs).
 - **Checked 2026-11-23:** works without an API key (HTTP 200).
 - **Caveat:** rate limits are not documented. The provider must handle HTTP 429 and fall back to
   the RPC provider, and the UI must label that coverage as partial.
 
-## D5. "Who signed it" with Coinbase Smart Wallet (proposed, implemented in S2/S6)
+## D5. Who signed a transfer, including Coinbase Smart Wallet (ERC-4337)
 
-- **Problem:** The policy says a past send only counts as a trust anchor when the user signed the
-  transaction. A Coinbase Smart Wallet is an ERC-4337 account. Its transactions are submitted by a
-  bundler, so `tx.from` is the bundler's EOA, not the user.
-- **Decision:** A send is confirmed when either
-  1. `tx.from` equals the user's address (EOA wallets), or
-  2. the transaction includes an EntryPoint `UserOperationEvent` with `sender` equal to the user's
-     smart account, and the USDC Transfer was emitted during that user operation.
-- **Why it's still safe:** zero-value poisoning is a `transferFrom(victim, lookalike, 0)` call
-  the attacker submits. `tx.from` is the attacker and there is no user operation from the victim,
-  so it fails both checks.
-- **Encoded as:** `TxSigner.via: 'tx-from' | 'user-operation'` in `src/domain/types.ts`.
+- **Problem:** A past send only becomes a trust anchor if the user signed it. A Coinbase Smart
+  Wallet is an ERC-4337 account: a bundler submits its transactions, so `tx.from` is the bundler.
+  A bundle can also carry user operations from **other accounts** in the same transaction, so
+  "the user's op is somewhere in this tx" proves nothing about a given transfer.
+- **Rule:** implemented in `src/risk/signer.ts` as `resolveTransferSigner`. A send counts as the
+  user's only if `isConfirmedUserSend` also holds.
+  1. **The tx has no canonical EntryPoint logs:** the signer is `tx.from`. It counts as the user's
+     send only if `tx.from` is the user and `Transfer.from` is the user.
+  2. **The tx has canonical EntryPoint logs (a bundle):** the transfer is attributed to a user
+     operation only if **all** of these hold:
+     - The `UserOperationEvent` was emitted **by a canonical EntryPoint**. Anyone can emit an event
+       with the same signature from their own contract.
+     - `success == true`.
+     - The Transfer log falls strictly inside that op's log range. That means after the previous
+       boundary from the **same** EntryPoint, and before this op's `UserOperationEvent`. The
+       previous boundary is the previous op's `UserOperationEvent`, or `BeforeExecution` for the
+       first op.
+     - `Transfer.from == sender`.
+  3. **Anything not verifiable gives `{ status: "unknown" }`, which is never a trust anchor.**
+     That covers a failed op, a transfer during validation (before `BeforeExecution`), a transfer
+     inside another account's op, mismatched EntryPoints, and logs that can't be decoded.
+- **Stricter than "tx.from is the user OR ...":** in a bundle, `tx.from == user` is **not**
+  accepted on its own. Otherwise a user EOA acting as a bundler would vouch for another account's
+  operation that moves the user's tokens. A test covers this.
+- **Canonical EntryPoints:** defined in `src/config/entrypoints.ts`, from the
+  eth-infinitism/account-abstraction GitHub releases, checked 2026-11-23:
+
+  | Version | Address                                      |
+  | ------- | -------------------------------------------- |
+  | 0.6     | `0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789` |
+  | 0.7     | `0x0000000071727De22E5E9d8BAf0edAc6f37da032` |
+  | 0.8     | `0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108` |
+  | 0.9     | `0x433709009B8330FDa32311DF1C2AFA402eD8D009` |
+
+  Each one is a verified contract named "EntryPoint" on base-sepolia.blockscout.com. Each one's
+  verified ABI declares the same two events, `BeforeExecution()` and
+  `UserOperationEvent(bytes32 indexed userOpHash, address indexed sender, address indexed
+paymaster, uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGasUsed)`.
+  The Coinbase Smart Wallet README refers to EntryPoint v0.6.
+
+- **Tests** (`src/risk/signer.test.ts`):
+  - EOA send
+  - zero-value `transferFrom` by an attacker
+  - **multi-op bundle where another account's op moves the user's tokens in the same tx**
+  - a later op not covered by an earlier user op
+  - failed op
+  - a fake EntryPoint emitting look-alike events
+  - a transfer before `BeforeExecution`
+  - `Transfer.from` not equal to the sender
+  - a range opened by one EntryPoint and closed by another
+  - a user EOA acting as the bundler
 
 ## D6. Architecture rules are enforced by lint, not convention
 
-- `src/risk/**` cannot import React, Next, wagmi, TanStack, hooks, components or providers, and
-  cannot use `fetch`/`window`/`document`/`localStorage`.
+- `src/risk/**` cannot import React, Next, wagmi, TanStack, hooks, components or providers. It
+  also cannot use `fetch`, `window`, `document` or `localStorage`.
 - `src/components/**` and `src/app/**` cannot import `src/providers/**`, `wagmi/actions` or
   `viem/actions`, and cannot call `fetch`. They go through hooks in `src/hooks/`.
 - `any` is a lint error. See `eslint.config.mjs`.
 
 ## D7. Address input rules
 
-- Trim surrounding whitespace and require the `0x` prefix plus 40 hex chars.
+- Trim surrounding whitespace and require the `0x` prefix plus 40 hex characters.
 - All-lowercase or all-uppercase hex is accepted. Mixed case must be a valid EIP-55 checksum,
-  otherwise it is rejected (never silently "corrected").
+  otherwise it is rejected, never silently "corrected".
 - Normalized with viem `getAddress`. Comparisons are case-insensitive on hex.
-- Implemented in `src/risk/address.ts` with unit tests.
+- Implemented in `src/risk/address.ts`, with unit tests.
 
-## D8. A first send to a new address is WARN, not ALLOW (open for review)
+## D8. WARN confirmations are proportional and never use the first or last characters
 
-- **What:** A valid recipient that is not a trust anchor and doesn't look like one gets WARN
-  (`NEW_RECIPIENT`). Above the first-send threshold it gets `NEW_RECIPIENT_LARGE_AMOUNT` with the
-  test-send advice.
-- **Why:** The policy defines ALLOW as "a trusted contact or confirmed past recipient with no risk
-  signals". A new address is neither. The cost is one deliberate confirmation (type the last 4
-  characters) on the first send to someone.
-- **Trade-off:** This adds friction to every first send. The alternative is ALLOW below the
-  threshold. The false-warning rate on legitimate sends in S3 will show what this costs.
+- **The decision stays WARN** for a first send to a new address. ALLOW is reserved for trust
+  anchors with no risk signals.
+- **Never confirm with the last (or first) characters.** Lookalikes are generated to match exactly
+  those, so "type the last 4" is a check the attacker has already passed. The S1 version did this.
+  It's gone now, and a test asserts the last 4 characters don't unlock a WARN.
+- **Two confirmation levels** (`RiskResult.confirmation`):
+  - `acknowledge`: a new recipient **at or below** the first-send threshold with **no other
+    signal**. The user ticks one checkbox: "I confirmed this address with the recipient through
+    another channel".
+  - `middle-characters`: every other WARN (above the threshold, lookalike, unknown provenance,
+    amount anomaly). The user types 4 characters at positions drawn at random **for every review**
+    with `crypto.getRandomValues`. Positions come from the middle range, which excludes at least 6
+    characters at each end, and more when a lookalike matches a longer prefix or suffix.
+- **Not color-only:** the challenge positions are outlined in the comparison or address view and
+  also listed in text ("Type characters 17, 26, 27 and 29").
+- **Test-send nudge** (`RiskResult.testSendSuggested`): shown for a new recipient that needs the
+  middle-character confirmation. It offers a one-tap "Send 1 USDC as a test" and warns that
+  attackers strike right after test sends. It's never shown for a trusted contact.
+- **Honest limit:** the characters are on screen, so the challenge forces the user to look at the
+  middle of the address and compare it with what the person sent. It doesn't prove the comparison
+  happened. The copy says so: "Check them against the address the person gave you, not against
+  your history."
+- **The engine stays deterministic:** it returns the range, and `useChallengePositions` picks the
+  random positions with an injectable RNG, so tests are reproducible.
 
 ## D9. No uppercase text styles anywhere an address or hash can appear
 
-- CDS `caption` and `legal` fonts apply `text-transform: uppercase`, which rendered `0x7a3f…`
-  as `0X7A3F…`. In an app whose job is reading addresses exactly, that is a correctness bug, not a
+- CDS `caption` and `legal` fonts apply `text-transform: uppercase`, which rendered `0x7a3f…` as
+  `0X7A3F…`. In an app whose job is reading addresses exactly, that is a correctness bug, not a
   style choice. Metadata uses `label2`, and an e2e test asserts `text-transform: none`.
 - CDS `Banner` clamps string children to 3 lines. Reasons are passed as `Text` nodes so an
-  explanation is never cut off mid-sentence (also covered by e2e).
+  explanation is never cut off mid-sentence. This is also covered by e2e.
+
+## D10. A past send does not make a previously poisoned address trusted
+
+- Suppose the user already sent to an address that **first entered their history through a
+  planting technique** (dust, zero-value, counterfeit). That address is **not** a
+  confirmed-recipient anchor. That's what a victim who already fell for a lookalike once looks
+  like, and trusting it would ALLOW every later send to the attacker. Instead, the lookalike check
+  runs against the real contact, and the send BLOCKs.
+- "First appearance" means the earliest entry, by block number and then log index. An address
+  first seen through ordinary activity and dusted later gets WARN, not BLOCK, because the policy
+  says "first appeared through".
+
+## D11. Amount anomaly needs a baseline
+
+- WARN when the amount is more than 5 times the median of the user's **signer-confirmed** sends.
+  This only fires once there are at least 3 such sends. Without a baseline there's no signal,
+  because missing data isn't evidence.
+- Sends with unknown signers are excluded, so forged history can't shift the baseline.
+- This applies to trusted contacts too: a large, unusual payment to "your sister" is a classic
+  social-engineering pattern.
+
+## D12. Component tests render real CDS
+
+- Vitest bundles `@coinbase/cds-*` (`server.deps.inline`), because CDS ships ESM with
+  extensionless imports that Node's resolver rejects.
+- Component tests render the real CDS components inside the same providers the app uses
+  (`src/test/render.tsx`), not mocks.
