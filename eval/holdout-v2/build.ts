@@ -31,6 +31,9 @@ export const CAST = [
   'employer',
   'exchange',
   'attacker',
+  'vendor',
+  'rosa',
+  'mateo2',
 ] as const;
 
 function withMatch(base: Hex40, p: number, s: number, tag: string): Hex40 {

@@ -36,6 +36,8 @@ export interface EvalCase {
   testSends: { recipient: string; block: number; amount: string }[];
   historyAvailable: boolean;
   send: { recipient: string; amount: string; pickedFrom: string };
+  /** Holdout v2: who wrote the case. */
+  author?: string;
 }
 
 export interface CaseFile {

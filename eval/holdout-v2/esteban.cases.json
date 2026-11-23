@@ -1,0 +1,213 @@
+{
+  "cases": [
+    {
+      "id": "V2-E01",
+      "label": "attack",
+      "title": "A1. Zero-value entry from a 4/4 lookalike of Lucía minutes after a 60 USDC payment; she copies \"Lucía\" from history to send 80",
+      "rationale": "People copy from history because it's easier than finding the WhatsApp message.",
+      "sources": ["Esteban"],
+      "contacts": [],
+      "baseHistory": false,
+      "history": [
+        { "block": 5000, "from": "me", "to": "lucia", "amount": "60", "signer": "me" },
+        {
+          "block": 5001,
+          "from": "lookalike:lucia:4:4:e01",
+          "to": "me",
+          "amount": "0",
+          "signer": "lookalike:lucia:4:4:e01"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": { "to": "lookalike:lucia:4:4:e01", "amount": "80", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-E02",
+      "label": "attack",
+      "title": "A2. Dust from a 3/5 lookalike of her monthly cash-out deposit address (paid 5 times); she sends 150 to the lookalike",
+      "rationale": "Cash-out addresses are high value and repeated, so attackers target them.",
+      "sources": ["Esteban"],
+      "contacts": [],
+      "baseHistory": false,
+      "history": [
+        { "block": 1000, "from": "me", "to": "exchange", "amount": "150", "signer": "me" },
+        { "block": 2000, "from": "me", "to": "exchange", "amount": "150", "signer": "me" },
+        { "block": 3000, "from": "me", "to": "exchange", "amount": "150", "signer": "me" },
+        { "block": 4000, "from": "me", "to": "exchange", "amount": "150", "signer": "me" },
+        { "block": 5000, "from": "me", "to": "exchange", "amount": "150", "signer": "me" },
+        {
+          "block": 5001,
+          "from": "lookalike:exchange:3:5:e02",
+          "to": "me",
+          "amount": "0.001",
+          "signer": "lookalike:exchange:3:5:e02"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": { "to": "lookalike:exchange:3:5:e02", "amount": "150", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-E03",
+      "label": "attack",
+      "title": "A3. Counterfeit \"USDT\" from a 3/4 lookalike of a feria vendor she paid once; she \"returns\" 40 USDC",
+      "rationale": "In Bolivia USDT is common, and returning a mistaken payment feels like the honest thing to do.",
+      "sources": ["Esteban"],
+      "contacts": [],
+      "baseHistory": false,
+      "history": [
+        { "block": 5000, "from": "me", "to": "vendor", "amount": "10", "signer": "me" },
+        {
+          "block": 5100,
+          "from": "lookalike:vendor:3:4:e03",
+          "to": "me",
+          "amount": "40",
+          "signer": "lookalike:vendor:3:4:e03",
+          "token": { "fake": "USDT" }
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": { "to": "lookalike:vendor:3:4:e03", "amount": "40", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-E04",
+      "label": "attack",
+      "title": "A4. Dust from a 5/6 lookalike of Mateo the same day he sends 200; she sends 20 back to say thanks",
+      "rationale": "High-effort GPU attackers produce longer matches, and small amounts feel safe.",
+      "sources": ["Esteban"],
+      "contacts": [],
+      "baseHistory": false,
+      "history": [
+        { "block": 5000, "from": "mateo", "to": "me", "amount": "200", "signer": "mateo" },
+        {
+          "block": 5001,
+          "from": "lookalike:mateo:5:6:e04",
+          "to": "me",
+          "amount": "0.001",
+          "signer": "lookalike:mateo:5:6:e04"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": { "to": "lookalike:mateo:5:6:e04", "amount": "20", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-E05",
+      "label": "attack",
+      "title": "A5. Zero-value 2/5 lookalike of the landlord right after rent; next month she pays 300 rent to the lookalike",
+      "rationale": "Tests uneven matches where the end of the address matches more than the start.",
+      "sources": ["Esteban"],
+      "contacts": [],
+      "baseHistory": false,
+      "history": [
+        { "block": 5000, "from": "me", "to": "landlord", "amount": "300", "signer": "me" },
+        {
+          "block": 5001,
+          "from": "me",
+          "to": "lookalike:landlord:2:5:e05",
+          "amount": "0",
+          "signer": "attacker"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": { "to": "lookalike:landlord:2:5:e05", "amount": "300", "pickedFrom": "history" }
+    },
+    {
+      "id": "V2-E06",
+      "label": "legit",
+      "title": "L1. Pasanaku: 50 USDC to Rosa, a brand-new member address shared in the group chat",
+      "rationale": "Normal behavior that creates new recipients every month; a warning-fatigue test.",
+      "sources": ["Esteban"],
+      "contacts": [],
+      "baseHistory": false,
+      "history": [
+        {
+          "block": 2000,
+          "from": "me",
+          "to": "random:pasanaku-member-1",
+          "amount": "50",
+          "signer": "me"
+        },
+        {
+          "block": 3000,
+          "from": "me",
+          "to": "random:pasanaku-member-2",
+          "amount": "50",
+          "signer": "me"
+        },
+        {
+          "block": 4000,
+          "from": "me",
+          "to": "random:pasanaku-member-3",
+          "amount": "50",
+          "signer": "me"
+        }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": { "to": "rosa", "amount": "50", "pickedFrom": "pasted" }
+    },
+    {
+      "id": "V2-E07",
+      "label": "legit",
+      "title": "L2. First-time 200 USDC wedding gift to her cousin, address confirmed by phone, not saved as a contact",
+      "rationale": "A legit large first send.",
+      "sources": ["Esteban"],
+      "contacts": [],
+      "baseHistory": false,
+      "history": [],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": { "to": "cousin", "amount": "200", "pickedFrom": "pasted" }
+    },
+    {
+      "id": "V2-E08",
+      "label": "legit",
+      "title": "L3. 5 USDC to a new feria vendor at the market",
+      "rationale": "Small everyday payment to a stranger.",
+      "sources": ["Esteban"],
+      "contacts": [],
+      "baseHistory": false,
+      "history": [],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": { "to": "random:new-feria-vendor", "amount": "5", "pickedFrom": "pasted" }
+    },
+    {
+      "id": "V2-E09",
+      "label": "legit",
+      "title": "L4. Mateo changed wallets; after his call she added the new address as a contact, then sent 100",
+      "rationale": "A legit address change done the right way should go through without friction.",
+      "sources": ["Esteban"],
+      "contacts": ["mateo2"],
+      "baseHistory": false,
+      "history": [
+        { "block": 5000, "from": "mateo", "to": "me", "amount": "200", "signer": "mateo" }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": { "to": "mateo2", "amount": "100", "pickedFrom": "contacts" }
+    },
+    {
+      "id": "V2-E10",
+      "label": "legit",
+      "title": "L5. 500 USDC to her own exchange account (paid 4 times, usually 100-150) for a family medical bill",
+      "rationale": "An unusual but legitimate amount to a known address.",
+      "sources": ["Esteban"],
+      "contacts": [],
+      "baseHistory": false,
+      "history": [
+        { "block": 1000, "from": "me", "to": "exchange", "amount": "100", "signer": "me" },
+        { "block": 2000, "from": "me", "to": "exchange", "amount": "150", "signer": "me" },
+        { "block": 3000, "from": "me", "to": "exchange", "amount": "120", "signer": "me" },
+        { "block": 4000, "from": "me", "to": "exchange", "amount": "130", "signer": "me" }
+      ],
+      "testSends": [],
+      "historyAvailable": true,
+      "send": { "to": "exchange", "amount": "500", "pickedFrom": "history" }
+    }
+  ]
+}

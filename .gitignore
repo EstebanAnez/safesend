@@ -50,3 +50,6 @@ next-env.d.ts
 
 # S8 attacker key material (never read, printed, or committed)
 /scripts/.attacker/
+
+# local Claude Code settings (per-machine, never committed)
+.claude/settings.local.json
