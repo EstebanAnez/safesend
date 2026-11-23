@@ -2,7 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Address } from 'viem';
-import type { AsyncState, HistoryPage, TrustAnchor } from '@/domain/types';
+import type {
+  AsyncState,
+  Contact,
+  HistoryPage,
+  ProtectedAddress,
+  TrustAnchor,
+} from '@/domain/types';
 import { SCENARIOS } from '@/fixtures/scenarios';
 import type { DemoScenario } from '@/fixtures/scenarios';
 import { FixtureHistoryProvider } from '@/providers/history/fixture';
@@ -17,13 +23,21 @@ export interface DemoScenarioState {
   scenario: DemoScenario;
   config: RiskConfig;
   history: AsyncState<HistoryPage>;
+  /** Trust set: the only path to ALLOW. */
   anchors: readonly TrustAnchor[];
+  /** Protected set: what lookalikes are compared against. */
+  protectedSet: readonly ProtectedAddress[];
   /** Keyed by HistoryEntry.id. */
   classifications: ReadonlyMap<string, HistoryClassification>;
+  /** Session contacts: the scenario's plus any the user added (demo: not persisted). */
+  contacts: readonly Contact[];
+  addContact: (contact: Omit<Contact, 'id' | 'addedAt'>) => Contact;
   /** Test sends made in this session (demo: simulated). */
   testSends: readonly TestSend[];
   recordTestSend: (recipient: Address, amount: bigint) => void;
 }
+
+const EMPTY: readonly never[] = [];
 
 export function useDemoScenario(scenarioId: string): DemoScenarioState {
   const scenario = SCENARIOS[scenarioId];
@@ -52,37 +66,60 @@ export function useDemoScenario(scenarioId: string): DemoScenarioState {
     return () => controller.abort();
   }, [scenario]);
 
-  const entries = history.status === 'success' ? history.data.entries : null;
+  const entries = history.status === 'success' ? history.data.entries : EMPTY;
+
+  const [contacts, setContacts] = useState<readonly Contact[]>(scenario.contacts);
+  const addContact = useCallback((draft: Omit<Contact, 'id' | 'addedAt'>): Contact => {
+    const contact: Contact = {
+      ...draft,
+      id: `contact-${crypto.randomUUID()}`,
+      addedAt: Date.now(),
+    };
+    setContacts((prev) => [...prev, contact]);
+    return contact;
+  }, []);
 
   const [testSends, setTestSends] = useState<readonly TestSend[]>([]);
   const recordTestSend = useCallback(
     (recipient: Address, amount: bigint) => {
       // Demo: the simulated test lands one block after the newest fixture entry.
-      const latest = (entries ?? []).reduce((m, e) => (e.blockNumber > m ? e.blockNumber : m), 0n);
+      const latest = entries.reduce((m, e) => (e.blockNumber > m ? e.blockNumber : m), 0n);
       setTestSends((prev) => [...prev, { recipient, amount, blockNumber: latest + 1n }]);
     },
     [entries],
   );
 
   const anchors = useMemo(() => {
-    const base = buildTrustAnchors(scenario.contacts, entries ?? [], scenario.user.address, config);
-    return [
-      ...base,
-      ...testSendAnchors(testSends, base, entries ?? [], scenario.user.address, config),
-    ];
-  }, [scenario, entries, config, testSends]);
+    const base = buildTrustAnchors(contacts, entries, scenario.user.address, config);
+    return [...base, ...testSendAnchors(testSends, base, entries, scenario.user.address, config)];
+  }, [contacts, entries, scenario.user.address, config, testSends]);
+
+  const protectedSet = useMemo(
+    () => buildProtectedSet(anchors, entries, config),
+    [anchors, entries, config],
+  );
 
   const classifications = useMemo(() => {
     const map = new Map<string, HistoryClassification>();
-    const protectedSet = buildProtectedSet(anchors, entries ?? [], config);
-    for (const entry of entries ?? []) {
+    for (const entry of entries) {
       map.set(
         entry.id,
         classifyHistoryEntry(entry, protectedSet, scenario.user.address, config, testSends),
       );
     }
     return map;
-  }, [entries, anchors, scenario.user.address, config, testSends]);
+  }, [entries, protectedSet, scenario.user.address, config, testSends]);
 
-  return { scenario, config, history, anchors, classifications, testSends, recordTestSend };
+  return {
+    scenario,
+    config,
+    history,
+    anchors,
+    protectedSet,
+    classifications,
+    contacts,
+    addContact,
+    testSends,
+    recordTestSend,
+  };
 }

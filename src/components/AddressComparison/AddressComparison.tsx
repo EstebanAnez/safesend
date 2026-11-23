@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useId } from 'react';
 import { Box, HStack, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 import type { Address } from 'viem';
@@ -8,6 +8,7 @@ import { displayPosition } from '@/risk/confirmation';
 import type { CharacterComparison } from '@/risk/types';
 
 const GROUP = 4;
+const GROUPS_PER_LINE = 5;
 
 interface Props {
   comparison: CharacterComparison;
@@ -17,11 +18,20 @@ interface Props {
   highlight?: readonly number[] | null;
 }
 
+type Position = CharacterComparison['positions'][number];
+
 /**
- * Side-by-side, character-level view of two addresses in groups of 4.
- * Differences are never shown by color alone: each group carries a text
- * marker ("same" / "differs"), and a plain-language summary leads.
- * S2 version; slice S4 makes this the hero.
+ * The hero of SafeSend: why this address is not the person you think.
+ *
+ * Read in two seconds, top to bottom:
+ * 1. A plain sentence ("Same start and end. Different middle.").
+ * 2. A 40-cell strip: hollow cells match, solid cells differ. Shape, not only
+ *    color, carries the meaning; the ends look the same, the middle doesn't.
+ * 3. The two addresses aligned in groups of 4, two lines each, differing
+ *    characters bold and underlined on a tinted background.
+ *
+ * Screen readers get the sentence plus a text description; the visual strip
+ * and grid are aria-hidden duplicates of that information.
  */
 export const AddressComparison = memo(function AddressComparison({
   comparison,
@@ -29,103 +39,223 @@ export const AddressComparison = memo(function AddressComparison({
   anchorLabel,
   highlight,
 }: Props) {
-  const groups: (typeof comparison.positions)[] = [];
-  for (let i = 0; i < comparison.positions.length; i += GROUP) {
-    groups.push(comparison.positions.slice(i, i + GROUP));
-  }
+  const descId = useId();
   const total = comparison.positions.length;
   const middle = total - comparison.prefixMatchLength - comparison.suffixMatchLength;
-  const middleDiffering = total - comparison.totalMatching;
+  const differing = total - comparison.totalMatching;
   const highlighted = new Set(highlight ?? []);
+  const lines = chunk(chunk(comparison.positions, GROUP), GROUPS_PER_LINE);
 
   return (
-    <VStack gap={1.5}>
-      <Text as="p" font="body">
-        First {comparison.prefixMatchLength} and last {comparison.suffixMatchLength} characters
-        match. {middleDiffering} of the {middle} characters in the middle are different.
-      </Text>
-      <Box aria-hidden="true" background="bgAlternate" borderRadius={300} padding={2}>
-        <HStack gap={1} flexWrap="wrap">
-          <VStack gap={0.5} justifyContent="flex-start">
-            <Text font="label2" color="fgMuted">
-              {candidateLabel}
-            </Text>
-            <Text font="label2" color="fgMuted">
-              {anchorLabel}
-            </Text>
-          </VStack>
-          {groups.map((group, g) => {
-            const same = group.every((p) => p.match);
-            return (
-              <VStack key={g} gap={0.5} alignItems="center">
-                <Text mono font="body">
-                  {group.map((p) => (
-                    <CharCell
-                      key={p.index}
-                      char={p.candidate}
-                      match={p.match}
-                      highlighted={highlighted.has(p.index)}
-                    />
-                  ))}
-                </Text>
-                <Text mono font="body" color="fgMuted">
-                  {group.map((p) => p.anchor).join('')}
-                </Text>
-                <Text font="label2" color={same ? 'fg' : 'fgNegative'}>
-                  {same ? '✓ same' : '✗ differs'}
-                </Text>
-              </VStack>
-            );
-          })}
+    <VStack
+      gap={2}
+      padding={2}
+      borderRadius={400}
+      bordered
+      background="bg"
+      aria-describedby={descId}
+      role="group"
+      aria-label={`Address comparison: ${candidateLabel} versus ${anchorLabel}`}
+    >
+      <VStack gap={0.5}>
+        <Text as="p" font="headline">
+          Same start and end. Different middle.
+        </Text>
+        <Text as="p" font="body" color="fgMuted" id={descId}>
+          The first {comparison.prefixMatchLength} and last {comparison.suffixMatchLength}{' '}
+          characters match {anchorLabel}. {differing} of the {middle} characters in between are
+          different, so this is a different address.
+        </Text>
+      </VStack>
+
+      <MatchStrip positions={comparison.positions} />
+
+      <VStack gap={1.5} aria-hidden="true">
+        <HStack gap={2} flexWrap="wrap">
+          <Legend swatch="solid" label="Different" />
+          <Legend swatch="hollow" label="Same" />
         </HStack>
-      </Box>
+        {lines.map((groups, lineIndex) => (
+          <VStack key={lineIndex} gap={0.25}>
+            <AddressLine
+              label={lineIndex === 0 ? candidateLabel : ''}
+              groups={groups}
+              pick={(p) => p.candidate}
+              emphasize
+              highlighted={highlighted}
+              prefix={lineIndex === 0 ? '0x' : '  '}
+            />
+            <AddressLine
+              label={lineIndex === 0 ? anchorLabel : ''}
+              groups={groups}
+              pick={(p) => p.anchor}
+              emphasize={false}
+              highlighted={new Set()}
+              prefix={lineIndex === 0 ? '0x' : '  '}
+            />
+          </VStack>
+        ))}
+      </VStack>
+
       <VStack gap={0.5}>
         <Text as="p" font="label2" color="fgMuted">
-          {candidateLabel}:{' '}
-          <Text as="span" mono font="label2" color="fg">
-            {comparison.candidate}
-          </Text>
+          {candidateLabel}
+        </Text>
+        <Text as="p" mono font="label2" color="fg">
+          {comparison.candidate}
         </Text>
         <Text as="p" font="label2" color="fgMuted">
-          {anchorLabel}:{' '}
-          <Text as="span" mono font="label2" color="fg">
-            {comparison.anchor}
-          </Text>
+          {anchorLabel}
+        </Text>
+        <Text as="p" mono font="label2" color="fg">
+          {comparison.anchor}
         </Text>
       </VStack>
     </VStack>
   );
 });
 
-function CharCell({
+function MatchStrip({ positions }: { positions: readonly Position[] }) {
+  return (
+    <VStack gap={0.5} aria-hidden="true">
+      <HStack gap={0.5} width="100%">
+        {chunk(positions, GROUP).map((group, g) => (
+          <HStack key={g} gap={0.25} flexGrow={1}>
+            {group.map((p) => (
+              <Box
+                key={p.index}
+                flexGrow={1}
+                height={20}
+                borderRadius={100}
+                bordered={p.match}
+                background={p.match ? 'bg' : 'bgNegative'}
+                data-match={p.match}
+              />
+            ))}
+          </HStack>
+        ))}
+      </HStack>
+      <HStack justifyContent="space-between">
+        <Text font="label2" color="fgMuted">
+          start
+        </Text>
+        <Text font="label2" color="fgMuted">
+          middle
+        </Text>
+        <Text font="label2" color="fgMuted">
+          end
+        </Text>
+      </HStack>
+    </VStack>
+  );
+}
+
+function AddressLine({
+  label,
+  groups,
+  pick,
+  emphasize,
+  highlighted,
+  prefix,
+}: {
+  label: string;
+  groups: readonly (readonly Position[])[];
+  pick: (p: Position) => string;
+  emphasize: boolean;
+  highlighted: ReadonlySet<number>;
+  prefix: string;
+}) {
+  return (
+    <VStack gap={0}>
+      {label && (
+        <Text font="label2" color="fgMuted">
+          {label}
+        </Text>
+      )}
+      <HStack gap={1} flexWrap="wrap" alignItems="baseline">
+        <Text mono font="title3" color="fgMuted">
+          {prefix}
+        </Text>
+        {groups.map((group, g) => (
+          <Text key={g} mono font="title3" color={emphasize ? 'fg' : 'fgMuted'}>
+            {group.map((p) => (
+              <Char
+                key={p.index}
+                char={pick(p)}
+                differs={!p.match}
+                emphasize={emphasize}
+                highlighted={highlighted.has(p.index)}
+              />
+            ))}
+          </Text>
+        ))}
+      </HStack>
+    </VStack>
+  );
+}
+
+function Char({
   char,
-  match,
+  differs,
+  emphasize,
   highlighted,
 }: {
   char: string;
-  match: boolean;
+  differs: boolean;
+  emphasize: boolean;
   highlighted: boolean;
 }) {
-  const content = match ? (
-    <>{char}</>
-  ) : (
-    <Box as="span" background="bgNegativeWash" display="inline">
-      <Text as="span" mono font="body" color="fgNegative" fontWeight="headline">
-        {char}
-      </Text>
-    </Box>
-  );
-  if (!highlighted) return content;
+  let node = <>{char}</>;
+  if (differs && emphasize) {
+    node = (
+      <Box as="span" display="inline" background="bgNegativeWash" borderRadius={100}>
+        <Text as="span" mono font="title3" color="fgNegative" underline>
+          {char}
+        </Text>
+      </Box>
+    );
+  }
+  if (!highlighted) return node;
   return (
-    <Box as="span" display="inline" bordered borderRadius={100}>
-      {content}
+    <Box
+      as="span"
+      display="inline"
+      bordered
+      borderColor="fgPrimary"
+      borderWidth={200}
+      borderRadius={100}
+    >
+      {node}
     </Box>
   );
 }
 
+function Legend({ swatch, label }: { swatch: 'solid' | 'hollow'; label: string }) {
+  return (
+    <HStack gap={0.5} alignItems="center">
+      <Box
+        width={14}
+        height={14}
+        borderRadius={100}
+        bordered={swatch === 'hollow'}
+        background={swatch === 'solid' ? 'bgNegative' : 'bg'}
+      />
+      <Text font="label2" color="fgMuted">
+        {label}
+      </Text>
+    </HStack>
+  );
+}
+
+function chunk<T>(xs: readonly T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < xs.length; i += size) out.push(xs.slice(i, i + size));
+  return out;
+}
+
 /**
- * The recipient address in groups of 4 with the challenge characters outlined,
- * for WARNs without a lookalike comparison. Positions are also listed in text.
+ * The recipient address in groups of 4 with the challenge characters outlined
+ * and numbered, for WARNs without a lookalike comparison.
  */
 export const AddressWithHighlights = memo(function AddressWithHighlights({
   address,
@@ -136,22 +266,31 @@ export const AddressWithHighlights = memo(function AddressWithHighlights({
 }) {
   const hex = address.slice(2);
   const set = new Set(highlight);
-  const groups: { index: number; char: string }[][] = [];
-  for (let i = 0; i < hex.length; i += GROUP) {
-    groups.push(Array.from(hex.slice(i, i + GROUP), (char, k) => ({ index: i + k, char })));
-  }
+  const groups = chunk(
+    Array.from(hex, (char, index) => ({ index, char })),
+    GROUP,
+  );
   return (
     <Box aria-hidden="true" background="bgAlternate" borderRadius={300} padding={2}>
-      <HStack gap={1} flexWrap="wrap" alignItems="center">
-        <Text mono font="body" color="fgMuted">
+      <HStack gap={1} flexWrap="wrap" alignItems="baseline">
+        <Text mono font="title3" color="fgMuted">
           0x
         </Text>
         {groups.map((group, g) => (
-          <Text key={g} mono font="body">
+          <Text key={g} mono font="title3">
             {group.map(({ index, char }) =>
               set.has(index) ? (
-                <Box key={index} as="span" display="inline" bordered borderRadius={100}>
-                  <Text as="span" mono font="body" fontWeight="headline">
+                <Box
+                  key={index}
+                  as="span"
+                  display="inline"
+                  bordered
+                  borderColor="fgPrimary"
+                  borderWidth={200}
+                  borderRadius={100}
+                  background="bgPrimaryWash"
+                >
+                  <Text as="span" mono font="title3" fontWeight="headline">
                     {char}
                   </Text>
                 </Box>

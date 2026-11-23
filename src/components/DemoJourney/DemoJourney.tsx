@@ -5,8 +5,9 @@ import type { FormEvent } from 'react';
 import { Banner } from '@coinbase/cds-web/banner';
 import { Button } from '@coinbase/cds-web/buttons';
 import { TextInput } from '@coinbase/cds-web/controls';
-import { Box, VStack } from '@coinbase/cds-web/layout';
+import { Box, Grid, VStack } from '@coinbase/cds-web/layout';
 import { Spinner } from '@coinbase/cds-web/loaders';
+import { Tag } from '@coinbase/cds-web/tag';
 import { Text } from '@coinbase/cds-web/typography';
 import type { Address } from 'viem';
 import { BASE_SEPOLIA_CHAIN_ID, CANONICAL_USDC } from '@/config/chain';
@@ -19,6 +20,8 @@ import { parseAddress, sameAddress } from '@/risk/address';
 import { anchorLabel } from '@/risk/anchors';
 import { reverifySend } from '@/risk/reverify';
 import type { RiskInput, SendIntent } from '@/risk/types';
+import { AddContactForm } from '@/components/Contacts/AddContactForm';
+import { ContactsPanel } from '@/components/Contacts/ContactsPanel';
 import { DecisionPanel } from '@/components/DecisionPanel/DecisionPanel';
 import { HistoryList } from '@/components/HistoryList/HistoryList';
 
@@ -27,21 +30,32 @@ const EMPTY_HISTORY: readonly HistoryEntry[] = [];
 type Step =
   | { kind: 'compose' }
   | { kind: 'review'; intent: SendIntent }
-  | { kind: 'aborted'; message: string };
+  | { kind: 'add-contact'; mode: 'normal' | 'after-block' }
+  | { kind: 'notice'; tone: 'warning' | 'informational'; title: string; message: string };
 
 export function DemoJourney({ scenarioId }: { scenarioId: string }) {
-  const { scenario, config, history, anchors, classifications, testSends, recordTestSend } =
-    useDemoScenario(scenarioId);
-  /** The current review was started from the test-send nudge. */
-  const [testPending, setTestPending] = useState(false);
-  const [lastSendWasTest, setLastSendWasTest] = useState(false);
-  const amountRef = useRef<HTMLInputElement>(null);
+  const {
+    scenario,
+    config,
+    history,
+    anchors,
+    protectedSet,
+    classifications,
+    contacts,
+    addContact,
+    testSends,
+    recordTestSend,
+  } = useDemoScenario(scenarioId);
   const [recipientInput, setRecipientInput] = useState('');
   const [amountInput, setAmountInput] = useState('');
   const [amountError, setAmountError] = useState<string | null>(null);
   const [step, setStep] = useState<Step>({ kind: 'compose' });
+  /** The current review was started from the test-send nudge. */
+  const [testPending, setTestPending] = useState(false);
+  const [lastSendWasTest, setLastSendWasTest] = useState(false);
   const { state: sendState, send, reset } = useSimulatedSend();
   const recipientRef = useRef<HTMLInputElement>(null);
+  const amountRef = useRef<HTMLInputElement>(null);
 
   const historyEntries = useMemo(
     () => (history.status === 'success' ? history.data.entries : EMPTY_HISTORY),
@@ -89,12 +103,22 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     });
   }, []);
 
-  const handleUseAddress = useCallback((address: Address) => {
+  /** Put an address in the recipient field and return to the form. */
+  const pickRecipient = useCallback((address: Address, focus: 'recipient' | 'amount') => {
     setTestPending(false);
     setRecipientInput(address);
     setStep({ kind: 'compose' });
-    recipientRef.current?.focus();
+    requestAnimationFrame(() => (focus === 'amount' ? amountRef : recipientRef).current?.focus());
   }, []);
+
+  const handleUseAddress = useCallback(
+    (address: Address) => pickRecipient(address, 'recipient'),
+    [pickRecipient],
+  );
+  const handleSendToContact = useCallback(
+    (address: Address) => pickRecipient(address, 'amount'),
+    [pickRecipient],
+  );
 
   const handleRecover = useCallback(
     (anchor: ProtectedAddress) => {
@@ -114,11 +138,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     const amountNow = parseUsdcAmount(amountInput);
     const final: RiskInput = {
       ...riskInput,
-      intent: {
-        ...riskInput.intent,
-        recipientInput,
-        amount: amountNow.ok ? amountNow.value : -1n,
-      },
+      intent: { ...riskInput.intent, recipientInput, amount: amountNow.ok ? amountNow.value : -1n },
     };
     const check = reverifySend({
       reviewed: { intent: step.intent, result },
@@ -126,7 +146,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
       confirmationSatisfied: true,
     });
     if (!check.ok) {
-      setStep({ kind: 'aborted', message: check.message });
+      setStep({ kind: 'notice', tone: 'warning', title: 'Send stopped', message: check.message });
       return;
     }
     if (testPending) recordTestSend(reviewedRecipient, step.intent.amount);
@@ -151,225 +171,351 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     review(recipientInput, '1');
   }, [recipientInput, review]);
 
+  const startOver = useCallback(() => {
+    reset();
+    setTestPending(false);
+    setLastSendWasTest(false);
+    setRecipientInput('');
+    setAmountInput('');
+    setStep({ kind: 'compose' });
+  }, [reset]);
+
   /** After a test send: compose the real send without touching history. */
   const startFollowUp = useCallback(
     (address: Address) => {
       reset();
-      setTestPending(false);
       setLastSendWasTest(false);
-      setRecipientInput(address);
+      pickRecipient(address, 'amount');
       setAmountInput('');
-      setStep({ kind: 'compose' });
-      requestAnimationFrame(() => amountRef.current?.focus());
     },
-    [reset],
+    [reset, pickRecipient],
   );
 
-  if (sendState.status === 'sent' && lastSendWasTest) {
-    const testRecipient = sendState.recipient;
-    return (
-      <VStack gap={2} as="section" aria-labelledby="test-sent-heading">
-        <Text as="h2" font="title2" id="test-sent-heading">
-          Test send complete (simulated)
-        </Text>
-        <Text as="p" font="body">
-          {formatUsdc(sendState.amount)} USDC to{' '}
-          <Text as="span" mono font="body">
-            {testRecipient}
-          </Text>
-        </Text>
-        <Banner
-          variant="warning"
-          startIcon="warning"
-          startIconAccessibilityLabel="Warning"
-          styleVariant="contextual"
-          title={
-            <Text as="p" font="label1">
-              Do not copy the address from your activity for the rest
-            </Text>
-          }
-        >
-          <Text as="p" font="label2">
-            Scammers watch for test sends and plant a lookalike address within minutes. Ask the
-            person to confirm the test arrived, then send the rest with the button below or from
-            your contacts.
-          </Text>
-        </Banner>
-        <Button block onClick={() => startFollowUp(testRecipient)}>
-          Send the rest to the same address
-        </Button>
-        {scenario.contacts.map((c) => (
-          <Button key={c.id} block variant="secondary" onClick={() => startFollowUp(c.address)}>
-            Send to {c.name} (contact)
-          </Button>
-        ))}
-        <Text as="p" font="label2" color="fgMuted">
-          Demo mode: nothing was signed or broadcast.
-        </Text>
-      </VStack>
+  if (sendState.status === 'sent') {
+    return lastSendWasTest ? (
+      <TestSentScreen
+        recipient={sendState.recipient}
+        amount={sendState.amount}
+        contacts={contacts}
+        onFollowUp={startFollowUp}
+      />
+    ) : (
+      <SentScreen
+        recipient={sendState.recipient}
+        amount={sendState.amount}
+        label={(() => {
+          const anchor = anchors.find((a) => sameAddress(a.address, sendState.recipient));
+          return anchor ? anchorLabel(anchor) : 'a new address';
+        })()}
+        onStartOver={startOver}
+      />
     );
   }
 
-  if (sendState.status === 'sent') {
-    const anchor = anchors.find((a) => sameAddress(a.address, sendState.recipient));
+  const sendPanel = (() => {
+    if (step.kind === 'add-contact') {
+      return (
+        <AddContactForm
+          user={scenario.user.address}
+          contacts={contacts}
+          protectedSet={protectedSet}
+          config={config}
+          mode={step.mode}
+          onCancel={() => setStep({ kind: 'compose' })}
+          onSave={(draft) => {
+            const saved = addContact(draft);
+            // Saving never resumes the blocked send: the form is cleared.
+            setRecipientInput('');
+            setAmountInput('');
+            setStep({
+              kind: 'notice',
+              tone: 'informational',
+              title: `${saved.name} saved as a contact`,
+              message:
+                step.mode === 'after-block'
+                  ? 'The blocked send stays cancelled. To pay them, start a new send from your contacts.'
+                  : 'You can now pick them from your contacts.',
+            });
+          }}
+        />
+      );
+    }
+    if (step.kind === 'review' && result) {
+      return sendState.status === 'sending' ? (
+        <Spinner size={3} accessibilityLabel="Sending (simulated)" />
+      ) : (
+        <DecisionPanel
+          result={result}
+          recipient={reviewedRecipient}
+          amount={step.intent.amount}
+          onConfirm={handleConfirm}
+          onRecover={handleRecover}
+          onCancel={() => setStep({ kind: 'compose' })}
+          onUseTestAmount={handleUseTestAmount}
+          onAddDifferentPerson={() => setStep({ kind: 'add-contact', mode: 'after-block' })}
+        />
+      );
+    }
     return (
-      <VStack gap={2} as="section" aria-labelledby="sent-heading">
-        <Text as="h2" font="title2" id="sent-heading">
-          Simulated send complete
-        </Text>
-        <Banner
-          variant="informational"
-          startIcon="info"
-          startIconAccessibilityLabel="Note"
-          styleVariant="contextual"
-          title="Demo mode: nothing was sent"
-        >
-          No transaction was signed or broadcast. In live mode this step sends real testnet USDC on
-          Base Sepolia.
-        </Banner>
-        <Text as="p" font="body">
-          {formatUsdc(sendState.amount)} USDC to {anchor ? anchorLabel(anchor) : 'a new address'}
-        </Text>
-        <Text as="p" font="label2" mono color="fgMuted">
-          {sendState.recipient}
-        </Text>
-        <Box>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              reset();
-              setRecipientInput('');
-              setAmountInput('');
-              setStep({ kind: 'compose' });
-            }}
+      <VStack
+        as="form"
+        gap={2}
+        onSubmit={(e: FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+          review(recipientInput, amountInput);
+        }}
+      >
+        {step.kind === 'notice' && (
+          <Banner
+            variant={step.tone}
+            startIcon={step.tone === 'warning' ? 'warning' : 'checkmark'}
+            startIconAccessibilityLabel={step.tone === 'warning' ? 'Warning' : 'Done'}
+            styleVariant="contextual"
+            title={
+              <Text as="p" font="label1">
+                {step.title}
+              </Text>
+            }
           >
-            Start over
-          </Button>
-        </Box>
+            <Text as="p" font="label2">
+              {step.message}
+            </Text>
+          </Banner>
+        )}
+        <TextInput
+          ref={recipientRef}
+          label="Recipient address"
+          placeholder="0x…"
+          value={recipientInput}
+          onChange={(e) => setRecipientInput(e.target.value)}
+          autoComplete="off"
+          spellCheck={false}
+        />
+        <TextInput
+          ref={amountRef}
+          label="Amount"
+          suffix="USDC"
+          inputMode="decimal"
+          value={amountInput}
+          onChange={(e) => setAmountInput(e.target.value)}
+          variant={amountError ? 'negative' : undefined}
+          helperText={amountError ?? undefined}
+        />
+        <Button type="submit" block>
+          Review send
+        </Button>
       </VStack>
     );
-  }
+  })();
 
   return (
     <VStack gap={4}>
       <VStack gap={1}>
+        <Box>
+          <Tag colorScheme={scenario.kind === 'attack' ? 'red' : 'green'}>
+            {scenario.kind === 'attack' ? 'Attack scenario' : 'Everyday scenario'}
+          </Tag>
+        </Box>
         <Text as="h1" font="title2">
           {scenario.title}
         </Text>
         <Text as="p" font="body" color="fgMuted">
           {scenario.summary}
         </Text>
-      </VStack>
-
-      <VStack as="section" gap={2} aria-labelledby="history-heading">
-        <Text as="h2" font="title3" id="history-heading">
-          {scenario.user.name}&apos;s activity
-        </Text>
-        {history.status === 'loading' && <Spinner size={3} accessibilityLabel="Loading activity" />}
-        {history.status === 'error' && (
-          <Banner
-            variant="error"
-            startIcon="error"
-            styleVariant="contextual"
-            title="Could not load activity"
-          >
-            {history.error.message}
-          </Banner>
-        )}
-        {history.status === 'success' && (
-          <>
-            {testSends.length > 0 && (
-              <Banner
-                variant="warning"
-                startIcon="warning"
-                startIconAccessibilityLabel="Warning"
-                styleVariant="contextual"
-                title={
-                  <Text as="p" font="label1">
-                    You just made a test send
-                  </Text>
-                }
-              >
-                <Text as="p" font="label2">
-                  Do not copy an address from this list for the rest. Use your contacts or the
-                  address you tested.
-                </Text>
-              </Banner>
-            )}
-            <Text as="p" font="label2" color="fgMuted">
-              Demo data (fixture scenario). Every address and transaction here is synthetic.
+        <Box background="bgPrimaryWash" borderRadius={300} padding={1.5}>
+          <Text as="p" font="label1">
+            Try this:{' '}
+            <Text as="span" font="body">
+              {scenario.tryThis}
             </Text>
-            <HistoryList
-              entries={history.data.entries}
-              classifications={classifications}
-              onUseAddress={handleUseAddress}
-            />
-          </>
-        )}
+          </Text>
+        </Box>
       </VStack>
 
-      <VStack as="section" gap={2} aria-labelledby="send-heading">
-        <Text as="h2" font="title3" id="send-heading">
-          Send USDC
-        </Text>
-        {step.kind === 'review' && result ? (
-          sendState.status === 'sending' ? (
-            <Spinner size={3} accessibilityLabel="Sending (simulated)" />
-          ) : (
-            <DecisionPanel
-              result={result}
-              recipient={reviewedRecipient}
-              amount={step.intent.amount}
-              onConfirm={handleConfirm}
-              onRecover={handleRecover}
-              onCancel={() => setStep({ kind: 'compose' })}
-              onUseTestAmount={handleUseTestAmount}
-            />
-          )
-        ) : (
-          <VStack
-            as="form"
-            gap={2}
-            onSubmit={(e: FormEvent<HTMLFormElement>) => {
-              e.preventDefault();
-              review(recipientInput, amountInput);
-            }}
-          >
-            {step.kind === 'aborted' && (
-              <Banner
-                variant="warning"
-                startIcon="warning"
-                styleVariant="contextual"
-                title="Send stopped"
-              >
-                {step.message}
-              </Banner>
-            )}
-            <TextInput
-              ref={recipientRef}
-              label="Recipient address"
-              placeholder="0x…"
-              value={recipientInput}
-              onChange={(e) => setRecipientInput(e.target.value)}
-              autoComplete="off"
-              spellCheck={false}
-            />
-            <TextInput
-              ref={amountRef}
-              label="Amount"
-              suffix="USDC"
-              inputMode="decimal"
-              value={amountInput}
-              onChange={(e) => setAmountInput(e.target.value)}
-              variant={amountError ? 'negative' : undefined}
-              helperText={amountError ?? undefined}
-            />
-            <Button type="submit" block>
-              Review send
-            </Button>
+      <Grid
+        templateColumns="repeat(auto-fit, minmax(min(100%, 420px), 1fr))"
+        gap={4}
+        alignItems="start"
+      >
+        <VStack gap={4}>
+          <VStack as="section" gap={2} aria-labelledby="send-heading">
+            <Text as="h2" font="title3" id="send-heading">
+              Send USDC
+            </Text>
+            {sendPanel}
           </VStack>
-        )}
-      </VStack>
+
+          <VStack as="section" gap={2} aria-labelledby="contacts-heading">
+            <Text as="h2" font="title3" id="contacts-heading">
+              Contacts
+            </Text>
+            <ContactsPanel
+              contacts={contacts}
+              onSendTo={handleSendToContact}
+              onAdd={() => setStep({ kind: 'add-contact', mode: 'normal' })}
+            />
+          </VStack>
+        </VStack>
+
+        <VStack as="section" gap={2} aria-labelledby="history-heading">
+          <Text as="h2" font="title3" id="history-heading">
+            {scenario.user.name}&apos;s activity
+          </Text>
+          {history.status === 'loading' && (
+            <Spinner size={3} accessibilityLabel="Loading activity" />
+          )}
+          {history.status === 'error' && (
+            <Banner
+              variant="error"
+              startIcon="error"
+              startIconAccessibilityLabel="Error"
+              styleVariant="contextual"
+              title={
+                <Text as="p" font="label1">
+                  Could not load activity
+                </Text>
+              }
+            >
+              <Text as="p" font="label2">
+                {history.error.message} Lookalike checks treat any match as dangerous until history
+                loads.
+              </Text>
+            </Banner>
+          )}
+          {history.status === 'success' && (
+            <>
+              {testSends.length > 0 && (
+                <Banner
+                  variant="warning"
+                  startIcon="warning"
+                  startIconAccessibilityLabel="Warning"
+                  styleVariant="contextual"
+                  title={
+                    <Text as="p" font="label1">
+                      You just made a test send
+                    </Text>
+                  }
+                >
+                  <Text as="p" font="label2">
+                    Do not copy an address from this list for the rest. Use your contacts or the
+                    address you tested.
+                  </Text>
+                </Banner>
+              )}
+              <Text as="p" font="label2" color="fgMuted">
+                Demo data (fixture scenario, complete coverage). Every address and transaction here
+                is synthetic.
+              </Text>
+              <HistoryList
+                entries={history.data.entries}
+                classifications={classifications}
+                onUseAddress={handleUseAddress}
+              />
+            </>
+          )}
+        </VStack>
+      </Grid>
+    </VStack>
+  );
+}
+
+function SentScreen({
+  recipient,
+  amount,
+  label,
+  onStartOver,
+}: {
+  recipient: Address;
+  amount: bigint;
+  label: string;
+  onStartOver: () => void;
+}) {
+  return (
+    <VStack gap={2} as="section" aria-labelledby="sent-heading" maxWidth={560}>
+      <Text as="h2" font="title2" id="sent-heading">
+        Simulated send complete
+      </Text>
+      <Banner
+        variant="informational"
+        startIcon="info"
+        startIconAccessibilityLabel="Note"
+        styleVariant="contextual"
+        title={
+          <Text as="p" font="label1">
+            Demo mode: nothing was sent
+          </Text>
+        }
+      >
+        <Text as="p" font="label2">
+          No transaction was signed or broadcast. In live mode this step sends real testnet USDC on
+          Base Sepolia.
+        </Text>
+      </Banner>
+      <Text as="p" font="body">
+        {formatUsdc(amount)} USDC to {label}
+      </Text>
+      <Text as="p" font="label2" mono color="fgMuted">
+        {recipient}
+      </Text>
+      <Box>
+        <Button variant="secondary" onClick={onStartOver}>
+          Start over
+        </Button>
+      </Box>
+    </VStack>
+  );
+}
+
+function TestSentScreen({
+  recipient,
+  amount,
+  contacts,
+  onFollowUp,
+}: {
+  recipient: Address;
+  amount: bigint;
+  contacts: readonly { id: string; name: string; address: Address }[];
+  onFollowUp: (address: Address) => void;
+}) {
+  return (
+    <VStack gap={2} as="section" aria-labelledby="test-sent-heading" maxWidth={560}>
+      <Text as="h2" font="title2" id="test-sent-heading">
+        Test send complete (simulated)
+      </Text>
+      <Text as="p" font="body">
+        {formatUsdc(amount)} USDC to{' '}
+        <Text as="span" mono font="body">
+          {recipient}
+        </Text>
+      </Text>
+      <Banner
+        variant="warning"
+        startIcon="warning"
+        startIconAccessibilityLabel="Warning"
+        styleVariant="contextual"
+        title={
+          <Text as="p" font="label1">
+            Do not copy the address from your activity for the rest
+          </Text>
+        }
+      >
+        <Text as="p" font="label2">
+          Scammers watch for test sends and plant a lookalike address within minutes. Ask the person
+          to confirm the test arrived, then send the rest with the button below or from your
+          contacts.
+        </Text>
+      </Banner>
+      <Button block onClick={() => onFollowUp(recipient)}>
+        Send the rest to the same address
+      </Button>
+      {contacts.map((c) => (
+        <Button key={c.id} block variant="secondary" onClick={() => onFollowUp(c.address)}>
+          Send to {c.name} (contact)
+        </Button>
+      ))}
+      <Text as="p" font="label2" color="fgMuted">
+        Demo mode: nothing was signed or broadcast.
+      </Text>
     </VStack>
   );
 }

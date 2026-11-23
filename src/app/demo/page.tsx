@@ -1,17 +1,12 @@
-'use client';
+import { DemoShell } from '@/components/DemoShell/DemoShell';
+import { ScenarioPicker } from '@/components/DemoShell/ScenarioPicker';
 
-import { VStack } from '@coinbase/cds-web/layout';
-import { AppHeader } from '@/components/AppHeader/AppHeader';
-import { DemoJourney } from '@/components/DemoJourney/DemoJourney';
-import { DUST_POISONING_BASIC } from '@/fixtures/scenarios';
+export const metadata = { title: 'SafeSend demo scenarios' };
 
-export default function DemoPage() {
+export default function DemoIndexPage() {
   return (
-    <VStack background="bg" minHeight="100vh">
-      <AppHeader />
-      <VStack as="main" padding={3} maxWidth={720} width="100%" alignSelf="center">
-        <DemoJourney scenarioId={DUST_POISONING_BASIC.id} />
-      </VStack>
-    </VStack>
+    <DemoShell maxWidth={720}>
+      <ScenarioPicker />
+    </DemoShell>
   );
 }

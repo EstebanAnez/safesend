@@ -6,8 +6,11 @@ import type { Page } from '@playwright/test';
 const MATEO = '0x5b0e2a9d7c4f61e83b2a0d9c5e7f14a36b8c2d07';
 
 async function reviewMateo(page: Page, amount: string) {
-  await page.goto('/demo');
-  await page.getByRole('button', { name: new RegExp(`Use address ${MATEO}`, 'i') }).click();
+  await page.goto('/demo/dust-poisoning');
+  await page
+    .getByRole('button', { name: new RegExp(`Use address ${MATEO}`, 'i') })
+    .first()
+    .click();
   await page.getByLabel('Amount').fill(amount);
   await page.getByRole('button', { name: 'Review send' }).click();
   await expect(page.getByRole('heading', { name: 'Check before you send' })).toBeVisible();

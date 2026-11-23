@@ -218,3 +218,31 @@ paymaster, uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGas
   (RISK_MODEL.md).
 - **Decision process:** the switch is decided on holdout v2. Holdout v1 has been seen, so its
   post-hoc numbers can't settle it.
+
+## D16. Adding a contact is deliberate, and stricter for lookalikes
+
+- **Every contact needs:** a name, the full address typed or pasted (never prefilled, never taken
+  from history), and an explicit confirmation ("I got this address directly from <name>").
+- **If the address resembles a protected address** (same rule as send time), the user must also
+  type the full address a second time and confirm they verified it through another channel, like
+  a phone call. The contact is recorded as `verifiedOutOfBand`.
+- **From a BLOCK screen,** "This is a different person" opens the same form in its strictest mode,
+  with nothing prefilled. Saving it **never** resumes, approves or retries the blocked send. The
+  form is cleared, and the user starts a new send from contacts. That is the only way past a
+  lookalike BLOCK, and it requires deliberate effort.
+- Rules live in `src/risk/contacts.ts` (pure, unit-tested). The UI is in `src/components/Contacts/`.
+  Demo contacts last for the session only. Persistence comes with live mode (S6).
+
+## D17. The comparison is the hero
+
+- **Order on BLOCK and lookalike WARN screens:** heading, then the comparison, then the recovery
+  action, then the detailed reasons. The "why" comes before the "what".
+- **Three layers, readable in two seconds:**
+  1. A sentence: "Same start and end. Different middle."
+  2. A 40-cell strip. Hollow cells mean same; solid cells mean different. **Shape, not only
+     color**, carries the meaning, so it reads in grayscale and for color-blind users.
+  3. The two addresses aligned in groups of 4, five groups per line, so it fits a phone without
+     horizontal scrolling. Differing characters are bold, underlined and tinted.
+- **Screen readers** get the sentence and a text description through `aria-describedby`. The
+  strip and grid are `aria-hidden` duplicates.
+- **WARN challenge positions** are outlined in the primary color, and also listed in text.
