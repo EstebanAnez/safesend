@@ -9,9 +9,9 @@ import { BASE_SEPOLIA_CHAIN_ID, CANONICAL_USDC } from '../src/config/chain';
 import type { Contact, HistoryEntry } from '../src/domain/types';
 import { buildTrustAnchors } from '../src/risk/anchors';
 import { evaluateRisk } from '../src/risk/evaluate';
-import type { RiskConfig, RiskInput } from '../src/risk/types';
+import type { ReasonCode, RiskConfig, RiskInput } from '../src/risk/types';
 
-// --- Case file schema (mirrors eval/holdout/build-holdout.ts) ---------------------
+// --- Case file schema (mirrors the holdout authoring scripts) ----------------------
 export interface TransferSpec {
   block: number;
   logIndex?: number;
@@ -44,17 +44,22 @@ export interface CaseFile {
   cases: EvalCase[];
 }
 
-export interface ThresholdSetting {
+/** A named lookalike-rule configuration to evaluate. */
+export interface RuleSetting {
   name: string;
-  prefixMatchLength: number;
-  suffixMatchLength: number;
+  apply: (base: RiskConfig) => RiskConfig;
 }
 
-export const THRESHOLD_SETTINGS: readonly ThresholdSetting[] = [
-  { name: '3/3', prefixMatchLength: 3, suffixMatchLength: 3 },
-  { name: '3/4', prefixMatchLength: 3, suffixMatchLength: 4 },
-  { name: '4/4', prefixMatchLength: 4, suffixMatchLength: 4 },
-  { name: '4/5', prefixMatchLength: 4, suffixMatchLength: 5 },
+const prefixSuffix = (p: number, s: number): RuleSetting => ({
+  name: `${p}/${s}`,
+  apply: (base) => ({ ...base, prefixMatchLength: p, suffixMatchLength: s }),
+});
+
+export const RULE_SETTINGS: readonly RuleSetting[] = [
+  prefixSuffix(3, 3),
+  prefixSuffix(3, 4),
+  prefixSuffix(4, 4),
+  prefixSuffix(4, 5),
 ];
 
 // --- Conversion ------------------------------------------------------------------
@@ -138,11 +143,29 @@ export type Outcome = 'ALLOW' | 'WARN_CHECKBOX' | 'WARN_STRONG' | 'BLOCK';
 export type Level = 'blocked' | 'strong' | 'flagged';
 export const LEVELS: readonly Level[] = ['blocked', 'strong', 'flagged'];
 
-export function outcomeOf(input: RiskInput): Outcome {
+/** Reasons that come from address/provenance evidence, as opposed to the amount rules. */
+export const SIGNAL_CODES: ReadonlySet<ReasonCode> = new Set<ReasonCode>([
+  'LOOKALIKE_HIGH_CONFIDENCE',
+  'LOOKALIKE',
+  'UNKNOWN_PROVENANCE',
+]);
+
+export interface CaseResult {
+  outcome: Outcome;
+  codes: ReasonCode[];
+}
+
+export function runCase(input: RiskInput): CaseResult {
   const r = evaluateRisk(input);
-  if (r.decision === 'BLOCK') return 'BLOCK';
-  if (r.decision === 'ALLOW') return 'ALLOW';
-  return r.confirmation.level === 'acknowledge' ? 'WARN_CHECKBOX' : 'WARN_STRONG';
+  const outcome: Outcome =
+    r.decision === 'BLOCK'
+      ? 'BLOCK'
+      : r.decision === 'ALLOW'
+        ? 'ALLOW'
+        : r.confirmation.level === 'acknowledge'
+          ? 'WARN_CHECKBOX'
+          : 'WARN_STRONG';
+  return { outcome, codes: r.reasons.map((x) => x.code) };
 }
 
 /** Does this outcome count as "caught" at a given level? */
@@ -155,6 +178,27 @@ export function caughtAt(outcome: Outcome, level: Level): boolean {
     case 'flagged':
       return outcome !== 'ALLOW';
   }
+}
+
+/** Caught because of an address/provenance signal (not merely the amount rules). */
+export function caughtBySignal(r: CaseResult): boolean {
+  return r.outcome !== 'ALLOW' && r.codes.some((c) => SIGNAL_CODES.has(c));
+}
+
+/** Strong friction that came only from the amount rules (no address/provenance signal). */
+export function strongFromAmountOnly(r: CaseResult): boolean {
+  return r.outcome === 'WARN_STRONG' && !r.codes.some((c) => SIGNAL_CODES.has(c));
+}
+
+/** Wilson score interval, 95% (z = 1.96). Returns [low, high] as proportions. */
+export function wilson(successes: number, n: number, z = 1.96): [number, number] {
+  if (n === 0) return [0, 1];
+  const p = successes / n;
+  const z2 = z * z;
+  const denom = 1 + z2 / n;
+  const center = (p + z2 / (2 * n)) / denom;
+  const half = (z * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n))) / denom;
+  return [Math.max(0, center - half), Math.min(1, center + half)];
 }
 
 export interface Confusion {
@@ -170,8 +214,12 @@ export interface SettingResult {
   setting: string;
   attacks: number;
   legit: number;
-  outcomes: Record<string, Outcome>;
+  cases: Record<string, CaseResult>;
   confusion: Record<Level, Confusion>;
+  /** Attacks caught by a lookalike/provenance signal (any friction level). */
+  attacksBySignal: number;
+  /** Attacks that got strong friction only because of the amount rules. */
+  attacksStrongFromAmountOnly: number;
   /** Attack cases that reached ALLOW or only a checkbox WARN. */
   misses: { id: string; outcome: Outcome; title: string }[];
   /** Legit sends by friction: raw counts. */
@@ -181,15 +229,12 @@ export interface SettingResult {
 export function evaluateCases(
   cases: readonly EvalCase[],
   base: RiskConfig,
-  setting: ThresholdSetting,
+  setting: RuleSetting,
 ): SettingResult {
-  const config: RiskConfig = {
-    ...base,
-    prefixMatchLength: setting.prefixMatchLength,
-    suffixMatchLength: setting.suffixMatchLength,
-  };
-  const outcomes: Record<string, Outcome> = {};
-  for (const c of cases) outcomes[c.id] = outcomeOf(toRiskInput(c, config));
+  const config = setting.apply(base);
+  const results: Record<string, CaseResult> = {};
+  for (const c of cases) results[c.id] = runCase(toRiskInput(c, config));
+  const get = (id: string): CaseResult => results[id] ?? { outcome: 'ALLOW', codes: [] };
 
   const confusion = {} as Record<Level, Confusion>;
   for (const level of LEVELS) {
@@ -198,7 +243,7 @@ export function evaluateCases(
     let fp = 0;
     let tn = 0;
     for (const c of cases) {
-      const caught = caughtAt(outcomes[c.id] ?? 'ALLOW', level);
+      const caught = caughtAt(get(c.id).outcome, level);
       if (c.label === 'attack') {
         if (caught) tp += 1;
         else fn += 1;
@@ -218,10 +263,10 @@ export function evaluateCases(
     };
   }
 
-  const misses = cases
-    .filter((c) => c.label === 'attack')
-    .filter((c) => !caughtAt(outcomes[c.id] ?? 'ALLOW', 'strong'))
-    .map((c) => ({ id: c.id, outcome: outcomes[c.id] ?? 'ALLOW', title: c.title }));
+  const attackCases = cases.filter((c) => c.label === 'attack');
+  const misses = attackCases
+    .filter((c) => !caughtAt(get(c.id).outcome, 'strong'))
+    .map((c) => ({ id: c.id, outcome: get(c.id).outcome, title: c.title }));
 
   const legitByOutcome: Record<Outcome, number> = {
     ALLOW: 0,
@@ -229,14 +274,16 @@ export function evaluateCases(
     WARN_STRONG: 0,
     BLOCK: 0,
   };
-  for (const c of cases) if (c.label === 'legit') legitByOutcome[outcomes[c.id] ?? 'ALLOW'] += 1;
+  for (const c of cases) if (c.label === 'legit') legitByOutcome[get(c.id).outcome] += 1;
 
   return {
     setting: setting.name,
-    attacks: cases.filter((c) => c.label === 'attack').length,
-    legit: cases.filter((c) => c.label === 'legit').length,
-    outcomes,
+    attacks: attackCases.length,
+    legit: cases.length - attackCases.length,
+    cases: results,
     confusion,
+    attacksBySignal: attackCases.filter((c) => caughtBySignal(get(c.id))).length,
+    attacksStrongFromAmountOnly: attackCases.filter((c) => strongFromAmountOnly(get(c.id))).length,
     misses,
     legitByOutcome,
   };
@@ -277,4 +324,11 @@ export function regressions(current: BaselineEntry, baseline: BaselineEntry): st
     }
   }
   return problems;
+}
+
+/** Structural equality for configs (BigInt-safe). */
+export function sameConfig(a: RiskConfig, b: RiskConfig): boolean {
+  const ser = (x: RiskConfig) =>
+    JSON.stringify(x, (_k, v: unknown) => (typeof v === 'bigint' ? `${v}n` : v));
+  return ser(a) === ser(b);
 }
