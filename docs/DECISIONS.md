@@ -66,3 +66,22 @@ Short records of choices that a reviewer might question. Newest last.
   otherwise it is rejected (never silently "corrected").
 - Normalized with viem `getAddress`. Comparisons are case-insensitive on hex.
 - Implemented in `src/risk/address.ts` with unit tests.
+
+## D8. A first send to a new address is WARN, not ALLOW (open for review)
+
+- **What:** A valid recipient that is not a trust anchor and doesn't look like one gets WARN
+  (`NEW_RECIPIENT`). Above the first-send threshold it gets `NEW_RECIPIENT_LARGE_AMOUNT` with the
+  test-send advice.
+- **Why:** The policy defines ALLOW as "a trusted contact or confirmed past recipient with no risk
+  signals". A new address is neither. The cost is one deliberate confirmation (type the last 4
+  characters) on the first send to someone.
+- **Trade-off:** This adds friction to every first send. The alternative is ALLOW below the
+  threshold. The false-warning rate on legitimate sends in S3 will show what this costs.
+
+## D9. No uppercase text styles anywhere an address or hash can appear
+
+- CDS `caption` and `legal` fonts apply `text-transform: uppercase`, which rendered `0x7a3f…`
+  as `0X7A3F…`. In an app whose job is reading addresses exactly, that is a correctness bug, not a
+  style choice. Metadata uses `label2`, and an e2e test asserts `text-transform: none`.
+- CDS `Banner` clamps string children to 3 lines. Reasons are passed as `Text` nodes so an
+  explanation is never cut off mid-sentence (also covered by e2e).

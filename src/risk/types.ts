@@ -21,6 +21,7 @@ export type ReasonCode =
   | 'LOOKALIKE_HIGH_CONFIDENCE'
   // WARN
   | 'LOOKALIKE'
+  | 'NEW_RECIPIENT'
   | 'NEW_RECIPIENT_LARGE_AMOUNT'
   | 'AMOUNT_ANOMALY'
   | 'UNKNOWN_PROVENANCE'
@@ -100,5 +101,10 @@ export interface RiskInput {
   userAddress: Address;
   anchors: readonly TrustAnchor[];
   history: readonly HistoryEntry[];
+  /**
+   * False when no history source could be read. High-confidence lookalike
+   * BLOCK then relies on the both-ends match alone.
+   */
+  historyAvailable: boolean;
   config: RiskConfig;
 }
