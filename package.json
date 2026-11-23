@@ -1,0 +1,67 @@
+{
+  "name": "safesend",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "eval": "tsx scripts/eval.ts",
+    "eval:check": "tsx scripts/eval.ts --check",
+    "ci": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run eval:check"
+  },
+  "dependencies": {
+    "@coinbase/cds-icons": "^5",
+    "@coinbase/cds-illustrations": "^4",
+    "@coinbase/cds-web": "^9",
+    "@coinbase/wallet-sdk": "^4.4.0",
+    "@tanstack/react-query": "^5.108.3",
+    "framer-motion": "^10",
+    "next": "15.4.8",
+    "react": "19.1.2",
+    "react-dom": "19.1.2",
+    "viem": "^2.58.4",
+    "wagmi": "^3.7.11"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@eslint/eslintrc": "^3.3.7",
+    "@playwright/test": "^1.65.1",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.13",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.4.8",
+    "eslint-config-prettier": "^10.1.8",
+    "jsdom": "^31.0.1",
+    "prettier": "^3.10.1",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.2",
+    "vitest": "^5.1.1"
+  },
+  "overrides": {
+    "framer-motion": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    },
+    "@react-spring/web": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
+  }
+}
