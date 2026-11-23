@@ -1,6 +1,6 @@
 'use client';
 
-import { IconButton } from '@coinbase/cds-web/buttons';
+import { Button } from '@coinbase/cds-web/buttons';
 import { HStack } from '@coinbase/cds-web/layout';
 import { Tag } from '@coinbase/cds-web/tag';
 import { Text } from '@coinbase/cds-web/typography';
@@ -25,12 +25,17 @@ export function AppHeader() {
         </Text>
         <Tag colorScheme="yellow">Testnet</Tag>
       </HStack>
-      <IconButton
-        name={colorScheme === 'dark' ? 'moon' : 'light'}
+      {/* Text, not an icon: no icon renders on first paint, so the 275 KB icon font stays off
+          the critical path (docs/DECISIONS.md D20). The visible text is inside the name (WCAG 2.5.3). */}
+      <Button
+        compact
+        variant="secondary"
+        transparent
         onClick={toggleColorScheme}
         accessibilityLabel={`Switch to ${nextScheme} mode`}
-        transparent
-      />
+      >
+        {nextScheme === 'dark' ? 'Dark mode' : 'Light mode'}
+      </Button>
     </HStack>
   );
 }

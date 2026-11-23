@@ -271,3 +271,87 @@ paymaster, uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGas
   ALLOWed. Grouping grants no extra trust: the group tag is a label, not a permission.
 - **Rules:** `checkNewGroup` in `src/risk/contacts.ts` (unit-tested). **UI:**
   `src/components/Contacts/AddGroupForm.tsx`. **Demo:** the "Pasanaku" scenario, covered by e2e.
+
+## D19. Accessibility: focus follows the journey, decisions are announced, motion is optional
+
+- **Focus (WCAG 2.4.3).** Every user action that replaces the send panel moves focus to the new
+  panel's heading: the decision, the add-contact and add-group forms, the "saved" notice and the
+  sent screen. "Go back" returns focus to the recipient field. Panels are code-split (D20), so the
+  helper (`focusWhenShown` in `src/components/a11y/focus.ts`) waits up to 3 seconds for the heading
+  to appear instead of letting focus fall to `<body>`.
+- **Announcements.** One polite live region (CDS `AccessibilityAnnouncer`) carries what the focused
+  heading does not: the verdict and the reasons ("Blocked. This send cannot go ahead. This address
+  imitates Lucía (sister)."), the simulated send result, and history load or failure after a user
+  action. "Sending" is announced by the CDS Spinner, which is itself a status region, so it is not
+  announced twice. Message text lives in `src/lib/announce.ts` (unit-tested).
+- **Headings.** One `h1` per page and no skipped levels: the decision is an `h3` inside the "Send
+  USDC" `h2`, and group members are `h4`. The scenario header stays on the sent screen. An e2e test
+  checks the outline at each step.
+- **Reduced motion (WCAG 2.3.3).** `<MotionConfig reducedMotion="user">` covers CDS's framer-motion
+  animations. CDS also animates in CSS (Spinner, skeleton shimmer, press feedback), so
+  `src/app/reduced-motion.css` stops those under `prefers-reduced-motion: reduce`. It is the only
+  global CSS in the app: an exception to "CDS only", because no CDS prop covers it.
+- **Tested:** `e2e/keyboard-journey.spec.ts` runs the full journey with the keyboard alone (Tab,
+  Shift+Tab, Enter, Space, arrows, typing; no clicks): BLOCK and recovery, the WARN
+  middle-character challenge, Add group, "This is a different person", and a history outage with
+  retry. It also records what the live region said. `e2e/a11y.spec.ts` runs axe (WCAG 2.2 AA tags)
+  in dark mode and in the loading, empty and error states. Both run on desktop and Pixel 7.
+- **Not done:** no manual pass with a real screen reader (NVDA, VoiceOver) yet. The tests check
+  roles, names, focus and live-region text, not how a given screen reader speaks them.
+
+## D20. Performance: keep the icon font off the critical path
+
+- **Measured** with Lighthouse 12 (mobile defaults: Moto G Power emulation, simulated slow 4G, 4×
+  CPU), production build, on the development laptop.
+- **Finding.** The CDS icon font is 275 KB, almost half the page weight. Any icon in the first
+  render (the theme toggle, "+ Add contact") put it on the critical path, and Lighthouse charged it
+  to FCP and LCP.
+- **Decision.** No icon renders on first paint. The theme toggle is a text button ("Dark mode",
+  accessible name "Switch to dark mode"; the visible text is inside the name, WCAG 2.5.3), and the
+  Contacts buttons dropped their `+`. Icons still appear in banners and checkboxes, after a user
+  action. The font is fetched when the browser is idle (`document.fonts.load` in
+  `requestIdleCallback`), so it is normally cached before the first banner shows.
+- **Also:** panels that only appear after a click (DecisionPanel, AddContactForm, AddGroupForm)
+  are code-split and prefetched when idle. It saved only about 4.5 KB of first-load JS, because
+  most of it is shared CDS code. The history result is applied in `startTransition`, so rendering
+  the list is time-sliced. A favicon fixed the only best-practices failure (a 404).
+- **Tried and rejected:**
+  - `experimental.inlineCss`: FCP improved only from 2.7 to 2.4 s, and the HTML grew to 477 KB.
+  - Suspense boundaries to split hydration: they delayed hydration enough that early clicks landed
+    before React was attached (a native form submit, a radio that did not toggle).
+- **Results.** The laptop's CPU speed varied by up to 4× between runs (Lighthouse `benchmarkIndex`
+  from about 550 to 2,600), which moves Total Blocking Time and the score a lot. So the comparison
+  that counts is an **interleaved A/B**: `main` and this branch served side by side, 5 runs each,
+  alternating order, same machine state.
+
+  | Page (median of 5)     | Build    | Perf | A11y | Best practices | FCP   | LCP   | TBT    |
+  | ---------------------- | -------- | ---- | ---- | -------------- | ----- | ----- | ------ |
+  | `/demo`                | baseline | 68   | 100  | 96             | 3.0 s | 4.8 s | 398 ms |
+  | `/demo`                | S5       | 73   | 100  | 100            | 1.2 s | 3.7 s | 568 ms |
+  | `/demo/dust-poisoning` | baseline | 62   | 100  | 96             | 2.7 s | 4.5 s | 801 ms |
+  | `/demo/dust-poisoning` | S5       | 71   | 100  | 100            | 1.2 s | 3.7 s | 711 ms |
+  - In a faster machine state (`benchmarkIndex` about 2,500), the S5 build scored a median of 90
+    (`/demo`) and 91 (scenario).
+  - **Performance is not reliably at 90 or above.** What remains is Total Blocking Time from
+    hydrating React, Next and CDS. `/demo` TBT was higher on S5 in this sample (568 vs 398 ms);
+    per-run differences were within the noise, so it is not proven either way.
+  - **Next step:** re-measure with PageSpeed Insights on the deployed demo, which runs on
+    consistent hardware, and decide then whether TBT needs more work.
+
+## D21. History list: dense rows, details on demand, honest loading and error states
+
+- **Before:** every transfer was a ~190 px card with its own "Use as recipient" button, so the page
+  offered "copy an address from history" eleven times: the exact habit address poisoning exploits.
+- **Now:** one ~80 px row per transfer (who, amount, when, provenance). Each row is a disclosure
+  button (`aria-expanded`). The details (full address, signer, source, tx) and "Use as recipient"
+  appear only for the row the user opens. Planted entries stay collapsed behind their explanation,
+  as before. An entry from a suspicious origin that imitates nobody now gets an "Unusual origin"
+  tag (the classification already existed but was not shown).
+- **States:**
+  - Loading: text ("Loading activity…") plus a skeleton hidden from assistive tech.
+  - Empty: says what will appear there.
+  - Error: says what it means for safety (lookalikes of contacts are blocked; past recipients
+    cannot be checked, see known gap V2-C10) and offers "Try again".
+- **Demo control:** "Simulate the activity source" (normal, slow, outage where the first load
+  fails, no activity), so reviewers can see each state and try a send while history is
+  unavailable. It is implemented in the fixture provider, not the UI.

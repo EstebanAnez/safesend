@@ -1,11 +1,13 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
-import type { FormEvent } from 'react';
+import dynamic from 'next/dynamic';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
+import { AccessibilityAnnouncer } from '@coinbase/cds-web/AccessibilityAnnouncer';
 import { Banner } from '@coinbase/cds-web/banner';
 import { Button } from '@coinbase/cds-web/buttons';
-import { TextInput } from '@coinbase/cds-web/controls';
-import { Box, Grid, VStack } from '@coinbase/cds-web/layout';
+import { ControlGroup, Radio, TextInput } from '@coinbase/cds-web/controls';
+import { Box, Grid, HStack, VStack } from '@coinbase/cds-web/layout';
 import { Spinner } from '@coinbase/cds-web/loaders';
 import { Tag } from '@coinbase/cds-web/tag';
 import { Text } from '@coinbase/cds-web/typography';
@@ -13,20 +15,47 @@ import type { Address } from 'viem';
 import { BASE_SEPOLIA_CHAIN_ID, CANONICAL_USDC } from '@/config/chain';
 import type { HistoryEntry, ProtectedAddress } from '@/domain/types';
 import { useDemoScenario } from '@/hooks/useDemoScenario';
+import type { HistorySimulation } from '@/hooks/useDemoScenario';
 import { useRiskDecision } from '@/hooks/useRiskDecision';
 import { useSimulatedSend } from '@/hooks/useSimulatedSend';
 import { AMOUNT_ERROR_TEXT, formatUsdc, parseUsdcAmount } from '@/lib/amount';
+import { decisionAnnouncement, sentAnnouncement } from '@/lib/announce';
 import { parseAddress, sameAddress } from '@/risk/address';
 import { anchorLabel } from '@/risk/anchors';
 import { reverifySend } from '@/risk/reverify';
 import type { RiskInput, SendIntent } from '@/risk/types';
-import { AddContactForm } from '@/components/Contacts/AddContactForm';
-import { AddGroupForm } from '@/components/Contacts/AddGroupForm';
+import { FOCUS_ON_SHOW, focusWhenShown } from '@/components/a11y/focus';
 import { ContactsPanel } from '@/components/Contacts/ContactsPanel';
-import { DecisionPanel } from '@/components/DecisionPanel/DecisionPanel';
 import { HistoryList } from '@/components/HistoryList/HistoryList';
 
+// Panels that only appear after a user action are code-split (docs/DECISIONS.md D20), then
+// prefetched when the browser is idle so they are normally ready before the first click.
+const loadDecisionPanel = () => import('@/components/DecisionPanel/DecisionPanel');
+const loadAddContactForm = () => import('@/components/Contacts/AddContactForm');
+const loadAddGroupForm = () => import('@/components/Contacts/AddGroupForm');
+const panelLoading = () => (
+  <Text as="p" font="body" color="fgMuted">
+    Loading…
+  </Text>
+);
+const DecisionPanel = dynamic(() => loadDecisionPanel().then((m) => m.DecisionPanel), {
+  loading: panelLoading,
+});
+const AddContactForm = dynamic(() => loadAddContactForm().then((m) => m.AddContactForm), {
+  loading: panelLoading,
+});
+const AddGroupForm = dynamic(() => loadAddGroupForm().then((m) => m.AddGroupForm), {
+  loading: panelLoading,
+});
+
 const EMPTY_HISTORY: readonly HistoryEntry[] = [];
+
+const SIMULATIONS: { value: HistorySimulation; children: string }[] = [
+  { value: 'none', children: 'Normal' },
+  { value: 'slow', children: 'Slow (2.5 seconds)' },
+  { value: 'outage', children: 'Outage (first load fails, retry works)' },
+  { value: 'empty', children: 'No activity' },
+];
 
 type Step =
   | { kind: 'compose' }
@@ -36,10 +65,12 @@ type Step =
   | { kind: 'notice'; tone: 'warning' | 'informational'; title: string; message: string };
 
 export function DemoJourney({ scenarioId }: { scenarioId: string }) {
+  const [simulation, setSimulation] = useState<HistorySimulation>('none');
   const {
     scenario,
     config,
     history,
+    retryHistory,
     anchors,
     protectedSet,
     classifications,
@@ -48,7 +79,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     addContacts,
     testSends,
     recordTestSend,
-  } = useDemoScenario(scenarioId);
+  } = useDemoScenario(scenarioId, simulation);
   const [recipientInput, setRecipientInput] = useState('');
   const [amountInput, setAmountInput] = useState('');
   const [amountError, setAmountError] = useState<string | null>(null);
@@ -59,6 +90,20 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
   const { state: sendState, send, reset } = useSimulatedSend();
   const recipientRef = useRef<HTMLInputElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
+  const sendSectionRef = useRef<HTMLElement>(null);
+  const sentRef = useRef<HTMLDivElement>(null);
+  /** Set by user actions that replace the send panel; focus follows them (WCAG 2.4.3). */
+  const focusPanelOnShow = useRef(false);
+  /** Set when the user changes or retries the history source, so the result is announced. */
+  const historyActionPending = useRef(false);
+
+  const [announcement, setAnnouncement] = useState<string | null>(null);
+  const announceCount = useRef(0);
+  /** Polite live region. A trailing NBSP on every other message re-announces a repeat. */
+  const announce = useCallback((message: string) => {
+    announceCount.current += 1;
+    setAnnouncement(announceCount.current % 2 ? message : `${message} `);
+  }, []);
 
   const historyEntries = useMemo(
     () => (history.status === 'success' ? history.data.entries : EMPTY_HISTORY),
@@ -88,23 +133,33 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     return parsed.ok ? parsed.address : null;
   }, [step]);
 
-  const review = useCallback((recipient: string, amountRaw: string) => {
-    const amount = parseUsdcAmount(amountRaw);
-    if (!amount.ok) {
-      setAmountError(AMOUNT_ERROR_TEXT[amount.error]);
-      return;
-    }
-    setAmountError(null);
-    setStep({
-      kind: 'review',
-      intent: {
-        recipientInput: recipient,
-        amount: amount.value,
-        chainId: BASE_SEPOLIA_CHAIN_ID,
-        tokenContract: CANONICAL_USDC.address,
-      },
-    });
+  /** Change the send panel and move focus to it. */
+  const goTo = useCallback((next: Step) => {
+    focusPanelOnShow.current = true;
+    setStep(next);
   }, []);
+
+  const review = useCallback(
+    (recipient: string, amountRaw: string) => {
+      const amount = parseUsdcAmount(amountRaw);
+      if (!amount.ok) {
+        setAmountError(AMOUNT_ERROR_TEXT[amount.error]);
+        amountRef.current?.focus();
+        return;
+      }
+      setAmountError(null);
+      goTo({
+        kind: 'review',
+        intent: {
+          recipientInput: recipient,
+          amount: amount.value,
+          chainId: BASE_SEPOLIA_CHAIN_ID,
+          tokenContract: CANONICAL_USDC.address,
+        },
+      });
+    },
+    [goTo],
+  );
 
   /** Put an address in the recipient field and return to the form. */
   const pickRecipient = useCallback((address: Address, focus: 'recipient' | 'amount') => {
@@ -149,7 +204,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
       confirmationSatisfied: true,
     });
     if (!check.ok) {
-      setStep({ kind: 'notice', tone: 'warning', title: 'Send stopped', message: check.message });
+      goTo({ kind: 'notice', tone: 'warning', title: 'Send stopped', message: check.message });
       return;
     }
     if (testPending) recordTestSend(reviewedRecipient, step.intent.amount);
@@ -166,6 +221,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     send,
     testPending,
     recordTestSend,
+    goTo,
   ]);
 
   const handleUseTestAmount = useCallback(() => {
@@ -180,8 +236,8 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     setLastSendWasTest(false);
     setRecipientInput('');
     setAmountInput('');
-    setStep({ kind: 'compose' });
-  }, [reset]);
+    goTo({ kind: 'compose' });
+  }, [reset, goTo]);
 
   /** After a test send: compose the real send without touching history. */
   const startFollowUp = useCallback(
@@ -194,24 +250,144 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     [reset, pickRecipient],
   );
 
+  const changeSimulation = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    historyActionPending.current = true;
+    setSimulation(e.target.value as HistorySimulation);
+  }, []);
+
+  const handleRetryHistory = useCallback(() => {
+    historyActionPending.current = true;
+    retryHistory();
+  }, [retryHistory]);
+
+  const recipientLabel = useCallback(
+    (address: Address) => {
+      const anchor = anchors.find((a) => sameAddress(a.address, address));
+      return anchor ? anchorLabel(anchor) : 'a new address';
+    },
+    [anchors],
+  );
+
+  // --- Focus and announcements ---------------------------------------------
+
+  // After a user action replaces the send panel, focus its heading (or the
+  // recipient field when going back), so focus never falls to <body>.
+  useEffect(() => {
+    if (!focusPanelOnShow.current) return;
+    focusPanelOnShow.current = false;
+    if (step.kind === 'compose') {
+      recipientRef.current?.focus();
+      return;
+    }
+    return focusWhenShown(sendSectionRef.current);
+  }, [step]);
+
+  // Prefetch the code-split panels once the page is idle.
+  useEffect(() => {
+    const prefetch = () => {
+      void loadDecisionPanel();
+      void loadAddContactForm();
+      void loadAddGroupForm();
+    };
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(prefetch, { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = setTimeout(prefetch, 1500);
+    return () => clearTimeout(id);
+  }, []);
+
+  // Each new decision is announced once, with its reasons (the heading has the verdict).
+  useEffect(() => {
+    if (result) announce(decisionAnnouncement(result));
+  }, [result, announce]);
+
+  // Send complete. ("Sending" is announced by the Spinner, itself a polite status region.)
+  // Only status changes; labels changing underneath are not news.
+  const sentLabelRef = useRef(recipientLabel);
+  sentLabelRef.current = recipientLabel;
+  const lastSendWasTestRef = useRef(lastSendWasTest);
+  lastSendWasTestRef.current = lastSendWasTest;
+  useEffect(() => {
+    if (sendState.status === 'sent') {
+      const test = lastSendWasTestRef.current;
+      announce(
+        sentAnnouncement(
+          sendState.amount,
+          test ? 'the address you tested' : sentLabelRef.current(sendState.recipient),
+          test,
+        ),
+      );
+      focusWhenShown(sentRef.current);
+    }
+  }, [sendState, announce]);
+
+  useEffect(() => {
+    if (!historyActionPending.current) return;
+    if (history.status === 'success') {
+      historyActionPending.current = false;
+      const n = history.data.entries.length;
+      announce(
+        n === 0
+          ? 'Activity loaded: no transfers yet.'
+          : `Activity loaded: ${n} transfer${n === 1 ? '' : 's'}.`,
+      );
+    } else if (history.status === 'error') {
+      historyActionPending.current = false;
+      announce('Could not load activity. Lookalikes of your contacts are blocked until it loads.');
+    }
+  }, [history, announce]);
+
+  // --- Render --------------------------------------------------------------
+
+  const header = (
+    <VStack gap={1}>
+      <Box>
+        <Tag colorScheme={scenario.kind === 'attack' ? 'red' : 'green'}>
+          {scenario.kind === 'attack' ? 'Attack scenario' : 'Everyday scenario'}
+        </Tag>
+      </Box>
+      <Text as="h1" font="title2">
+        {scenario.title}
+      </Text>
+      <Text as="p" font="body" color="fgMuted">
+        {scenario.summary}
+      </Text>
+      <Box background="bgPrimaryWash" borderRadius={300} padding={1.5}>
+        <Text as="p" font="label1">
+          Try this:{' '}
+          <Text as="span" font="body">
+            {scenario.tryThis}
+          </Text>
+        </Text>
+      </Box>
+    </VStack>
+  );
+
+  // The announcer stays first in both branches so the live region is never remounted.
   if (sendState.status === 'sent') {
-    return lastSendWasTest ? (
-      <TestSentScreen
-        recipient={sendState.recipient}
-        amount={sendState.amount}
-        contacts={contacts}
-        onFollowUp={startFollowUp}
-      />
-    ) : (
-      <SentScreen
-        recipient={sendState.recipient}
-        amount={sendState.amount}
-        label={(() => {
-          const anchor = anchors.find((a) => sameAddress(a.address, sendState.recipient));
-          return anchor ? anchorLabel(anchor) : 'a new address';
-        })()}
-        onStartOver={startOver}
-      />
+    return (
+      <VStack gap={4}>
+        <AccessibilityAnnouncer message={announcement} />
+        {header}
+        <Box ref={sentRef}>
+          {lastSendWasTest ? (
+            <TestSentScreen
+              recipient={sendState.recipient}
+              amount={sendState.amount}
+              contacts={contacts}
+              onFollowUp={startFollowUp}
+            />
+          ) : (
+            <SentScreen
+              recipient={sendState.recipient}
+              amount={sendState.amount}
+              label={recipientLabel(sendState.recipient)}
+              onStartOver={startOver}
+            />
+          )}
+        </Box>
+      </VStack>
     );
   }
 
@@ -223,10 +399,10 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
           contacts={contacts}
           protectedSet={protectedSet}
           config={config}
-          onCancel={() => setStep({ kind: 'compose' })}
+          onCancel={() => goTo({ kind: 'compose' })}
           onSave={(drafts) => {
             const saved = addContacts(drafts);
-            setStep({
+            goTo({
               kind: 'notice',
               tone: 'informational',
               title: `${drafts[0]?.group ?? 'Group'} saved: ${saved.length} contacts`,
@@ -244,13 +420,13 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
           protectedSet={protectedSet}
           config={config}
           mode={step.mode}
-          onCancel={() => setStep({ kind: 'compose' })}
+          onCancel={() => goTo({ kind: 'compose' })}
           onSave={(draft) => {
             const saved = addContact(draft);
             // Saving never resumes the blocked send: the form is cleared.
             setRecipientInput('');
             setAmountInput('');
-            setStep({
+            goTo({
               kind: 'notice',
               tone: 'informational',
               title: `${saved.name} saved as a contact`,
@@ -265,7 +441,15 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     }
     if (step.kind === 'review' && result) {
       return sendState.status === 'sending' ? (
-        <Spinner size={3} accessibilityLabel="Sending (simulated)" />
+        <HStack gap={1.5} alignItems="center">
+          <Spinner
+            size={2}
+            accessibilityLabel={`Sending ${formatUsdc(step.intent.amount)} USDC (simulated)`}
+          />
+          <Text as="p" font="body" aria-hidden="true">
+            Sending {formatUsdc(step.intent.amount)} USDC (simulated)…
+          </Text>
+        </HStack>
       ) : (
         <DecisionPanel
           result={result}
@@ -273,9 +457,9 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
           amount={step.intent.amount}
           onConfirm={handleConfirm}
           onRecover={handleRecover}
-          onCancel={() => setStep({ kind: 'compose' })}
+          onCancel={() => goTo({ kind: 'compose' })}
           onUseTestAmount={handleUseTestAmount}
-          onAddDifferentPerson={() => setStep({ kind: 'add-contact', mode: 'after-block' })}
+          onAddDifferentPerson={() => goTo({ kind: 'add-contact', mode: 'after-block' })}
         />
       );
     }
@@ -283,6 +467,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
       <VStack
         as="form"
         gap={2}
+        aria-label="Send USDC"
         onSubmit={(e: FormEvent<HTMLFormElement>) => {
           e.preventDefault();
           review(recipientInput, amountInput);
@@ -295,7 +480,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
             startIconAccessibilityLabel={step.tone === 'warning' ? 'Warning' : 'Done'}
             styleVariant="contextual"
             title={
-              <Text as="p" font="label1">
+              <Text as="p" font="label1" {...FOCUS_ON_SHOW}>
                 {step.title}
               </Text>
             }
@@ -333,27 +518,8 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
 
   return (
     <VStack gap={4}>
-      <VStack gap={1}>
-        <Box>
-          <Tag colorScheme={scenario.kind === 'attack' ? 'red' : 'green'}>
-            {scenario.kind === 'attack' ? 'Attack scenario' : 'Everyday scenario'}
-          </Tag>
-        </Box>
-        <Text as="h1" font="title2">
-          {scenario.title}
-        </Text>
-        <Text as="p" font="body" color="fgMuted">
-          {scenario.summary}
-        </Text>
-        <Box background="bgPrimaryWash" borderRadius={300} padding={1.5}>
-          <Text as="p" font="label1">
-            Try this:{' '}
-            <Text as="span" font="body">
-              {scenario.tryThis}
-            </Text>
-          </Text>
-        </Box>
-      </VStack>
+      <AccessibilityAnnouncer message={announcement} />
+      {header}
 
       <Grid
         templateColumns="repeat(auto-fit, minmax(min(100%, 420px), 1fr))"
@@ -361,7 +527,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
         alignItems="start"
       >
         <VStack gap={4}>
-          <VStack as="section" gap={2} aria-labelledby="send-heading">
+          <VStack as="section" gap={2} aria-labelledby="send-heading" ref={sendSectionRef}>
             <Text as="h2" font="title3" id="send-heading">
               Send USDC
             </Text>
@@ -375,8 +541,8 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
             <ContactsPanel
               contacts={contacts}
               onSendTo={handleSendToContact}
-              onAdd={() => setStep({ kind: 'add-contact', mode: 'normal' })}
-              onAddGroup={() => setStep({ kind: 'add-group' })}
+              onAdd={() => goTo({ kind: 'add-contact', mode: 'normal' })}
+              onAddGroup={() => goTo({ kind: 'add-group' })}
             />
           </VStack>
         </VStack>
@@ -385,58 +551,50 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
           <Text as="h2" font="title3" id="history-heading">
             {scenario.user.name}&apos;s activity
           </Text>
-          {history.status === 'loading' && (
-            <Spinner size={3} accessibilityLabel="Loading activity" />
-          )}
-          {history.status === 'error' && (
+          {testSends.length > 0 && (
             <Banner
-              variant="error"
-              startIcon="error"
-              startIconAccessibilityLabel="Error"
+              variant="warning"
+              startIcon="warning"
+              startIconAccessibilityLabel="Warning"
               styleVariant="contextual"
               title={
                 <Text as="p" font="label1">
-                  Could not load activity
+                  You just made a test send
                 </Text>
               }
             >
               <Text as="p" font="label2">
-                {history.error.message} Lookalike checks treat any match as dangerous until history
-                loads.
+                Do not copy an address from this list for the rest. Use your contacts or the address
+                you tested.
               </Text>
             </Banner>
           )}
-          {history.status === 'success' && (
-            <>
-              {testSends.length > 0 && (
-                <Banner
-                  variant="warning"
-                  startIcon="warning"
-                  startIconAccessibilityLabel="Warning"
-                  styleVariant="contextual"
-                  title={
-                    <Text as="p" font="label1">
-                      You just made a test send
-                    </Text>
-                  }
-                >
-                  <Text as="p" font="label2">
-                    Do not copy an address from this list for the rest. Use your contacts or the
-                    address you tested.
-                  </Text>
-                </Banner>
-              )}
-              <Text as="p" font="label2" color="fgMuted">
-                Demo data (fixture scenario, complete coverage). Every address and transaction here
-                is synthetic.
-              </Text>
-              <HistoryList
-                entries={history.data.entries}
-                classifications={classifications}
-                onUseAddress={handleUseAddress}
-              />
-            </>
-          )}
+          <Text as="p" font="label2" color="fgMuted">
+            Demo data (fixture scenario, complete coverage). Every address and transaction here is
+            synthetic. Open a row for its details.
+          </Text>
+          <HistoryList
+            history={history}
+            classifications={classifications}
+            onUseAddress={handleUseAddress}
+            onRetry={handleRetryHistory}
+          />
+          <Box bordered borderRadius={300} padding={2} background="bgAlternate">
+            <ControlGroup
+              ControlComponent={Radio}
+              role="radiogroup"
+              name={`history-simulation-${scenario.id}`}
+              label={
+                <Text as="span" font="label1">
+                  Demo: simulate the activity source
+                </Text>
+              }
+              options={SIMULATIONS}
+              value={simulation}
+              onChange={changeSimulation}
+              gap={1}
+            />
+          </Box>
         </VStack>
       </Grid>
     </VStack>
@@ -456,7 +614,7 @@ function SentScreen({
 }) {
   return (
     <VStack gap={2} as="section" aria-labelledby="sent-heading" maxWidth={560}>
-      <Text as="h2" font="title2" id="sent-heading">
+      <Text as="h2" font="title2" id="sent-heading" {...FOCUS_ON_SHOW}>
         Simulated send complete
       </Text>
       <Banner
@@ -478,7 +636,7 @@ function SentScreen({
       <Text as="p" font="body">
         {formatUsdc(amount)} USDC to {label}
       </Text>
-      <Text as="p" font="label2" mono color="fgMuted">
+      <Text as="p" font="label2" mono color="fgMuted" overflow="break">
         {recipient}
       </Text>
       <Box>
@@ -503,12 +661,12 @@ function TestSentScreen({
 }) {
   return (
     <VStack gap={2} as="section" aria-labelledby="test-sent-heading" maxWidth={560}>
-      <Text as="h2" font="title2" id="test-sent-heading">
+      <Text as="h2" font="title2" id="test-sent-heading" {...FOCUS_ON_SHOW}>
         Test send complete (simulated)
       </Text>
       <Text as="p" font="body">
         {formatUsdc(amount)} USDC to{' '}
-        <Text as="span" mono font="body">
+        <Text as="span" mono font="body" overflow="break">
           {recipient}
         </Text>
       </Text>

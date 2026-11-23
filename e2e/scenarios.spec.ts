@@ -51,7 +51,8 @@ for (const { id, name, amount, imitates } of [
     await review(page, amount);
 
     await expect(page.getByRole('heading', { name: 'SafeSend stopped this send' })).toBeVisible();
-    await expect(page.getByText(new RegExp(`imitates ${imitates}`)).first()).toBeVisible();
+    const reasons = page.getByRole('list', { name: 'Reasons for this decision' });
+    await expect(reasons.getByText(new RegExp(`imitates ${imitates}`))).toBeVisible();
     await expect(page.getByText('Same start and end. Different middle.')).toBeVisible();
     // No way to send to the blocked address.
     await expect(page.getByRole('button', { name: /^Send \d+ USDC/ })).toHaveCount(0);
@@ -78,7 +79,7 @@ test('amount anomaly: a trusted contact still gets a WARN for an unusual amount'
   await page.goto('/demo/amount-anomaly');
   await page.getByRole('button', { name: 'Send to Lucía (sister)' }).click();
   await review(page, '400');
-  await expect(page.getByText('Much larger than your usual send')).toBeVisible();
+  await expect(page.getByText('Much larger than your usual send', { exact: true })).toBeVisible();
   await expect(page.getByRole('textbox', { name: /Type characters/ })).toBeVisible();
   // Not a test-send nudge: she is a trusted contact.
   await expect(page.getByText('Try a small test send first')).toHaveCount(0);

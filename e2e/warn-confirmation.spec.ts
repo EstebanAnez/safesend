@@ -7,10 +7,12 @@ const MATEO = '0x5b0e2a9d7c4f61e83b2a0d9c5e7f14a36b8c2d07';
 
 async function reviewMateo(page: Page, amount: string) {
   await page.goto('/demo/dust-poisoning');
+  // History rows are collapsed: open one of Mateo's, then use its address.
   await page
-    .getByRole('button', { name: new RegExp(`Use address ${MATEO}`, 'i') })
+    .getByRole('button', { name: /^Received from 0x5b0E…2D07/ })
     .first()
     .click();
+  await page.getByRole('button', { name: new RegExp(`Use address ${MATEO}`, 'i') }).click();
   await page.getByLabel('Amount').fill(amount);
   await page.getByRole('button', { name: 'Review send' }).click();
   await expect(page.getByRole('heading', { name: 'Check before you send' })).toBeVisible();
