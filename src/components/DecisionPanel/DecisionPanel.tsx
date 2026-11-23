@@ -13,6 +13,7 @@ import { formatUsdc } from '@/lib/amount';
 import { anchorLabel } from '@/risk/anchors';
 import { checkChallengeAnswer } from '@/risk/confirmation';
 import type { Reason, RiskResult } from '@/risk/types';
+import { FOCUS_ON_SHOW } from '@/components/a11y/focus';
 import {
   AddressComparison,
   AddressWithHighlights,
@@ -55,7 +56,7 @@ export function DecisionPanel({
 
   return (
     <VStack as="section" gap={2} aria-labelledby={headingId}>
-      <Text as="h2" font="title3" id={headingId}>
+      <Text as="h3" font="title3" id={headingId} {...FOCUS_ON_SHOW}>
         {result.decision === 'BLOCK'
           ? 'SafeSend stopped this send'
           : result.decision === 'WARN'

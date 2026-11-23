@@ -7,6 +7,7 @@ import { ThemeProvider } from '@coinbase/cds-web';
 import { PortalProvider } from '@coinbase/cds-web/overlays';
 import { MediaQueryProvider } from '@coinbase/cds-web/system';
 import { defaultTheme } from '@coinbase/cds-web/themes/defaultTheme';
+import { MotionConfig } from 'framer-motion';
 
 interface ColorSchemeContextValue {
   colorScheme: ColorScheme;
@@ -29,6 +30,18 @@ export function AppProviders({ children }: { children: ReactNode }) {
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) setColorScheme('dark');
   }, []);
 
+  // No icon renders on first paint (D20), so the 275 KB icon font is not on the critical path.
+  // Fetch it once the page is idle, so banner icons are ready by the time a decision shows.
+  useEffect(() => {
+    const warm = () => void document.fonts.load('16px CoinbaseIcons').catch(() => undefined);
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(warm, { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = setTimeout(warm, 1500);
+    return () => clearTimeout(id);
+  }, []);
+
   const toggleColorScheme = useCallback(
     () => setColorScheme((s) => (s === 'light' ? 'dark' : 'light')),
     [],
@@ -39,12 +52,15 @@ export function AppProviders({ children }: { children: ReactNode }) {
   );
 
   return (
-    <MediaQueryProvider>
-      <ThemeProvider theme={defaultTheme} activeColorScheme={colorScheme}>
-        <PortalProvider>
-          <ColorSchemeContext.Provider value={value}>{children}</ColorSchemeContext.Provider>
-        </PortalProvider>
-      </ThemeProvider>
-    </MediaQueryProvider>
+    // reducedMotion="user": CDS animations (framer-motion) follow prefers-reduced-motion.
+    <MotionConfig reducedMotion="user">
+      <MediaQueryProvider>
+        <ThemeProvider theme={defaultTheme} activeColorScheme={colorScheme}>
+          <PortalProvider>
+            <ColorSchemeContext.Provider value={value}>{children}</ColorSchemeContext.Provider>
+          </PortalProvider>
+        </ThemeProvider>
+      </MediaQueryProvider>
+    </MotionConfig>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { startTransition, useCallback, useEffect, useMemo, useState } from 'react';
 import type { Address } from 'viem';
 import type {
   AsyncState,
@@ -12,6 +12,7 @@ import type {
 import { SCENARIOS } from '@/fixtures/scenarios';
 import type { DemoScenario } from '@/fixtures/scenarios';
 import { FixtureHistoryProvider } from '@/providers/history/fixture';
+import type { HistorySimulation } from '@/providers/history/fixture';
 import { buildProtectedSet, buildTrustAnchors } from '@/risk/anchors';
 import { DEFAULT_RISK_CONFIG } from '@/risk/config';
 import { classifyHistoryEntry } from '@/risk/history';
@@ -19,10 +20,14 @@ import type { HistoryClassification } from '@/risk/history';
 import { testSendAnchors } from '@/risk/testSend';
 import type { RiskConfig, TestSend } from '@/risk/types';
 
+export type { HistorySimulation };
+
 export interface DemoScenarioState {
   scenario: DemoScenario;
   config: RiskConfig;
   history: AsyncState<HistoryPage>;
+  /** Request history again (after an error). */
+  retryHistory: () => void;
   /** Trust set: the only path to ALLOW. */
   anchors: readonly TrustAnchor[];
   /** Protected set: what lookalikes are compared against. */
@@ -41,21 +46,33 @@ export interface DemoScenarioState {
 
 const EMPTY: readonly never[] = [];
 
-export function useDemoScenario(scenarioId: string): DemoScenarioState {
+export function useDemoScenario(
+  scenarioId: string,
+  simulation: HistorySimulation = 'none',
+): DemoScenarioState {
   const scenario = SCENARIOS[scenarioId];
   if (!scenario) throw new Error(`Unknown demo scenario: ${scenarioId}`);
   const config = DEFAULT_RISK_CONFIG;
 
   const [history, setHistory] = useState<AsyncState<HistoryPage>>({ status: 'loading' });
+  // One provider per scenario and simulation, so a retry counts as a second attempt.
+  const provider = useMemo(
+    () => new FixtureHistoryProvider(scenario, simulation),
+    [scenario, simulation],
+  );
+  const [attempt, setAttempt] = useState(0);
+  const retryHistory = useCallback(() => setAttempt((n) => n + 1), []);
 
   useEffect(() => {
     const controller = new AbortController();
-    const provider = new FixtureHistoryProvider(scenario);
     setHistory({ status: 'loading' });
     provider
       .getHistory({ account: scenario.user.address, signal: controller.signal })
       .then((data) => {
-        if (!controller.signal.aborted) setHistory({ status: 'success', data });
+        // A transition: rendering a long list is time-sliced and never blocks input.
+        if (!controller.signal.aborted) {
+          startTransition(() => setHistory({ status: 'success', data }));
+        }
       })
       .catch((error: unknown) => {
         if (!controller.signal.aborted) {
@@ -66,7 +83,7 @@ export function useDemoScenario(scenarioId: string): DemoScenarioState {
         }
       });
     return () => controller.abort();
-  }, [scenario]);
+  }, [provider, scenario, attempt]);
 
   const entries = history.status === 'success' ? history.data.entries : EMPTY;
 
@@ -130,6 +147,7 @@ export function useDemoScenario(scenarioId: string): DemoScenarioState {
     scenario,
     config,
     history,
+    retryHistory,
     anchors,
     protectedSet,
     classifications,

@@ -29,6 +29,8 @@ Commands:
 - `npm run ci`: format check, lint, typecheck, unit tests, eval regression check.
 - `npm run build && npm run test:e2e`
 - `npm run eval`
+- On Windows, run Vitest from an uppercase `C:\` working directory. From `c:\` it loads two copies
+  of its runner and every suite fails at `describe` ("reading 'config'").
 
 ## Architecture rules (lint-enforced, D6)
 
@@ -111,18 +113,18 @@ Commands:
 
 ## Slice status (as of 2026-11-23)
 
-| Slice                 | Status                                                                                                                                                                                                 |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| S0 setup              | Done                                                                                                                                                                                                   |
-| S1 thin demo          | Done                                                                                                                                                                                                   |
-| S2 risk engine        | Done                                                                                                                                                                                                   |
-| S3 evaluation         | Done (v1, v2, rule switch)                                                                                                                                                                             |
-| S4 scenarios + polish | Done (7 scenarios incl. pasanaku, contacts, groups, comparison hero)                                                                                                                                   |
-| **S5 a11y + quality** | **Next.** Keyboard-only e2e of the full journey, phone width, dark mode, loading and error states, denser history list, performance pass                                                               |
-| Ship the demo         | Deploy `/demo` to Vercel (**pause for approval first**), solid README + full PRD.md, demo GIF                                                                                                          |
-| S6 live mode          | wagmi + Coinbase Smart Wallet; Explorer (Blockscout v2, no key needed) and RPC providers with honest coverage labels; use `resolveTransferSigner`; real send. **Pause before the first onchain write** |
-| S7 remaining docs     | README "how AI was used" note, DECISIONS and EVAL updates                                                                                                                                              |
-| S8 (optional)         | Attack staging script on testnet. **Pause before running it**                                                                                                                                          |
+| Slice                 | Status                                                                                                                                                                                                           |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| S0 setup              | Done                                                                                                                                                                                                             |
+| S1 thin demo          | Done                                                                                                                                                                                                             |
+| S2 risk engine        | Done                                                                                                                                                                                                             |
+| S3 evaluation         | Done (v1, v2, rule switch)                                                                                                                                                                                       |
+| S4 scenarios + polish | Done (7 scenarios incl. pasanaku, contacts, groups, comparison hero)                                                                                                                                             |
+| S5 a11y + quality     | Done (keyboard-only e2e, focus + live region, reduced motion, dense history, loading/empty/error states). Lighthouse perf not reliably ≥ 90 on the laptop (D20): re-measure with PageSpeed Insights after deploy |
+| **Ship the demo**     | **Next.** Deploy `/demo` to Vercel (**pause for approval first**), solid README + full PRD.md, demo GIF                                                                                                          |
+| S6 live mode          | wagmi + Coinbase Smart Wallet; Explorer (Blockscout v2, no key needed) and RPC providers with honest coverage labels; use `resolveTransferSigner`; real send. **Pause before the first onchain write**           |
+| S7 remaining docs     | README "how AI was used" note, DECISIONS and EVAL updates                                                                                                                                                        |
+| S8 (optional)         | Attack staging script on testnet. **Pause before running it**                                                                                                                                                    |
 
 ## Open decisions and known gaps
 

@@ -13,9 +13,10 @@ test('demo: planted lookalike is blocked, recovery sends to the contact (simulat
   await expect(page.getByText(/Hidden: imitates Lucía/)).toBeVisible();
 
   // The user expands it and picks the lookalike as recipient.
-  await page.getByRole('button', { name: 'Show details' }).click();
+  await page.getByRole('button', { name: /Show details of the suspected lookalike/ }).click();
   // Addresses keep their real casing (no text-transform on metadata).
-  const signer = page.getByText(/Signed by/).first();
+  const suspicious = page.getByRole('listitem').filter({ hasText: 'Suspected lookalike' });
+  const signer = suspicious.getByText(/Signed by/);
   await expect(signer).toBeVisible();
   expect(await signer.evaluate((el) => getComputedStyle(el).textTransform)).toBe('none');
   await page.getByRole('button', { name: new RegExp(`Use address ${LOOKALIKE}`, 'i') }).click();
@@ -26,7 +27,10 @@ test('demo: planted lookalike is blocked, recovery sends to the contact (simulat
 
   // BLOCK with a reason and a character comparison.
   await expect(page.getByRole('heading', { name: 'SafeSend stopped this send' })).toBeVisible();
-  await expect(page.getByText(/This address imitates Lucía/)).toBeVisible();
+  // exact: the live region also carries the reason, for screen readers.
+  await expect(
+    page.getByText('This address imitates Lucía (sister)', { exact: true }),
+  ).toBeVisible();
   // The full explanation is readable, never clamped mid-sentence.
   await expect(
     page.getByText(/not from someone you know. This is how address poisoning scams work./),
@@ -46,5 +50,5 @@ test('demo: planted lookalike is blocked, recovery sends to the contact (simulat
 
   await expect(page.getByRole('heading', { name: 'Simulated send complete' })).toBeVisible();
   await expect(page.getByText('Demo mode: nothing was sent')).toBeVisible();
-  await expect(page.getByText(/50 USDC to Lucía \(sister\)/)).toBeVisible();
+  await expect(page.getByText('50 USDC to Lucía (sister)', { exact: true })).toBeVisible();
 });

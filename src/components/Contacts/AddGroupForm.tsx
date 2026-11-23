@@ -13,6 +13,7 @@ import { anchorLabel } from '@/risk/anchors';
 import { checkNewGroup, contactErrorText, groupErrorText } from '@/risk/contacts';
 import type { ContactCheck, ContactError, GroupError, NewContactDraft } from '@/risk/contacts';
 import type { RiskConfig } from '@/risk/types';
+import { FOCUS_ON_SHOW } from '@/components/a11y/focus';
 import { AddressComparison } from '@/components/AddressComparison/AddressComparison';
 
 interface Props {
@@ -73,7 +74,7 @@ export function AddGroupForm({ user, contacts, protectedSet, config, onSave, onC
         if (check.contacts) onSave(check.contacts);
       }}
     >
-      <Text as="h3" font="title3" id={headingId}>
+      <Text as="h3" font="title3" id={headingId} {...FOCUS_ON_SHOW}>
         Add a group
       </Text>
       <Text as="p" font="body" color="fgMuted">
@@ -125,6 +126,11 @@ export function AddGroupForm({ user, contacts, protectedSet, config, onSave, onC
         </Button>
       </Box>
 
+      {submitted && !check.contacts && (
+        <Text as="p" font="label2" color="fgNegative" role="alert">
+          Not saved yet. Fix the fields marked above.
+        </Text>
+      )}
       <VStack gap={1}>
         <Button type="submit" block>
           Save group
@@ -179,7 +185,7 @@ function MemberFields({
     <Box as="li" bordered borderRadius={300} padding={2}>
       <VStack gap={1.5}>
         <HStack justifyContent="space-between" alignItems="center">
-          <Text as="p" font="headline">
+          <Text as="h4" font="headline">
             Member {n}
           </Text>
           {canRemove && (
@@ -255,7 +261,7 @@ function MemberFields({
             : `I got ${name || `member ${n}`}'s address directly from them (for example, in our group chat).`}
         </Checkbox>
         {errorFor('not-confirmed') && (
-          <Text as="p" font="label2" color="fgNegative">
+          <Text as="p" font="label2" color="fgNegative" role="alert">
             {errorFor('not-confirmed')}
           </Text>
         )}

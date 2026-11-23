@@ -13,6 +13,7 @@ import { anchorLabel } from '@/risk/anchors';
 import { checkNewContact, contactErrorText } from '@/risk/contacts';
 import type { ContactError } from '@/risk/contacts';
 import type { RiskConfig } from '@/risk/types';
+import { FOCUS_ON_SHOW } from '@/components/a11y/focus';
 import { AddressComparison } from '@/components/AddressComparison/AddressComparison';
 
 interface Props {
@@ -80,7 +81,7 @@ export function AddContactForm({
 
   return (
     <VStack as="form" gap={2} onSubmit={handleSubmit} aria-labelledby={headingId} noValidate>
-      <Text as="h3" font="title3" id={headingId}>
+      <Text as="h3" font="title3" id={headingId} {...FOCUS_ON_SHOW}>
         {mode === 'after-block' ? 'Add a different person as a contact' : 'Add a contact'}
       </Text>
       {mode === 'after-block' && (

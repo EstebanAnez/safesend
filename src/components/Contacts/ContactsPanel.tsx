@@ -60,10 +60,11 @@ export const ContactsPanel = memo(function ContactsPanel({
         </VStack>
       )}
       <HStack gap={1} flexWrap="wrap">
-        <Button compact variant="secondary" startIcon="add" onClick={onAdd}>
+        {/* No startIcon: keeps the icon font out of the first render (D20). */}
+        <Button compact variant="secondary" onClick={onAdd}>
           Add contact
         </Button>
-        <Button compact variant="secondary" startIcon="add" onClick={onAddGroup}>
+        <Button compact variant="secondary" onClick={onAddGroup}>
           Add group
         </Button>
       </HStack>
