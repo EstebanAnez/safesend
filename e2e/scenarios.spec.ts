@@ -16,10 +16,10 @@ async function review(page: Page, amount: string) {
   await page.getByRole('button', { name: 'Review send' }).click();
 }
 
-test('scenario picker lists all six scenarios and passes axe', async ({ page }) => {
+test('scenario picker lists all seven scenarios and passes axe', async ({ page }) => {
   await page.goto('/demo');
   const list = page.getByRole('list', { name: 'Demo scenarios' });
-  await expect(list.getByRole('listitem')).toHaveCount(6);
+  await expect(list.getByRole('listitem')).toHaveCount(7);
   await axe(page);
 });
 
@@ -127,4 +127,53 @@ test('BLOCK has no bypass: "different person" requires re-entry and never resume
   // The form was cleared, and nothing was sent.
   await expect(page.getByLabel('Recipient address')).toHaveValue('');
   await expect(page.getByRole('heading', { name: /send complete/ })).toHaveCount(0);
+});
+
+test('pasanaku: add a group once, then monthly payments to members need no confirmation', async ({
+  page,
+}) => {
+  const CARMEN = '0x3f1c8e5a07b9d24e6c1a8f3b5d7e9c0a2b4d6f81';
+  await page.goto('/demo/pasanaku');
+
+  // Before: a brand-new member gets the strongest confirmation.
+  await page.getByLabel('Recipient address').fill(ROSA);
+  await review(page, '50');
+  await expect(page.getByRole('textbox', { name: /Type characters/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Go back' }).click();
+
+  await page.getByRole('button', { name: 'Add group' }).click();
+  await page.getByLabel('Group name').fill('Pasanaku Mayo');
+  await page.getByLabel('Member 1 name').fill('Rosa');
+  await page.getByLabel('Member 1 full address').fill(ROSA);
+  await page.getByRole('checkbox', { name: /Rosa's address directly from them/ }).check();
+  await page.getByLabel('Member 2 name').fill('Carmen');
+  await page.getByLabel('Member 2 full address').fill(CARMEN);
+  // Not saved until every member is confirmed.
+  await page.getByRole('button', { name: 'Save group' }).click();
+  await expect(page.getByText(/Confirm you got this address directly from Carmen/)).toBeVisible();
+  await page.getByRole('checkbox', { name: /Carmen's address directly from them/ }).check();
+  await page.getByRole('button', { name: 'Save group' }).click();
+  await expect(page.getByText('Pasanaku Mayo saved: 2 contacts')).toBeVisible();
+  await axe(page);
+
+  // After: paying a member is a contact payment.
+  await page.getByRole('button', { name: 'Send to Rosa' }).click();
+  await review(page, '50');
+  await expect(page.getByRole('heading', { name: 'Ready to send' })).toBeVisible();
+});
+
+test('pasanaku: a member who looks like another member needs re-entry', async ({ page }) => {
+  const FAKE_ROSA = '0x9e4b00000000000000000000000000000000c45a'; // same first 4 as Rosa only
+  const LOOK_ROSA = '0x9e4b27ffffffffffffffffffffffffffffff2c45'; // 6 leading + 4 trailing
+  await page.goto('/demo/pasanaku');
+  await page.getByRole('button', { name: 'Add group' }).click();
+  await page.getByLabel('Group name').fill('Pasanaku Mayo');
+  await page.getByLabel('Member 1 name').fill('Rosa');
+  await page.getByLabel('Member 1 full address').fill(ROSA);
+  await page.getByLabel('Member 2 name').fill('Not Rosa');
+  await page.getByLabel('Member 2 full address').fill(FAKE_ROSA);
+  await expect(page.getByText(/This looks like Rosa/)).toHaveCount(0);
+  await page.getByLabel('Member 2 full address').fill(LOOK_ROSA);
+  await expect(page.getByText(/This looks like Rosa/)).toBeVisible();
+  await expect(page.getByLabel('Member 2: type or paste the full address again')).toBeVisible();
 });

@@ -206,18 +206,22 @@ paymaster, uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGas
 - An attacker can't buy protection cheaply. Dust doesn't count, and a protected attacker address
   only adds comparisons; it never adds trust.
 
-## D15. Lookalike rule: 3/4 baseline, "total ≥ 6, ≥ 2 each end" candidate
+## D15. Lookalike rule: "total ≥ 6, ≥ 2 each end" (shipped), 3/4 (previous)
 
 - The rule is configurable (`RiskConfig.lookalike`) as either prefix/suffix minimums or a total
   with a per-end minimum.
-- **3/4 ships as the v1 baseline.** It matches the CMU criterion, and the regression guard records
-  it.
-- **Candidate:** total ≥ 6, ≥ 2 each end. It was derived from the threat model (users often check
-  only one end) and developed on the dev set. It catches 2/4 and 4/2 lookalikes. Its benign
-  collision rate is about 1 in 5.8 million per protected address, versus 1 in 268 million for 3/4
-  (RISK_MODEL.md).
-- **Decision process:** the switch is decided on holdout v2. Holdout v1 has been seen, so its
-  post-hoc numbers can't settle it.
+- **History:** 3/4 shipped first. It matches the CMU criterion. The total rule was derived from the
+  threat model (users often check only one end) and developed on the dev set.
+- **Now shipped: total ≥ 6, ≥ 2 each end.** The product owner switched to it after holdout v2.
+  - **What it catches:** 2/4, 2/5 and 4/2 lookalikes by their own signal. That includes V2-E05,
+    which 3/4 stopped only because of the amount.
+  - **Cost:** one extra middle-character WARN on a benign 2/4 overlap in v2.
+  - **Collision rate:** about 1 in 5.8 million per protected address, versus 1 in 268 million for
+    3/4 (RISK_MODEL.md).
+- **Evaluation consequence:** v2 informed the switch, so v2 is no longer a clean holdout for the
+  shipped rule. Future claims need a holdout v3 (EVAL.md).
+- `eval/baseline.json` was re-recorded deliberately for the new rule. A unit test pins the shipped
+  default.
 
 ## D16. Adding a contact is deliberate, and stricter for lookalikes
 
@@ -246,3 +250,24 @@ paymaster, uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGas
 - **Screen readers** get the sentence and a text description through `aria-describedby`. The
   strip and grid are `aria-hidden` duplicates.
 - **WARN challenge positions** are outlined in the primary color, and also listed in text.
+
+## D18. Group contacts instead of a higher first-send threshold (pasanaku)
+
+- **Problem:** in a pasanaku (a Bolivian rotating savings group), Daniela pays a different, often
+  new, member every month, with addresses shared in the group chat. Each payment is above the
+  first-send threshold, so it got the strongest WARN every month: warning fatigue built into a
+  normal habit (holdout v2 case V2-E06).
+- **Rejected:** raising the first-send threshold. That would weaken protection for every new
+  recipient, not just group members.
+- **Decision:** "Add group" (for example "Pasanaku Mayo") lets the user add several members in one
+  deliberate session.
+  - Every member follows the D16 contact rules: full address entered (never prefilled), explicit
+    confirmation, and re-entry plus out-of-band confirmation for a lookalike of a protected
+    address.
+  - **Members are also checked against each other.** Every earlier member with a valid address
+    protects the later ones, even before that member is confirmed. A member who looks like another
+    member needs re-entry and a phone check. The same address twice is rejected.
+- **Effect:** members become ordinary contacts tagged with the group name, so monthly payments are
+  ALLOWed. Grouping grants no extra trust: the group tag is a label, not a permission.
+- **Rules:** `checkNewGroup` in `src/risk/contacts.ts` (unit-tested). **UI:**
+  `src/components/Contacts/AddGroupForm.tsx`. **Demo:** the "Pasanaku" scenario, covered by e2e.

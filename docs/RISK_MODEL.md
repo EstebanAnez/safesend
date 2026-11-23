@@ -83,13 +83,13 @@ overlap between the two ends:
 - **With N protected addresses:** the chance that one new recipient falsely matches any of them is
   about **N · P**.
 
-| Rule                                | P per protected address | 1 in…           | N = 5        | N = 20      | N = 100     |
-| ----------------------------------- | ----------------------- | --------------- | ------------ | ----------- | ----------- |
-| 3/3                                 | 5.96e-8                 | 16,777,216      | 3,355,443    | 838,861     | 167,772     |
-| **3/4 (v1 baseline, shipped)**      | **3.73e-9**             | **268,435,456** | 53,687,091   | 13,421,773  | 2,684,355   |
-| 4/4                                 | 2.33e-10                | 4,294,967,296   | 858,993,459  | 214,748,365 | 42,949,673  |
-| 4/5                                 | 1.46e-11                | 68,719,476,736  | 13.7 billion | 3.4 billion | 687,194,767 |
-| total ≥ 6, ≥ 2 each end (candidate) | 1.71e-7                 | 5,835,553       | 1,167,111    | 291,778     | 58,356      |
+| Rule                                  | P per protected address | 1 in…           | N = 5        | N = 20      | N = 100     |
+| ------------------------------------- | ----------------------- | --------------- | ------------ | ----------- | ----------- |
+| 3/3                                   | 5.96e-8                 | 16,777,216      | 3,355,443    | 838,861     | 167,772     |
+| 3/4 (CMU criterion, previous default) | **3.73e-9**             | **268,435,456** | 53,687,091   | 13,421,773  | 2,684,355   |
+| 4/4                                   | 2.33e-10                | 4,294,967,296   | 858,993,459  | 214,748,365 | 42,949,673  |
+| 4/5                                   | 1.46e-11                | 68,719,476,736  | 13.7 billion | 3.4 billion | 687,194,767 |
+| **total ≥ 6, ≥ 2 each end (shipped)** | 1.71e-7                 | 5,835,553       | 1,167,111    | 291,778     | 58,356      |
 
 Values are computed exactly by summing the series. "N = …" columns are "1 in" per send.
 
@@ -97,33 +97,34 @@ Values are computed exactly by summing the series. "N = …" columns are "1 in" 
 
 - **The holdout overstates benign overlaps by design.** It deliberately includes coincidental
   3/4, 3/3, 4/4 and 4/5 matches (5 of its 20 legitimate cases) to probe the boundary. In real use
-  they are extraordinarily rare. Under 3/4, a person with 20 protected addresses would see about
-  **1 in 13 million** first sends falsely match.
+  they are extraordinarily rare. Under the shipped total rule, a person with 20 protected
+  addresses would see about **1 in 290,000** first sends falsely match. Under 3/4 it would be
+  about 1 in 13 million.
 - **Why H-L16 is acceptable in practice.** H-L16 is the one false BLOCK in holdout v1: a benign
   3/4 overlap at a moment when history couldn't be loaded, where the policy treats any lookalike as
-  dangerous. In practice it requires both an outage and a one-in-13-million coincidence (N = 20).
-  Without history, "it looks like your sister but isn't" is far more likely to be an attack than a
-  coincidence. Even under the looser total rule, the same coincidence is about 1 in 290,000 per
-  send at N = 20.
-- **The total rule trades a looser match for coverage of "users check only one end".** The rule
-  is "at least 6 matched in total, at least 2 on each end". It catches 2/4 and 4/2 lookalikes
-  (H-A09, V2-C07) that 3/4 misses. Its benign collision rate is about 46× higher than 3/4, but at
-  1 in 5.8 million per protected address it is still small. Whether it replaces 3/4 is decided
-  on **holdout v2**, not on v1, which we've already looked at.
+  dangerous. In practice it requires both an outage and a rare coincidence: about 1 in 290,000
+  per send at N = 20 under the shipped rule. Without history, "it looks like your sister but
+  isn't" is far more likely to be an attack than a coincidence.
+- **The shipped total rule trades a looser match for coverage of "users check only one end".**
+  The rule is "at least 6 matched in total, at least 2 on each end". It catches 2/4, 2/5 and 4/2
+  lookalikes (H-A09, V2-C07, V2-E05) that 3/4 misses or stops only because of the amount. Its
+  benign collision rate is about 46× higher than 3/4, but at 1 in 5.8 million per protected
+  address it is still small. It became the shipped rule after holdout v2. Because v2 informed
+  that choice, future claims need a holdout v3 (EVAL.md).
 - **Limits of the math:** it assumes legitimate addresses are uniformly random. That's true for
   keys from a CSPRNG, but not for vanity addresses or deliberately chosen ones. It also says
   nothing about how often attackers produce matches _below_ a threshold.
 
 ## Parameters
 
-| Parameter                    | Default           | Why                                                                       |
-| ---------------------------- | ----------------- | ------------------------------------------------------------------------- |
-| `lookalike`                  | prefix-suffix 3/4 | CMU criterion; v1 baseline. Candidate: total ≥ 6, ≥ 2 each end            |
-| `protectInboundMinTransfers` | 1                 | One verified, above-dust inbound payment means a real person paid you     |
-| `firstSendThreshold`         | 25 USDC           | Above this, suggest a test send and require middle-character confirmation |
-| `dustThreshold`              | 0.01 USDC         | Inbound canonical-USDC transfers at or below this are dust                |
-| `amountAnomalyMultiplier`    | 5×                | Product choice                                                            |
-| `amountRecipientMinSends`    | 3                 | Per-recipient baseline minimum                                            |
-| `amountBaselineMinSends`     | 3                 | Global fallback minimum                                                   |
+| Parameter                    | Default                 | Why                                                                       |
+| ---------------------------- | ----------------------- | ------------------------------------------------------------------------- |
+| `lookalike`                  | total ≥ 6, ≥ 2 each end | Shipped after holdout v2 (D15). 3/4 remains an evaluated setting          |
+| `protectInboundMinTransfers` | 1                       | One verified, above-dust inbound payment means a real person paid you     |
+| `firstSendThreshold`         | 25 USDC                 | Above this, suggest a test send and require middle-character confirmation |
+| `dustThreshold`              | 0.01 USDC               | Inbound canonical-USDC transfers at or below this are dust                |
+| `amountAnomalyMultiplier`    | 5×                      | Product choice                                                            |
+| `amountRecipientMinSends`    | 3                       | Per-recipient baseline minimum                                            |
+| `amountBaselineMinSends`     | 3                       | Global fallback minimum                                                   |
 
 Evaluation results: [EVAL.md](EVAL.md).

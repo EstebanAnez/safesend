@@ -48,6 +48,13 @@ export const PEOPLE = {
   mateo: addr('0x5b0e2a9d7c4f61e83b2a0d9c5e7f14a36b8c2d07'),
   landlord: addr('0x3c8d1f7a5e902b4c6d8e1a3f5b7c9d0e2f4a6b81'),
   rosa: addr('0x9e4b27c1d5a83f60b2e7c94d1a58f3e06b7d2c45'),
+  carmen: addr('0x3f1c8e5a07b9d24e6c1a8f3b5d7e9c0a2b4d6f81'),
+  /** Earlier pasanaku rounds: a different member each month. */
+  pasanakuPast: [
+    addr('0x61d0a7e3c95b28f4a0c7e1b3d5f9a2c4e6b8d0f1'),
+    addr('0xa2c4e6b8d0f13579bdf02468ace13579bdf02468'),
+    addr('0x48f2b6d0a4c8e2f6b0d4a8c2e6f0b4d8a2c6e0f4'),
+  ],
   attacker: addr('0xbad0c0ffee5a1e0ddba11b0a7f00d5eed0bad000'),
   fakeUsdc: addr('0xfa4e05dc0000c0a11ed00000000000000000f4e5'),
   /** Attacker-generated: same first 4 and last 4 hex chars as Lucía. */
@@ -267,6 +274,31 @@ export const AMOUNT_ANOMALY: DemoScenario = {
   history: ordinaryLife('anomaly'),
 };
 
+export const PASANAKU: DemoScenario = {
+  ...base,
+  id: 'pasanaku',
+  kind: 'legit',
+  title: 'Pasanaku (savings group)',
+  tagline: 'A new group member every month, without warning fatigue.',
+  summary:
+    'Daniela is in a pasanaku, a rotating savings group: every month she sends 50 USDC to a different member, using addresses shared in the group chat. This month the group is Rosa and Carmen.',
+  tryThis: `First, paste Rosa’s address (${PEOPLE.rosa}) and review a 50 USDC send: a brand-new address gets the strongest confirmation. Then go back, use "Add group" to save "Pasanaku Mayo" with Rosa and Carmen (${PEOPLE.carmen}), and pay Rosa from your contacts.`,
+  history: [
+    ...ordinaryLife('pasanaku'),
+    ...PEOPLE.pasanakuPast.map((member, i) =>
+      transfer(PEOPLE.daniela, {
+        label: `pasanaku-round-${i}`,
+        from: PEOPLE.daniela,
+        to: member,
+        amount: usdc(50),
+        signer: signedBy(PEOPLE.daniela),
+        minutesAfterT0: -85 * DAY + i * 30 * DAY,
+        blockNumber: 29_000_300n + BigInt(i) * 1_000_000n,
+      }),
+    ),
+  ],
+};
+
 export const SCENARIO_LIST: readonly DemoScenario[] = [
   CLEAN_WALLET,
   DUST_POISONING_BASIC,
@@ -274,6 +306,7 @@ export const SCENARIO_LIST: readonly DemoScenario[] = [
   COUNTERFEIT_USDC,
   NEW_RECIPIENT_LARGE,
   AMOUNT_ANOMALY,
+  PASANAKU,
 ];
 
 export const SCENARIOS: Readonly<Record<string, DemoScenario>> = Object.fromEntries(

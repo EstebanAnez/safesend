@@ -32,6 +32,8 @@ export interface DemoScenarioState {
   /** Session contacts: the scenario's plus any the user added (demo: not persisted). */
   contacts: readonly Contact[];
   addContact: (contact: Omit<Contact, 'id' | 'addedAt'>) => Contact;
+  /** Add several contacts at once (a group, D18). */
+  addContacts: (contacts: readonly Omit<Contact, 'id' | 'addedAt'>[]) => Contact[];
   /** Test sends made in this session (demo: simulated). */
   testSends: readonly TestSend[];
   recordTestSend: (recipient: Address, amount: bigint) => void;
@@ -79,6 +81,20 @@ export function useDemoScenario(scenarioId: string): DemoScenarioState {
     return contact;
   }, []);
 
+  const addContacts = useCallback(
+    (drafts: readonly Omit<Contact, 'id' | 'addedAt'>[]): Contact[] => {
+      const now = Date.now();
+      const created = drafts.map((d) => ({
+        ...d,
+        id: `contact-${crypto.randomUUID()}`,
+        addedAt: now,
+      }));
+      setContacts((prev) => [...prev, ...created]);
+      return created;
+    },
+    [],
+  );
+
   const [testSends, setTestSends] = useState<readonly TestSend[]>([]);
   const recordTestSend = useCallback(
     (recipient: Address, amount: bigint) => {
@@ -119,6 +135,7 @@ export function useDemoScenario(scenarioId: string): DemoScenarioState {
     classifications,
     contacts,
     addContact,
+    addContacts,
     testSends,
     recordTestSend,
   };

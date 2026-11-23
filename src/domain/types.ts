@@ -104,6 +104,8 @@ export interface Contact {
   addedVia: 'typed' | 'pasted';
   /** Set when added through the post-BLOCK "new person" flow. */
   verifiedOutOfBand: boolean;
+  /** Group the contact was added with, e.g. "Pasanaku Mayo" (D18). Grouping never changes trust. */
+  group?: string;
 }
 
 /**

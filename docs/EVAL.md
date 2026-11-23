@@ -80,8 +80,8 @@ The full reports, including every case's outcome under every rule:
 
 | Rule                    | Run              | Blocked          | Strong friction    | Flagged            | Caught by lookalike/provenance signal | Strong from amount rule only |
 | ----------------------- | ---------------- | ---------------- | ------------------ | ------------------ | ------------------------------------- | ---------------------------- |
-| 3/4 (shipped)           | before           | 14 (70%, 48–85%) | 17 (85%, 64–95%)   | 20 (100%, 84–100%) | 17 (85%, 64–95%)                      | 0                            |
-| 3/4 (shipped)           | after (post-hoc) | 15 (75%, 53–89%) | 18 (90%, 70–97%)   | 20 (100%, 84–100%) | 18 (90%, 70–97%)                      | 0                            |
+| 3/4 (shipped until v2)  | before           | 14 (70%, 48–85%) | 17 (85%, 64–95%)   | 20 (100%, 84–100%) | 17 (85%, 64–95%)                      | 0                            |
+| 3/4 (shipped until v2)  | after (post-hoc) | 15 (75%, 53–89%) | 18 (90%, 70–97%)   | 20 (100%, 84–100%) | 18 (90%, 70–97%)                      | 0                            |
 | total ≥ 6, ≥ 2 each end | after (post-hoc) | 17 (85%, 64–95%) | 20 (100%, 84–100%) | 20 (100%, 84–100%) | 20 (100%, 84–100%)                    | 0                            |
 | 4/5 (for contrast)      | after (post-hoc) | 4 (20%, 8–42%)   | 16 (80%, 58–92%)   | 20 (100%, 84–100%) | 4 (20%, 8–42%)                        | 12                           |
 
@@ -102,8 +102,8 @@ The full reports, including every case's outcome under every rule:
 
 | Rule                    | Run              | ALLOW | Checkbox WARN  | Middle-char WARN | BLOCK         |
 | ----------------------- | ---------------- | ----- | -------------- | ---------------- | ------------- |
-| 3/4 (shipped)           | before           | 9     | 4 (20%, 8–42%) | 6 (30%, 15–52%)  | 1 (5%, 1–24%) |
-| 3/4 (shipped)           | after (post-hoc) | 8     | 4 (20%, 8–42%) | 7 (35%, 18–57%)  | 1 (5%, 1–24%) |
+| 3/4 (shipped until v2)  | before           | 9     | 4 (20%, 8–42%) | 6 (30%, 15–52%)  | 1 (5%, 1–24%) |
+| 3/4 (shipped until v2)  | after (post-hoc) | 8     | 4 (20%, 8–42%) | 7 (35%, 18–57%)  | 1 (5%, 1–24%) |
 | total ≥ 6, ≥ 2 each end | after (post-hoc) | 8     | 3 (15%, 5–36%) | 8 (40%, 22–61%)  | 1 (5%, 1–24%) |
 
 - **What changed:** H-L10 (a 400 USDC emergency to the sister) went from ALLOW to a
@@ -139,11 +139,16 @@ signal column is. At 3/4 and under the total rule, every strong catch has a sign
 
 ## Regression check (CI)
 
-`npm run eval:check` runs the shipped rule (3/4) on holdout v1 and fails if, at any of the three
-levels, fewer attacks are caught or more legitimate sends are flagged than in
-`eval/baseline.json`. The baseline records the post-fix 3/4 result. It is a regression guard, not a
-target. Changing the shipped rule requires re-recording the baseline deliberately in a reviewed
-commit.
+`npm run eval:check` runs the **shipped** rule on holdout v1. It fails if, at any of the three levels, fewer
+attacks are caught or more legitimate sends are flagged than in `eval/baseline.json`. It is a
+regression guard, not a target. Changing the shipped rule requires re-recording the baseline
+deliberately in a reviewed commit, and the check refuses to run when the baseline was recorded for a
+different rule.
+
+- **Current baseline:** total ≥ 6, ≥ 2 each end, on holdout v1 (post-fix): 17 attacks blocked, 20
+  with strong friction, 20 flagged; legitimate sends: 1 blocked, 9 with strong friction, 12
+  flagged.
+- **Previous baseline:** 3/4, until the switch below.
 
 ## Results on holdout v2 (first and only clean run)
 
@@ -185,11 +190,19 @@ test. Full report, per case and per author:
   it is below 5× her per-recipient median of 125. V2-E09 (Mateo's new wallet added as a contact
   first) is ALLOWed.
 
+## Decision: the shipped rule changed after holdout v2
+
+**The shipped lookalike rule is now "total ≥ 6, ≥ 2 each end"** (D15), replacing 3/4. The product
+owner made the decision after seeing the holdout v2 results above.
+
+**Consequence, stated plainly:** holdout v2 informed this decision, so **v2 is no longer a clean
+holdout for the shipped rule.** Its numbers for the total rule now carry the same caveat as v1's
+post-hoc numbers. **Any future claim about the shipped rule's performance needs a new holdout (v3)**,
+written and frozen before it is run, ideally with more independently written cases.
+
 ## Open questions
 
-- **Shipped rule.** The v2 evidence points the same way as v1, but weakly (n = 15 per side). The
-  decision belongs to the product owner. The trade-off is in RISK_MODEL.md: a benign collision
-  rate of 1 in 5.8M per protected address for the total rule, vs. 1 in 268M for 3/4.
-- **Warning fatigue for recurring new-recipient patterns** (pasanaku). Options include a
-  higher first-send threshold, group-shared contact lists, or a lighter confirmation when the
-  address was added as a contact from a trusted channel. To be addressed in the PRD.
+- **Warning fatigue for recurring new-recipient patterns** (pasanaku). **Addressed by design, not
+  by threshold:** group contacts (D18) let the user add all members once, deliberately; monthly
+  payments then go to contacts and are ALLOWed. The first-send threshold is unchanged. Not
+  evaluated on a holdout yet (v3).

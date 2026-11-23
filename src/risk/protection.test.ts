@@ -62,9 +62,13 @@ describe('lookalike rule: total matched characters', () => {
       riskInput(look(2, 4), { anchors: [sisterAnchor], history: [dustFrom(look(2, 4))], config }),
     );
     expect(r.decision).toBe('BLOCK');
-    // The same case under the 3/4 default is not a lookalike.
+    // The same case under the CMU-style 3/4 rule is not a lookalike.
     const d = evaluateRisk(
-      riskInput(look(2, 4), { anchors: [sisterAnchor], history: [dustFrom(look(2, 4))] }),
+      riskInput(look(2, 4), {
+        anchors: [sisterAnchor],
+        history: [dustFrom(look(2, 4))],
+        config: { lookalike: { kind: 'prefix-suffix', minPrefix: 3, minSuffix: 4 } },
+      }),
     );
     expect(d.reasons.map((x) => x.code)).not.toContain('LOOKALIKE_HIGH_CONFIDENCE');
   });
@@ -175,5 +179,11 @@ describe('amount anomaly: per-recipient baseline (D11)', () => {
       }),
     );
     expect(r.decision).toBe('ALLOW');
+  });
+});
+
+describe('shipped default', () => {
+  it('is the total rule: >= 6 matched characters, >= 2 on each end (D15)', () => {
+    expect(DEFAULT_RISK_CONFIG.lookalike).toEqual({ kind: 'total', minTotal: 6, minEachEnd: 2 });
   });
 });
