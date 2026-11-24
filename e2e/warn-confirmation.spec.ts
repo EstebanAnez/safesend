@@ -9,7 +9,7 @@ async function reviewMateo(page: Page, amount: string) {
   await page.goto('/demo/dust-poisoning');
   // History rows are collapsed: open one of Mateo's, then use its address.
   await page
-    .getByRole('button', { name: /^Received from 0x5b0E…2D07/ })
+    .getByRole('button', { name: /^Received from Mateo \(son\)/ })
     .first()
     .click();
   await page.getByRole('button', { name: new RegExp(`Use address ${MATEO}`, 'i') }).click();

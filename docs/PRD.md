@@ -21,7 +21,8 @@ whose ends match someone the victim pays, and plant them in the victim's history
 - or a **counterfeit token** named "USDC".
 
 The transfer is irreversible. The attack is described in Tsuchiya et al., "Blockchain Address
-Poisoning" (arXiv 2501.16681), and in Scam Sniffer's reporting (via Cointelegraph, Feb 2026);
+Poisoning" ([arXiv 2501.16681](https://arxiv.org/abs/2501.16681)), and in Scam Sniffer's reporting
+([via Cointelegraph, Feb 2026](https://cointelegraph.com/news/over-62m-lost-address-poisoning-since-december-scam-sniffer));
 SafeSend's threat cases are written from those descriptions. SafeSend is a prototype of one
 mitigation and makes no claim about reducing real-world losses.
 
@@ -36,8 +37,11 @@ mitigation and makes no claim about reducing real-world losses.
 - **Bolivia is shifting to dollar stablecoins.** During the dollar shortage, people are moving
   savings into USDC and similar tokens and sending them to family. Many of them are first-time
   users, the people address poisoning works best on.
-- **Stablecoins and payments are a 2026 priority for Coinbase.** As more everyday payments move
-  onto stablecoins, the send screen is where a payment product earns or loses trust.
+- **Stablecoins and payments are a 2026 priority for Coinbase.** Brian Armstrong listed "scaling
+  stablecoins and payments" as one of the company's three priorities for 2026
+  ([Yahoo Finance, January 2026](https://finance.yahoo.com/news/coinbase-plans-one-exchange-crypto-150515140.html)).
+  As more everyday payments move onto stablecoins, the send screen is where a payment product earns
+  or loses trust.
 
 ## Persona
 

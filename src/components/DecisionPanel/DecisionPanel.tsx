@@ -11,6 +11,8 @@ import type { ProtectedAddress } from '@/domain/types';
 import { useChallengePositions } from '@/hooks/useChallengePositions';
 import { formatUsdc } from '@/lib/amount';
 import { anchorLabel } from '@/risk/anchors';
+import { nameFor } from '@/risk/names';
+import type { NameBook } from '@/risk/names';
 import { checkChallengeAnswer } from '@/risk/confirmation';
 import type { Reason, RiskResult } from '@/risk/types';
 import { FOCUS_ON_SHOW } from '@/components/a11y/focus';
@@ -31,6 +33,8 @@ interface Props {
   onUseTestAmount?: () => void;
   /** BLOCK only: start the deliberate "add a different person" flow. Never resumes this send. */
   onAddDifferentPerson?: () => void;
+  /** Names for known addresses (exact match only), for the comparison and recovery copy. */
+  names?: NameBook;
   /** Injectable for tests; defaults to the platform CSPRNG. */
   random?: () => number;
 }
@@ -46,13 +50,21 @@ export function DecisionPanel({
   onCancel,
   onUseTestAmount,
   onAddDifferentPerson,
+  names,
   random,
 }: Props) {
   const headingId = useId();
+  const otherId = useId();
+  const [showOther, setShowOther] = useState(false);
   const lookalike = result.reasons.find(
     (r): r is LookalikeReason => r.evidence.kind === 'lookalike',
   );
   const positions = useChallengePositions(result.confirmation, recipient, random);
+  // On a BLOCK, only the blocking reasons lead. Anything else ("first send, large amount") is
+  // secondary: it cannot change the outcome, and next to a BLOCK it reads as a way forward.
+  const blocked = result.decision === 'BLOCK';
+  const primary = blocked ? result.reasons.filter((r) => r.severity === 'block') : result.reasons;
+  const other = blocked ? result.reasons.filter((r) => r.severity !== 'block') : [];
 
   return (
     <VStack as="section" gap={2} aria-labelledby={headingId}>
@@ -69,51 +81,44 @@ export function DecisionPanel({
         <AddressComparison
           comparison={lookalike.evidence.comparison}
           candidateLabel="You entered"
-          anchorLabel={anchorLabel(lookalike.evidence.anchor)}
+          anchorLabel={anchorLabel(lookalike.evidence.anchor, names)}
           highlight={positions}
         />
       )}
 
       <VStack as="ul" gap={1.5} aria-label="Reasons for this decision">
-        {result.reasons.map((reason) => (
+        {primary.map((reason) => (
           <Box as="li" key={reason.code + reason.title}>
-            <Banner
-              variant={
-                reason.severity === 'block'
-                  ? 'error'
-                  : reason.severity === 'warn'
-                    ? 'warning'
-                    : 'informational'
-              }
-              startIcon={
-                reason.severity === 'block'
-                  ? 'error'
-                  : reason.severity === 'warn'
-                    ? 'warning'
-                    : 'checkmark'
-              }
-              startIconAccessibilityLabel={
-                reason.severity === 'block'
-                  ? 'Blocked'
-                  : reason.severity === 'warn'
-                    ? 'Warning'
-                    : 'OK'
-              }
-              styleVariant="contextual"
-              // Text nodes (not strings) so CDS does not clamp a reason mid-sentence.
-              title={
-                <Text as="p" font="label1">
-                  {reason.title}
-                </Text>
-              }
-            >
-              <Text as="p" font="label2">
-                {reason.explanation}
-              </Text>
-            </Banner>
+            <ReasonBanner reason={reason} />
           </Box>
         ))}
       </VStack>
+
+      {other.length > 0 && (
+        <VStack gap={1}>
+          <Box>
+            <Button
+              variant="tertiary"
+              compact
+              onClick={() => setShowOther((v) => !v)}
+              aria-expanded={showOther}
+              aria-controls={otherId}
+            >
+              {showOther ? 'Hide other signals' : `Other signals (${other.length})`}
+            </Button>
+          </Box>
+          {/* `hidden` on a plain div: a CDS stack's display class would override it. */}
+          <div id={otherId} hidden={!showOther}>
+            <VStack as="ul" gap={1.5} aria-label="Other signals">
+              {other.map((reason) => (
+                <Box as="li" key={reason.code + reason.title}>
+                  <ReasonBanner reason={reason} />
+                </Box>
+              ))}
+            </VStack>
+          </div>
+        </VStack>
+      )}
 
       {result.testSendSuggested && (
         <Banner
@@ -146,9 +151,7 @@ export function DecisionPanel({
         <VStack gap={1}>
           {lookalike && (
             <Button block onClick={() => onRecover(lookalike.evidence.anchor)}>
-              {lookalike.evidence.anchor.kind === 'inbound-sender'
-                ? 'Use the address that sent you USDC instead'
-                : `Send to ${anchorLabel(lookalike.evidence.anchor)} instead`}
+              {recoveryLabel(lookalike.evidence.anchor, names)}
             </Button>
           )}
           <Button block variant="secondary" onClick={onCancel}>
@@ -197,6 +200,46 @@ export function DecisionPanel({
         </VStack>
       )}
     </VStack>
+  );
+}
+
+function recoveryLabel(anchor: ProtectedAddress, names: NameBook | undefined): string {
+  if (anchor.kind === 'contact') return `Send to ${anchor.contact.name} instead`;
+  const name = nameFor(anchor.address, names);
+  if (name) return `Send to ${name} instead`;
+  return anchor.kind === 'inbound-sender'
+    ? 'Use the address that sent you USDC instead'
+    : 'Use the address you paid before instead';
+}
+
+function ReasonBanner({ reason }: { reason: Reason }) {
+  return (
+    <Banner
+      variant={
+        reason.severity === 'block'
+          ? 'error'
+          : reason.severity === 'warn'
+            ? 'warning'
+            : 'informational'
+      }
+      startIcon={
+        reason.severity === 'block' ? 'error' : reason.severity === 'warn' ? 'warning' : 'checkmark'
+      }
+      startIconAccessibilityLabel={
+        reason.severity === 'block' ? 'Blocked' : reason.severity === 'warn' ? 'Warning' : 'OK'
+      }
+      styleVariant="contextual"
+      // Text nodes (not strings) so CDS does not clamp a reason mid-sentence.
+      title={
+        <Text as="p" font="label1">
+          {reason.title}
+        </Text>
+      }
+    >
+      <Text as="p" font="label2">
+        {reason.explanation}
+      </Text>
+    </Banner>
   );
 }
 

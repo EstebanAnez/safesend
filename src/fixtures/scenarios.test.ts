@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { BASE_SEPOLIA_CHAIN_ID, CANONICAL_USDC } from '@/config/chain';
-import { buildTrustAnchors } from '@/risk/anchors';
+import { counterpartyLabel } from '@/lib/counterparty';
+import { anchorLabel, buildProtectedSet, buildTrustAnchors } from '@/risk/anchors';
 import { compareAddresses } from '@/risk/compare';
 import { DEFAULT_RISK_CONFIG } from '@/risk/config';
 import { evaluateRisk } from '@/risk/evaluate';
+import { classifyHistoryEntry } from '@/risk/history';
+import { buildNameBook, displayAddress } from '@/risk/names';
 import type { Decision } from '@/risk/types';
 import { LOOKALIKES, PEOPLE, SCENARIO_LIST, SCENARIOS } from './scenarios';
 
@@ -101,5 +104,40 @@ describe('pasanaku scenario (D18)', () => {
       group: 'Pasanaku Mayo',
     };
     expect(pay([...s.contacts, rosa]).decision).toBe('ALLOW');
+  });
+});
+
+// D24: the list must never show a lookalike and the person it imitates the same way.
+describe('history labels: a lookalike and its target never render the same label', () => {
+  for (const s of SCENARIO_LIST) {
+    it(s.id, () => {
+      const names = buildNameBook(s.contacts, { ...s.names, [s.user.address]: 'you' });
+      const anchors = buildTrustAnchors(s.contacts, s.history, s.user.address, DEFAULT_RISK_CONFIG);
+      const protectedSet = buildProtectedSet(anchors, s.history, DEFAULT_RISK_CONFIG);
+      let planted = 0;
+      for (const entry of s.history) {
+        const c = classifyHistoryEntry(entry, protectedSet, s.user.address, DEFAULT_RISK_CONFIG);
+        if (c.kind !== 'suspected-poisoning') continue;
+        planted += 1;
+        const shown = counterpartyLabel(entry.counterparty, names);
+        const target = counterpartyLabel(c.anchor.address, names);
+        expect(shown.text).not.toBe(target.text);
+        // A planted address is never named.
+        expect(shown.kind).toBe('address');
+        expect(anchorLabel(c.anchor, names)).not.toBe(shown.text);
+      }
+      if (s.kind === 'attack' && s.id !== 'address-change-message')
+        expect(planted).toBeGreaterThan(0);
+    });
+  }
+
+  it('every fixture lookalike differs from its target in the short form too', () => {
+    const pairs = [
+      [PEOPLE.luciaLookalike, PEOPLE.lucia],
+      [LOOKALIKES.luciaCounterfeit, PEOPLE.lucia],
+      [LOOKALIKES.luciaNewWallet, PEOPLE.lucia],
+      [LOOKALIKES.landlordZeroValue, PEOPLE.landlord],
+    ] as const;
+    for (const [look, real] of pairs) expect(displayAddress(look)).not.toBe(displayAddress(real));
   });
 });

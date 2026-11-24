@@ -16,15 +16,19 @@ import type {
   Provenance,
 } from '@/domain/types';
 import { formatUsdc } from '@/lib/amount';
-import { formatTime, shortAddress } from '@/lib/format';
+import { counterpartyLabel } from '@/lib/counterparty';
+import { formatTime } from '@/lib/format';
 import { anchorLabel } from '@/risk/anchors';
 import type { HistoryClassification } from '@/risk/history';
+import type { NameBook } from '@/risk/names';
 
 interface Props {
   history: AsyncState<HistoryPage>;
   classifications: ReadonlyMap<string, HistoryClassification>;
   onUseAddress: (address: Address) => void;
   onRetry: () => void;
+  /** Names for known addresses (exact match only). */
+  names?: NameBook;
 }
 
 const SKELETON_ROWS = 5;
@@ -37,7 +41,7 @@ const SKELETON_ROWS = 5;
  * scannable and the riskiest action (copying an address from history) is never
  * repeated down the page. Planted entries stay collapsed behind an explanation.
  */
-export function HistoryList({ history, classifications, onUseAddress, onRetry }: Props) {
+export function HistoryList({ history, classifications, onUseAddress, onRetry, names }: Props) {
   if (history.status === 'idle' || history.status === 'loading') {
     return (
       <VStack gap={1} aria-busy="true">
@@ -117,6 +121,7 @@ export function HistoryList({ history, classifications, onUseAddress, onRetry }:
           last={i === entries.length - 1}
           classification={classifications.get(entry.id) ?? { kind: 'normal' }}
           onUseAddress={onUseAddress}
+          names={names}
         />
       ))}
     </VStack>
@@ -128,18 +133,20 @@ const HistoryRow = memo(function HistoryRow({
   last,
   classification,
   onUseAddress,
+  names,
 }: {
   entry: HistoryEntry;
   last: boolean;
   classification: HistoryClassification;
   onUseAddress: (address: Address) => void;
+  names: NameBook | undefined;
 }) {
   const [expanded, setExpanded] = useState(false);
   const detailsId = useId();
   const toggle = () => setExpanded((v) => !v);
 
   if (classification.kind === 'suspected-poisoning') {
-    const imitated = anchorLabel(classification.anchor);
+    const imitated = anchorLabel(classification.anchor, names);
     return (
       <Box as="li" padding={1.5} borderedBottom={!last} background="bgWarningWash">
         <VStack gap={1}>
@@ -168,8 +175,8 @@ const HistoryRow = memo(function HistoryRow({
           </Box>
           <div id={detailsId} hidden={!expanded}>
             <VStack gap={1}>
-              <Summary entry={entry} />
-              <Details entry={entry} onUseAddress={onUseAddress} />
+              <Summary entry={entry} names={names} />
+              <Details entry={entry} onUseAddress={onUseAddress} names={names} />
             </VStack>
           </div>
         </VStack>
@@ -189,12 +196,16 @@ const HistoryRow = memo(function HistoryRow({
         aria-expanded={expanded}
         aria-controls={detailsId}
       >
-        <Summary entry={entry} unusualOrigin={classification.kind === 'suspicious-origin'} />
+        <Summary
+          entry={entry}
+          names={names}
+          unusualOrigin={classification.kind === 'suspicious-origin'}
+        />
       </Pressable>
       {/* `hidden` on a plain div: a CDS Box's display class would override it. */}
       <div id={detailsId} hidden={!expanded}>
         <Box paddingX={1.5} paddingBottom={1.5}>
-          <Details entry={entry} onUseAddress={onUseAddress} />
+          <Details entry={entry} onUseAddress={onUseAddress} names={names} />
         </Box>
       </div>
     </VStack>
@@ -204,11 +215,14 @@ const HistoryRow = memo(function HistoryRow({
 /** One line of who and how much, one line of when and how we know. Spans: it sits in a button. */
 function Summary({
   entry,
+  names,
   unusualOrigin = false,
 }: {
   entry: HistoryEntry;
+  names: NameBook | undefined;
   unusualOrigin?: boolean;
 }) {
+  const who = counterpartyLabel(entry.counterparty, names);
   const label =
     entry.direction === 'in'
       ? 'Received from'
@@ -221,9 +235,13 @@ function Summary({
       <VStack as="span" gap={0.5} alignItems="flex-start" minWidth={0}>
         <Text as="span" font="headline" textAlign="start">
           {label}{' '}
-          <Text as="span" mono font="headline">
-            {shortAddress(entry.counterparty)}
-          </Text>
+          {who.kind === 'name' ? (
+            who.text
+          ) : (
+            <Text as="span" mono font="headline">
+              {who.text}
+            </Text>
+          )}
         </Text>
         <HStack as="span" gap={1} alignItems="center" flexWrap="wrap">
           <Text as="span" font="label2" color="fgMuted">
@@ -245,10 +263,14 @@ function Summary({
 function Details({
   entry,
   onUseAddress,
+  names,
 }: {
   entry: HistoryEntry;
   onUseAddress: (address: Address) => void;
+  names: NameBook | undefined;
 }) {
+  const signer =
+    entry.txSigner.status === 'known' ? counterpartyLabel(entry.txSigner.address, names) : null;
   return (
     <VStack gap={1}>
       <Text as="p" mono font="label2" color="fg" overflow="break">
@@ -256,12 +278,14 @@ function Details({
       </Text>
       <Text as="p" font="label2" color="fgMuted">
         Signed by{' '}
-        {entry.txSigner.status === 'known' ? (
-          <Text as="span" mono font="label2">
-            {shortAddress(entry.txSigner.address)}
-          </Text>
-        ) : (
+        {signer === null ? (
           'unknown'
+        ) : signer.kind === 'name' ? (
+          signer.text
+        ) : (
+          <Text as="span" mono font="label2">
+            {signer.text}
+          </Text>
         )}
         {' · '}Source: {entry.source}
         {' · '}Tx{' '}

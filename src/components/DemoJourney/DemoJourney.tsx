@@ -74,6 +74,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     anchors,
     protectedSet,
     classifications,
+    names,
     contacts,
     addContact,
     addContacts,
@@ -121,10 +122,20 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
             history: historyEntries,
             historyAvailable,
             testSends,
+            names,
             config,
           }
         : null,
-    [step, scenario.user.address, anchors, historyEntries, historyAvailable, testSends, config],
+    [
+      step,
+      scenario.user.address,
+      anchors,
+      historyEntries,
+      historyAvailable,
+      testSends,
+      names,
+      config,
+    ],
   );
   const result = useRiskDecision(riskInput);
   const reviewedRecipient = useMemo(() => {
@@ -263,9 +274,9 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
   const recipientLabel = useCallback(
     (address: Address) => {
       const anchor = anchors.find((a) => sameAddress(a.address, address));
-      return anchor ? anchorLabel(anchor) : 'a new address';
+      return anchor ? anchorLabel(anchor, names) : 'a new address';
     },
-    [anchors],
+    [anchors, names],
   );
 
   // --- Focus and announcements ---------------------------------------------
@@ -395,6 +406,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     if (step.kind === 'add-group') {
       return (
         <AddGroupForm
+          names={names}
           user={scenario.user.address}
           contacts={contacts}
           protectedSet={protectedSet}
@@ -415,6 +427,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
     if (step.kind === 'add-contact') {
       return (
         <AddContactForm
+          names={names}
           user={scenario.user.address}
           contacts={contacts}
           protectedSet={protectedSet}
@@ -452,6 +465,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
         </HStack>
       ) : (
         <DecisionPanel
+          names={names}
           result={result}
           recipient={reviewedRecipient}
           amount={step.intent.amount}
@@ -574,6 +588,7 @@ export function DemoJourney({ scenarioId }: { scenarioId: string }) {
             synthetic. Open a row for its details.
           </Text>
           <HistoryList
+            names={names}
             history={history}
             classifications={classifications}
             onUseAddress={handleUseAddress}

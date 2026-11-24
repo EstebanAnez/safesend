@@ -57,7 +57,7 @@ test.describe('dark mode', () => {
     await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeVisible();
     await page.getByRole('button', { name: /Show details of the suspected lookalike/ }).click();
     await page
-      .getByRole('button', { name: /^Sent to 0x3c8D/ })
+      .getByRole('button', { name: /^Sent to Landlord/ })
       .first()
       .click();
     await axe(page);
@@ -71,7 +71,9 @@ test.describe('dark mode', () => {
     await axe(page);
 
     // History error state.
-    await page.getByRole('radio', { name: /Outage/ }).check();
+    // Controlled radio: it updates on React's next render, so assert with retries.
+    await page.getByRole('radio', { name: /Outage/ }).click();
+    await expect(page.getByRole('radio', { name: /Outage/ })).toBeChecked();
     await expect(page.getByRole('button', { name: 'Try again' })).toBeVisible();
     await axe(page);
   });
@@ -88,10 +90,14 @@ test.describe('dark mode', () => {
 
 test('loading and empty history states pass axe', async ({ page }) => {
   await page.goto('/demo/clean-wallet');
-  await page.getByRole('radio', { name: /Slow/ }).check();
+  // Controlled radio: it updates on React's next render, so assert with retries.
+  await page.getByRole('radio', { name: /Slow/ }).click();
+  await expect(page.getByRole('radio', { name: /Slow/ })).toBeChecked();
   await expect(page.getByText('Loading activity…')).toBeVisible();
   await axe(page);
-  await page.getByRole('radio', { name: 'No activity' }).check();
+  // Controlled radio: it updates on React's next render, so assert with retries.
+  await page.getByRole('radio', { name: 'No activity' }).click();
+  await expect(page.getByRole('radio', { name: 'No activity' })).toBeChecked();
   await expect(page.getByText('No USDC activity yet')).toBeVisible();
   await axe(page);
 });

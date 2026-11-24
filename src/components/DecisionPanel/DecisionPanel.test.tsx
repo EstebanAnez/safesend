@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { TrustAnchor } from '@/domain/types';
@@ -46,6 +46,26 @@ describe('DecisionPanel', () => {
     expect(screen.getByText(/cannot be overridden/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Send to Lucía instead' }));
     expect(onRecover).toHaveBeenCalledWith(sisterAnchor);
+  });
+
+  it('BLOCK: only the blocking reason leads; other signals are folded away', async () => {
+    const look = lookalikeOf(SISTER, 5, 5);
+    // 50 USDC to a new address also raises "first send, large amount", a WARN-level signal.
+    const result = evaluateRisk(
+      riskInput(look, { amount: 50_000_000n, anchors: [sisterAnchor], history: [dustFrom(look)] }),
+    );
+    expect(result.reasons.some((r) => r.severity === 'warn')).toBe(true);
+    setup(result, look);
+
+    const reasons = screen.getByRole('list', { name: 'Reasons for this decision' });
+    expect(within(reasons).getAllByRole('listitem')).toHaveLength(1);
+    expect(within(reasons).getByText(/imitates Lucía/)).toBeInTheDocument();
+    expect(screen.queryByText('First send to this address, and a large amount')).not.toBeVisible();
+
+    const toggle = screen.getByRole('button', { name: 'Other signals (1)' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(toggle);
+    expect(screen.getByText('First send to this address, and a large amount')).toBeVisible();
   });
 
   it('light WARN: the send button stays disabled until the out-of-band checkbox is ticked', async () => {

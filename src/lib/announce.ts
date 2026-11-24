@@ -12,7 +12,12 @@ export function decisionAnnouncement(result: RiskResult): string {
       : result.decision === 'WARN'
         ? 'Check needed before you send.'
         : 'Ready to send.';
-  const reasons = result.reasons.map((r) => r.title).join('. ');
+  // On a BLOCK only the blocking reasons are read, as on screen (other signals are folded away).
+  const shown =
+    result.decision === 'BLOCK'
+      ? result.reasons.filter((r) => r.severity === 'block')
+      : result.reasons;
+  const reasons = shown.map((r) => r.title).join('. ');
   return reasons ? `${verdict} ${reasons}.` : verdict;
 }
 
