@@ -5,6 +5,7 @@ import type {
   ProtectedAddress,
   TrustAnchor,
 } from '@/domain/types';
+import type { NameBook } from './names';
 
 /**
  * Risk engine contract. Pure data in, pure data out. No React, no network.
@@ -153,6 +154,8 @@ export interface RiskInput {
    * a test-send recipient that appear in history after the test are high risk.
    */
   testSends?: readonly TestSend[];
+  /** Names for known addresses (exact match only), used in explanations. Never affects the decision. */
+  names?: NameBook;
   config: RiskConfig;
 }
 

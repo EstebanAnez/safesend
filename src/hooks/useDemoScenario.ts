@@ -16,6 +16,8 @@ import type { HistorySimulation } from '@/providers/history/fixture';
 import { buildProtectedSet, buildTrustAnchors } from '@/risk/anchors';
 import { DEFAULT_RISK_CONFIG } from '@/risk/config';
 import { classifyHistoryEntry } from '@/risk/history';
+import { buildNameBook } from '@/risk/names';
+import type { NameBook } from '@/risk/names';
 import type { HistoryClassification } from '@/risk/history';
 import { testSendAnchors } from '@/risk/testSend';
 import type { RiskConfig, TestSend } from '@/risk/types';
@@ -34,6 +36,8 @@ export interface DemoScenarioState {
   protectedSet: readonly ProtectedAddress[];
   /** Keyed by HistoryEntry.id. */
   classifications: ReadonlyMap<string, HistoryClassification>;
+  /** Names for known addresses (contacts and wallet labels), exact match only. Display only. */
+  names: NameBook;
   /** Session contacts: the scenario's plus any the user added (demo: not persisted). */
   contacts: readonly Contact[];
   addContact: (contact: Omit<Contact, 'id' | 'addedAt'>) => Contact;
@@ -132,6 +136,12 @@ export function useDemoScenario(
     [anchors, entries, config],
   );
 
+  const names = useMemo(
+    // The user's own address reads "you" ("Signed by you"); it is never a recipient or an anchor.
+    () => buildNameBook(contacts, { ...scenario.names, [scenario.user.address]: 'you' }),
+    [contacts, scenario.names, scenario.user.address],
+  );
+
   const classifications = useMemo(() => {
     const map = new Map<string, HistoryClassification>();
     for (const entry of entries) {
@@ -151,6 +161,7 @@ export function useDemoScenario(
     anchors,
     protectedSet,
     classifications,
+    names,
     contacts,
     addContact,
     addContacts,

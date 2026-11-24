@@ -20,6 +20,11 @@ export interface DemoScenario {
   kind: 'attack' | 'legit';
   user: { name: string; address: Address };
   contacts: readonly Contact[];
+  /**
+   * Names Daniela gave known addresses in her wallet, by exact full address.
+   * Display only: a name never makes an address trusted (D24). Contacts are named separately.
+   */
+  names: Readonly<Record<string, string>>;
   history: readonly HistoryEntry[];
 }
 
@@ -168,6 +173,13 @@ function ordinaryLife(prefix: string): HistoryEntry[] {
 const base = {
   user: { name: 'Daniela', address: PEOPLE.daniela },
   contacts: [luciaContact],
+  names: {
+    [PEOPLE.mateo]: 'Mateo (son)',
+    [PEOPLE.landlord]: 'Landlord',
+    [PEOPLE.pasanakuPast[0]]: 'Ana (pasanaku)',
+    [PEOPLE.pasanakuPast[1]]: 'Julia (pasanaku)',
+    [PEOPLE.pasanakuPast[2]]: 'Teresa (pasanaku)',
+  },
 } as const;
 
 export const CLEAN_WALLET: DemoScenario = {

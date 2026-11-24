@@ -36,7 +36,7 @@ test('clean wallet: a trusted contact is one tap, no friction', async ({ page })
 
 for (const { id, name, amount, imitates } of [
   { id: 'dust-poisoning', name: /Show details/, amount: '50', imitates: 'Lucía' },
-  { id: 'zero-value-poisoning', name: /Show details/, amount: '250', imitates: 'an address you' },
+  { id: 'zero-value-poisoning', name: /Show details/, amount: '250', imitates: 'Landlord' },
   { id: 'counterfeit-usdc', name: /Show details/, amount: '45', imitates: 'Lucía' },
 ]) {
   test(`${id}: the planted entry is hidden, BLOCKed with a reason, and recoverable`, async ({

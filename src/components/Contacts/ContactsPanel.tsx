@@ -7,7 +7,7 @@ import { Tag } from '@coinbase/cds-web/tag';
 import { Text } from '@coinbase/cds-web/typography';
 import type { Address } from 'viem';
 import type { Contact } from '@/domain/types';
-import { shortAddress } from '@/lib/format';
+import { displayAddress } from '@/risk/names';
 
 interface Props {
   contacts: readonly Contact[];
@@ -43,7 +43,7 @@ export const ContactsPanel = memo(function ContactsPanel({
                     {c.group && <Tag colorScheme="blue">{c.group}</Tag>}
                   </HStack>
                   <Text as="p" mono font="label2" color="fgMuted">
-                    {shortAddress(c.address)}
+                    {displayAddress(c.address)}
                   </Text>
                 </VStack>
                 <Button

@@ -37,6 +37,23 @@ test('demo: planted lookalike is blocked, recovery sends to the contact (simulat
   ).toBeVisible();
   await expect(page.getByText(/first 4 and last 4 characters match Lucía/i)).toBeVisible();
   await expect(page.getByText(/cannot be overridden/)).toBeVisible();
+  // Only the blocking reason leads; "first send, large amount" is folded under Other signals.
+  const reasons = page.getByRole('list', { name: 'Reasons for this decision' });
+  await expect(reasons.getByRole('listitem')).toHaveCount(1);
+  await expect(page.getByRole('button', { name: 'Other signals (1)' })).toHaveAttribute(
+    'aria-expanded',
+    'false',
+  );
+  await expect(page.getByText('First send to this address, and a large amount')).toBeHidden();
+  // Every row of the grouped comparison says whose address it is, continuation rows included.
+  for (const label of [
+    'You entered (characters 1–20)',
+    'You entered (characters 21–40)',
+    'Lucía (sister) (characters 1–20)',
+    'Lucía (sister) (characters 21–40)',
+  ]) {
+    await expect(page.getByText(label, { exact: true })).toBeVisible();
+  }
   // No path forward to the blocked address.
   await expect(page.getByRole('button', { name: /^Send 50 USDC/ })).toHaveCount(0);
 

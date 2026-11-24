@@ -399,3 +399,34 @@ paymaster, uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGas
   - **A clean claim needs holdout v3.**
 - **Regression baseline** (`eval/baseline.json`) re-recorded deliberately in this change: v1
   blocked attacks 17 → 20, blocked legitimate sends 1 → 6; strong and flagged unchanged.
+
+## D24. Never show a known person as truncated hex; a BLOCK leads with its reason only
+
+From the review of the live demo (2026-11-24).
+
+- **Problem:** the history list showed the real "Sent to 0x7A3f…e4d2" (Lucía) and the planted
+  "Received from 0x7a3f…e4d2" identically. Truncated hex is exactly what poisoning exploits, and
+  SafeSend was using it.
+- **Names.** A _name book_ (`src/risk/names.ts`) holds contacts plus names the user gave known
+  addresses ("Mateo (son)", "Landlord"). It is keyed by the **exact full address**, so a lookalike
+  never inherits a name. It is display only: a name never grants trust (only the trust set does,
+  D14). History rows, "Signed by", decision copy, the comparison and the recovery button
+  ("Send to Mateo (son) instead") all use it. The engine receives it in `RiskInput.names` for its
+  explanations; it never affects a decision.
+- **Unnamed addresses** show first 4, middle 4 and last 4 hex characters (`0x7A3f…1C3e…e4d2`),
+  never the `0x7A3f…e4d2` short form. `shortAddress` was removed. `anchorLabel` no longer prints
+  the short form either ("someone who has sent you USDC (0x5b0E…2D07)" was the same flaw).
+  - **Limit:** an attacker who also matches the 4 middle characters (12 chosen characters,
+    16^12 ≈ 2.8 × 10^14 tries) would share this form too. Names are the real fix; the middle group
+    only raises the cost. Planted entries are also hidden and the send is blocked either way.
+  - **Test:** for every demo scenario, a planted entry's label never equals its target's label, and
+    a planted address is never named (`src/fixtures/scenarios.test.ts`).
+- **A BLOCK shows only the blocking reason.** Secondary signals ("first send, large amount") can't
+  change the outcome, and next to a BLOCK they read like a way forward. They are folded under a
+  collapsed "Other signals (n)" disclosure, and the screen-reader announcement reads only the
+  blocking reasons.
+- **Comparison rows.** Every row of the grouped comparison is labelled, continuation rows included
+  ("You entered (characters 21–40)", "Lucía (sister) (characters 21–40)").
+- **Home page:** one line of scale with its source, the demo as a 240 KB muted MP4 (the GIF is
+  5 MB), author and code links. The clip has native controls so it can be paused (WCAG 2.2.2), and
+  it does not autoplay under `prefers-reduced-motion`.

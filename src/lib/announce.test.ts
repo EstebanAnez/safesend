@@ -17,6 +17,8 @@ describe('announcements', () => {
     const text = decisionAnnouncement(result);
     expect(text).toMatch(/^Blocked\. This send cannot go ahead\. /);
     expect(text).toContain('imitates Lucía');
+    // Secondary signals are not read out on a BLOCK.
+    expect(text).not.toMatch(/First send/);
   });
 
   it('send status always says it was simulated', () => {

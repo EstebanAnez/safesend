@@ -6,7 +6,8 @@ address in their history came from and making a clear decision at send time.
 > **Testnet prototype.** Base Sepolia only. No real money. The demo runs on synthetic data, and
 > every send in it is simulated: nothing is signed or broadcast.
 
-**Live demo:** _not deployed yet._ Run it locally in two commands (below).
+**Live demo:** [safesend-one.vercel.app](https://safesend-one.vercel.app) (start at
+[/demo](https://safesend-one.vercel.app/demo)). Or run it locally in two commands (below).
 
 ![Dust poisoning: the planted entry is hidden, sending to it is blocked with a character comparison, and one click recovers to the real contact](docs/screenshots/demo.gif)
 
@@ -29,7 +30,8 @@ history entirely and send a "my address changed" message with a lookalike.
   million** victims, with at least **$83.8 million** lost (Tsuchiya et al., "Blockchain Address
   Poisoning", [arXiv 2501.16681](https://arxiv.org/abs/2501.16681)).
 - Scam Sniffer reported **$50 million** lost in December 2025 and **$12.25 million** in January
-  2026 by people who copied an address from their history (via Cointelegraph, February 2026).
+  2026 by people who copied an address from their history
+  ([via Cointelegraph, February 2026](https://cointelegraph.com/news/over-62m-lost-address-poisoning-since-december-scam-sniffer)).
 
 ## Why I built this
 
@@ -121,7 +123,7 @@ Current policy (every lookalike is a BLOCK, D23), **post-hoc** on both holdouts:
   Color is never the only signal: the address comparison uses shape too (D17).
 - **Architecture rules are lint-enforced** (D6): the risk engine in `src/risk/` is pure (no React,
   no network), components never touch the network, and there is no `any`.
-- **Tests:** 181 unit and component tests (Vitest, rendering real CDS), 58 e2e tests (Playwright
+- **Tests:** 196 unit and component tests (Vitest, rendering real CDS), 62 e2e tests (Playwright
   with axe, desktop and Pixel 7), and an eval regression check in CI.
 - **Performance:** see D20 for Lighthouse results and what is still open (Total Blocking Time).
 

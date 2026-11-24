@@ -5,6 +5,7 @@ import type { HistoryEntry } from '@/domain/types';
 import { compareAddresses } from '@/risk/compare';
 import type { HistoryClassification } from '@/risk/history';
 import { a, contact, dustFrom, entry, lookalikeOf, SISTER } from '@/test/builders';
+import { buildNameBook, displayAddress } from '@/risk/names';
 import { renderWithTheme } from '@/test/render';
 import { HistoryList } from './HistoryList';
 
@@ -80,7 +81,7 @@ describe('HistoryList', () => {
     expect(within(list).getAllByRole('listitem')).toHaveLength(2);
     expect(screen.queryByRole('button', { name: /^Use address/ })).not.toBeInTheDocument();
 
-    const row = screen.getByRole('button', { name: /Received from 0x5b0E…2D07/ });
+    const row = screen.getByRole('button', { name: /^Received from 0x5b0E…/ });
     expect(row).toHaveAttribute('aria-expanded', 'false');
     await userEvent.click(row);
     expect(row).toHaveAttribute('aria-expanded', 'true');
@@ -120,5 +121,42 @@ describe('HistoryList', () => {
       screen.getByRole('button', { name: 'Show details of the suspected lookalike of Lucía' }),
     );
     expect(screen.getByRole('button', { name: `Use address ${look} as recipient` })).toBeVisible();
+  });
+
+  it('names a known person and never shows a lookalike with the same label (D24)', async () => {
+    const look = lookalikeOf(SISTER, 4, 4);
+    const real = entry({ counterparty: SISTER, direction: 'out' });
+    const planted = dustFrom(look);
+    const classifications = new Map<string, HistoryClassification>([
+      [
+        planted.id,
+        {
+          kind: 'suspected-poisoning',
+          technique: 'dust',
+          anchor: { kind: 'contact', address: SISTER, contact: contact('Lucía (sister)', SISTER) },
+          comparison: compareAddresses(look, SISTER),
+        },
+      ],
+    ]);
+    renderWithTheme(
+      <HistoryList
+        history={page([real, planted])}
+        classifications={classifications}
+        names={buildNameBook([contact('Lucía (sister)', SISTER)])}
+        onUseAddress={vi.fn()}
+        onRetry={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole('button', { name: /^Sent to Lucía \(sister\)/ })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /Show details of the suspected/ }));
+    // The planted entry shows hex with its middle, never the name and never the short form.
+    const suspicious = screen
+      .getAllByRole('listitem')
+      .find((li) => li.textContent?.includes('Suspected lookalike'));
+    if (!suspicious) throw new Error('suspected row missing');
+    // As the counterparty and as "Signed by" (a dust sender signs its own transfer).
+    expect(within(suspicious).getAllByText(displayAddress(look))[0]).toBeVisible();
+    expect(suspicious.textContent).not.toContain('Received from Lucía');
+    expect(displayAddress(look)).not.toBe(displayAddress(SISTER));
   });
 });

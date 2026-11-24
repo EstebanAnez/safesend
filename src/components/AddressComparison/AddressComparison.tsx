@@ -77,8 +77,9 @@ export const AddressComparison = memo(function AddressComparison({
         </HStack>
         {lines.map((groups, lineIndex) => (
           <VStack key={lineIndex} gap={0.25}>
+            {/* Every row is labelled, continuation rows included, so the two are never confused. */}
             <AddressLine
-              label={lineIndex === 0 ? candidateLabel : ''}
+              label={rowLabel(candidateLabel, groups)}
               groups={groups}
               pick={(p) => p.candidate}
               emphasize
@@ -86,7 +87,7 @@ export const AddressComparison = memo(function AddressComparison({
               prefix={lineIndex === 0 ? '0x' : '  '}
             />
             <AddressLine
-              label={lineIndex === 0 ? anchorLabel : ''}
+              label={rowLabel(anchorLabel, groups)}
               groups={groups}
               pick={(p) => p.anchor}
               emphasize={false}
@@ -245,6 +246,15 @@ function Legend({ swatch, label }: { swatch: 'solid' | 'hollow'; label: string }
       </Text>
     </HStack>
   );
+}
+
+/** "You entered (characters 1–20)": 1-based hex positions, not counting "0x". */
+function rowLabel(who: string, groups: readonly (readonly Position[])[]): string {
+  const flat = groups.flat();
+  const first = flat[0];
+  const last = flat[flat.length - 1];
+  if (!first || !last) return who;
+  return `${who} (characters ${first.index + 1}–${last.index + 1})`;
 }
 
 function chunk<T>(xs: readonly T[], size: number): T[][] {

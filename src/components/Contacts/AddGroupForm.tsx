@@ -12,6 +12,7 @@ import type { Contact, ProtectedAddress } from '@/domain/types';
 import { anchorLabel } from '@/risk/anchors';
 import { checkNewGroup, contactErrorText, groupErrorText } from '@/risk/contacts';
 import type { ContactCheck, ContactError, GroupError, NewContactDraft } from '@/risk/contacts';
+import type { NameBook } from '@/risk/names';
 import type { RiskConfig } from '@/risk/types';
 import { FOCUS_ON_SHOW } from '@/components/a11y/focus';
 import { AddressComparison } from '@/components/AddressComparison/AddressComparison';
@@ -21,6 +22,8 @@ interface Props {
   contacts: readonly Contact[];
   protectedSet: readonly ProtectedAddress[];
   config: Pick<RiskConfig, 'lookalike'>;
+  /** Names for known addresses, for the "This looks like …" copy. */
+  names?: NameBook;
   onSave: (contacts: Omit<Contact, 'id' | 'addedAt'>[]) => void;
   onCancel: () => void;
 }
@@ -43,7 +46,15 @@ const emptyRow = (key: number): MemberRow => ({
  * D18). Every member follows the single-contact rules (D16) and is also
  * checked against the members above it. Grouping grants no extra trust.
  */
-export function AddGroupForm({ user, contacts, protectedSet, config, onSave, onCancel }: Props) {
+export function AddGroupForm({
+  user,
+  contacts,
+  protectedSet,
+  config,
+  names,
+  onSave,
+  onCancel,
+}: Props) {
   const headingId = useId();
   const [groupName, setGroupName] = useState('');
   const [rows, setRows] = useState<MemberRow[]>([emptyRow(0), emptyRow(1)]);
@@ -106,6 +117,7 @@ export function AddGroupForm({ user, contacts, protectedSet, config, onSave, onC
               ) ?? null
             }
             canRemove={rows.length > 1}
+            names={names}
             onChange={(patch) => update(row.key, patch)}
             onRemove={() => setRows((rs) => rs.filter((r) => r.key !== row.key))}
           />
@@ -150,6 +162,7 @@ function MemberFields({
   submitted,
   duplicateOf,
   canRemove,
+  names,
   onChange,
   onRemove,
 }: {
@@ -159,6 +172,7 @@ function MemberFields({
   submitted: boolean;
   duplicateOf: { otherIndex: number } | null;
   canRemove: boolean;
+  names: NameBook | undefined;
   onChange: (patch: Partial<MemberRow>) => void;
   onRemove: () => void;
 }) {
@@ -227,7 +241,7 @@ function MemberFields({
               styleVariant="contextual"
               title={
                 <Text as="p" font="label1">
-                  This looks like {anchorLabel(lookalike.anchor)}
+                  This looks like {anchorLabel(lookalike.anchor, names)}
                 </Text>
               }
             >
@@ -239,7 +253,7 @@ function MemberFields({
             <AddressComparison
               comparison={lookalike.comparison}
               candidateLabel={`Member ${n}`}
-              anchorLabel={anchorLabel(lookalike.anchor)}
+              anchorLabel={anchorLabel(lookalike.anchor, names)}
             />
             <TextInput
               label={`Member ${n}: type or paste the full address again`}

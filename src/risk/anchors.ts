@@ -3,6 +3,8 @@ import type { Contact, HistoryEntry, ProtectedAddress, TrustAnchor } from '@/dom
 import { sameAddress } from './address';
 import { firstAppearedViaPlanting } from './planting';
 import type { RiskConfig } from './types';
+import { displayAddress, nameFor } from './names';
+import type { NameBook } from './names';
 
 /**
  * A history entry proves the user sent USDC to its counterparty only if:
@@ -127,13 +129,18 @@ export function buildProtectedSet(
   return result;
 }
 
-export function anchorLabel(anchor: ProtectedAddress): string {
+/**
+ * How SafeSend names a protected address in copy. Never the short
+ * `0x7A3f…e4d2` form: that is exactly what a lookalike shares (D24).
+ */
+export function anchorLabel(anchor: ProtectedAddress, names?: NameBook): string {
+  if (anchor.kind === 'contact') return anchor.contact.name;
+  const named = nameFor(anchor.address, names);
+  if (named) return named;
   switch (anchor.kind) {
-    case 'contact':
-      return anchor.contact.name;
     case 'confirmed-recipient':
-      return 'an address you sent USDC to before';
+      return `an address you paid before (${displayAddress(anchor.address)})`;
     case 'inbound-sender':
-      return `someone who has sent you USDC (${anchor.address.slice(0, 6)}…${anchor.address.slice(-4)})`;
+      return `someone who has sent you USDC (${displayAddress(anchor.address)})`;
   }
 }

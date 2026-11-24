@@ -12,6 +12,7 @@ import type { Contact, ProtectedAddress } from '@/domain/types';
 import { anchorLabel } from '@/risk/anchors';
 import { checkNewContact, contactErrorText } from '@/risk/contacts';
 import type { ContactError } from '@/risk/contacts';
+import type { NameBook } from '@/risk/names';
 import type { RiskConfig } from '@/risk/types';
 import { FOCUS_ON_SHOW } from '@/components/a11y/focus';
 import { AddressComparison } from '@/components/AddressComparison/AddressComparison';
@@ -21,6 +22,8 @@ interface Props {
   contacts: readonly Contact[];
   protectedSet: readonly ProtectedAddress[];
   config: Pick<RiskConfig, 'lookalike'>;
+  /** Names for known addresses, for the "This looks like …" copy. */
+  names?: NameBook;
   /** 'after-block': reached from a BLOCK screen; copy is stricter and nothing is prefilled. */
   mode: 'normal' | 'after-block';
   onSave: (contact: Omit<Contact, 'id' | 'addedAt'>) => void;
@@ -36,6 +39,7 @@ export function AddContactForm({
   contacts,
   protectedSet,
   config,
+  names,
   mode,
   onSave,
   onCancel,
@@ -120,7 +124,7 @@ export function AddContactForm({
             styleVariant="contextual"
             title={
               <Text as="p" font="label1">
-                This looks like {anchorLabel(lookalike.anchor)}
+                This looks like {anchorLabel(lookalike.anchor, names)}
               </Text>
             }
           >
@@ -133,7 +137,7 @@ export function AddContactForm({
           <AddressComparison
             comparison={lookalike.comparison}
             candidateLabel="New address"
-            anchorLabel={anchorLabel(lookalike.anchor)}
+            anchorLabel={anchorLabel(lookalike.anchor, names)}
           />
           <TextInput
             label="Type or paste the full address again"

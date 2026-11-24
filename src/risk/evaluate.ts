@@ -19,6 +19,7 @@ import type {
   RiskResult,
   Severity,
 } from './types';
+import type { NameBook } from './names';
 
 /**
  * The send-time decision policy (docs/RISK_MODEL.md). Pure and deterministic.
@@ -141,6 +142,7 @@ export function evaluateRisk(input: RiskInput): RiskResult {
           highConfidence,
           historyAvailable,
           afterTest.length > 0,
+          input.names,
         ),
       );
     }
@@ -189,8 +191,9 @@ function lookalikeReason(
   highConfidence: boolean,
   historyAvailable: boolean,
   afterTestSend: boolean,
+  names: NameBook | undefined,
 ): Reason {
-  const who = anchorLabel(anchor);
+  const who = anchorLabel(anchor, names);
   const origin = !historyAvailable
     ? 'SafeSend could not check your history, so it treats this match as dangerous.'
     : afterTestSend
